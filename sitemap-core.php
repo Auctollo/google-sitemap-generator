@@ -1208,11 +1208,6 @@ final class GoogleSitemapGenerator {
 
 		$this->InitOptions();
 
-		//Delete the options cache. This is unfortunately required for some hosts,
-		//but it is not that bad since it will only clear the options and only if a
-		//sitemap is actually served or the sitemap admin page is requested.
-		wp_cache_delete('alloptions', 'options');
-
 		//First init default values, then overwrite it with stored values so we can add default
 		//values with an update which get stored by the next edit.
 		$storedOptions = get_option("sm_options");
