@@ -493,6 +493,10 @@ HTML;
 				$this->sg->SetOption('i_hide_note',true);
 				$this->sg->SaveOptions();
 			}
+			if(isset($_GET['sm_hide_survey'])) {
+				$this->sg->SetOption('i_hide_survey',true);
+				$this->sg->SaveOptions();
+			}
 			if(isset($_GET['sm_hidedonors'])) {
 				$this->sg->SetOption('i_hide_donors',true);
 				$this->sg->SaveOptions();
@@ -528,6 +532,9 @@ HTML;
 				</div>
 				<?php
 			}
+
+			if ($this->sg->ShowSurvey())
+				$this->sg->HtmlSurvey();
 		}
 
 		?>
