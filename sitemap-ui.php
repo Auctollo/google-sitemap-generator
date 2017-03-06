@@ -1294,16 +1294,16 @@ HTML;
 					}
 				?>
 				<input type="hidden" name="cmd" value="_donations" />
-				<input type="hidden" name="business" value="<?php echo "donate" /* N O S P A M */ . "@" . "arnebra" . "chhold.de"; ?>" />
+				<input type="hidden" name="business" value="<?php echo "xmlsitemapgen" /* N O S P A M */ . "@" . "gmai" . "l.com"; ?>" />
 				<input type="hidden" name="item_name" value="Sitemap Generator for WordPress. Please tell me if if you don't want to be listed on the donator list." />
 				<input type="hidden" name="no_shipping" value="1" />
-				<input type="hidden" name="return" value="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . $this->sg->GetBackLink(); ?>&amp;sm_donated=true" />
-				<input type="hidden" name="currency_code" value="<?php echo $myLc["cc"]; ?>" />
+				<input type="hidden" name="return" value="<?php echo esc_attr($this->sg->GetBackLink('&sm_donated=true')) ?>" />
+				<input type="hidden" name="currency_code" value="<?php echo esc_attr($myLc["cc"]) ?>" />
 				<input type="hidden" name="bn" value="PP-BuyNowBF" />
-				<input type="hidden" name="lc" value="<?php echo $myLc["lc"]; ?>" />
+				<input type="hidden" name="lc" value="<?php echo esc_attr($myLc["lc"]) ?>" />
 				<input type="hidden" name="rm" value="2" />
 				<input type="hidden" name="on0" value="Your Website" />
-				<input type="hidden" name="os0" value="<?php echo get_bloginfo("url"); ?>"/>
+				<input type="hidden" name="os0" value="<?php echo esc_attr(get_bloginfo("url")) ?>"/>
 			</form>
 		</div>
 		<?php

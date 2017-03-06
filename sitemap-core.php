@@ -843,9 +843,10 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return string The full url
 	 */
-	public static function GetBackLink() {
+	public static function GetBackLink($extra = '') {
 		global $wp_version;
-		$url = admin_url("options-general.php?page=" . GoogleSitemapGeneratorLoader::GetBaseName());
+		$url = admin_url("options-general.php?page=" . 
+			GoogleSitemapGeneratorLoader::GetBaseName() . $extra);
 		return $url;
 	}
 
