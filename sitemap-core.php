@@ -1186,7 +1186,6 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_donated"] = false; //Did you donate? Thank you! :)
 		$this->options["sm_i_hide_donated"] = false; //And hide the thank you..
 		$this->options["sm_i_install_date"] = time(); //The installation date
-		$this->options["sm_i_install_survey_date"] = time(); //The installation date for survey
 		$this->options["sm_i_hide_survey"] = false; //Hide the survey note
 		$this->options["sm_i_hide_note"] = false; //Hide the note which appears after 30 days
 		$this->options["sm_i_hide_works"] = false; //Hide the "works?" message which appears after 15 days
@@ -2251,13 +2250,9 @@ final class GoogleSitemapGenerator {
 
 
 	public function ShowSurvey() {
-		if($this->GetOption('i_install_survey_date')==time()) {
-			$this->SaveOptions();   // used default value, not saved yet
-		}
+		$this->LoadOptions();
 
-		return (isset($_REQUEST['sm_survey']) || ($this->GetOption('i_install_survey_date')>0 && 
-			!$this->GetOption('i_hide_survey') && 
-			time() > ($this->GetOption('i_install_survey_date') + (60*60*24*30))));
+		return (isset($_REQUEST['sm_survey']) || !$this->GetOption('i_hide_survey'));
 	}
 
 	public function HtmlSurvey() {
