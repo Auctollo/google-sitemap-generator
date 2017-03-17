@@ -1,10 +1,9 @@
 === Google XML Sitemaps ===
 Contributors: arnee
-Donate link: http://www.arnebrachhold.de/redir/sitemap-paypal
 Tags: seo, google, sitemaps, google sitemaps, yahoo, msn, ask, live, xml sitemap, xml
 Requires at least: 3.3
 Tested up to: 4.7
-Stable tag: 4.0.7.1
+Stable tag: 4.0.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
