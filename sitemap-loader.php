@@ -253,7 +253,6 @@ class GoogleSitemapGeneratorLoader {
 			$links[] = '<a href="options-general.php?page=' . self::GetBaseName() . '">' . __('Settings', 'sitemap') . '</a>';
 			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __('FAQ', 'sitemap') . '</a>';
 			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __('Support', 'sitemap') . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-donate/">' . __('Donate', 'sitemap') . '</a>';
 		}
 		return $links;
 	}

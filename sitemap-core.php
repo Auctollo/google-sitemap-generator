@@ -200,7 +200,7 @@ class GoogleSitemapGeneratorStatus {
 class GoogleSitemapGeneratorPage {
 
 	/**
-	 * @var string $_url Sets the URL or the relative path to the blog dir of the page
+	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
 	public $_url;
 
@@ -395,7 +395,7 @@ class GoogleSitemapGeneratorDebugEntry extends GoogleSitemapGeneratorXmlEntry {
 class GoogleSitemapGeneratorSitemapEntry {
 
 	/**
-	 * @var string $_url Sets the URL or the relative path to the blog dir of the page
+	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
 	protected $_url;
 
@@ -660,7 +660,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 }
 
 /**
- * Class to generate a sitemaps.org Sitemaps compliant sitemap of a WordPress blog.
+ * Class to generate a sitemaps.org Sitemaps compliant sitemap of a WordPress site.
  *
  * @package sitemap
  * @author Arne Brachhold
@@ -874,7 +874,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Returns if the blog is running in multi site mode
+	 * Returns if the site is running in multi site mode
 	 * @since 4.0
 	 * @return bool
 	 */
@@ -1363,7 +1363,7 @@ final class GoogleSitemapGenerator {
 		$p = $this->GetPluginPath();
 		if(file_exists($p . "sitemap.xsl")) {
 			$url = $this->GetPluginUrl();
-			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the blog frontend is not.
+			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
 			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
 			return $url . 'sitemap.xsl';
 		}
@@ -1424,7 +1424,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Returns if there is still an old sitemap file in the blog directory
+	 * Returns if there is still an old sitemap file in the site directory
 	 *
 	 * @return Boolean True if a sitemap file still exists
 	 */
@@ -1434,7 +1434,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Renames old sitemap files in the blog directory from previous versions of this plugin
+	 * Renames old sitemap files in the site directory from previous versions of this plugin
 	 * @return bool True on success
 	 */
 	public function DeleteOldFiles() {

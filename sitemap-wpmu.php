@@ -16,7 +16,7 @@
  * | | | - sitemap.php
  * | | | - [...]
  *
- * All files in the mu-plugins directory are included for all blogs by WordPress by default, so there is no need to
+ * All files in the mu-plugins directory are included for all sites by WordPress by default, so there is no need to
  * activate this plugin anymore (and it also can not be deactivated).
  */
 
