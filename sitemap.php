@@ -17,7 +17,7 @@
  ==============================================================================
  Plugin Name: Google XML Sitemaps
  Plugin URI: http://www.arnebrachhold.de/redir/sitemap-home/
- Description: This plugin will generate a special XML sitemap which will help search engines like Google, Yahoo, Bing and Ask.com to better index your site.
+ Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
  Version: 4.0.9
  Author: Arne Brachhold
  Author URI: http://www.arnebrachhold.de/
@@ -45,7 +45,7 @@
 
 */
 
-define("SM_SUPPORTFEED_URL","http://plugin-info.arnebrachhold.de/support/support_4.xml");
+define("SM_SUPPORTFEED_URL","https://wordpress.org/support/plugin/google-sitemap-generator/feed/");
 
 /**
  * Check if the requirements of the sitemap plugin are met and loads the actual loader
