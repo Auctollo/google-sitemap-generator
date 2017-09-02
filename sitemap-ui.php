@@ -739,7 +739,7 @@ HTML;
 					<?php
 
 						$status = GoogleSitemapGeneratorStatus::Load();
-						$head = esc_html__('Search engines haven\'t been notified yet', 'google-sitemap-generator');
+						$head = esc_html__('Search engines haven\'t been notified yet.', 'google-sitemap-generator');
 						if($status != null && $status->GetStartTime() > 0) {
 							$st=$status->GetStartTime() + (get_option( 'gmt_offset' ) * 3600);
 
