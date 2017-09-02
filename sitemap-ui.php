@@ -1174,7 +1174,7 @@ HTML;
 							<li>
 								<label for="sm_cf_arch_curr">
 									<select id="sm_cf_arch_curr" name="sm_cf_arch_curr"><?php $this->HtmlGetFreqNames($this->sg->GetOption("cf_arch_curr")); ?></select>
-									<?php esc_html_e('The current archive of this month (Should be the same like your homepage)', 'google-sitemap-generator') ?>
+									<?php esc_html_e('The archive of the this month (should have the same value as your homepage)', 'google-sitemap-generator') ?>
 								</label>
 							</li>
 							<li>
