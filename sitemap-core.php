@@ -544,7 +544,7 @@ class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGenerato
 	 * @return string The translated name
 	 */
 	public static function GetName() {
-		return __('Comment Count', 'google-sitemap-generator');
+		return esc_html__('Comment Count', 'google-sitemap-generator');
 	}
 
 	/**
@@ -554,7 +554,7 @@ class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGenerato
 	 * @return string The translated description
 	 */
 	public static function GetDescription() {
-		return __('Uses the number of comments of the post to calculate the priority.', 'google-sitemap-generator');
+		return esc_html__('Uses the number of comments of the post to calculate the priority.', 'google-sitemap-generator');
 	}
 
 	/**
@@ -605,7 +605,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 	 * @return string The translated name
 	 */
 	public static function GetName() {
-		return __('Comment Average', 'google-sitemap-generator');
+		return esc_html__('Comment Average', 'google-sitemap-generator');
 	}
 
 	/**
@@ -615,7 +615,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 	 * @return string The translated description
 	 */
 	public static function GetDescription() {
-		return __('Uses the average comment count to calculate the priority.', 'google-sitemap-generator');
+		return esc_html__('Uses the average comment count to calculate the priority.', 'google-sitemap-generator');
 	}
 
 	/**
@@ -775,13 +775,13 @@ final class GoogleSitemapGenerator {
 			load_plugin_textdomain('google-sitemap-generator',false,dirname( plugin_basename( __FILE__ ) ) .  '/lang');
 
 			$this->freqNames = array(
-				'always' => __('Always', 'google-sitemap-generator'),
-				'hourly' => __('Hourly', 'google-sitemap-generator'),
-				'daily' => __('Daily', 'google-sitemap-generator'),
-				'weekly' => __('Weekly', 'google-sitemap-generator'),
-				'monthly' => __('Monthly', 'google-sitemap-generator'),
-				'yearly' => __('Yearly', 'google-sitemap-generator'),
-				'never' => __('Never', 'google-sitemap-generator')
+				'always' => esc_html__('Always', 'google-sitemap-generator'),
+				'hourly' => esc_html__('Hourly', 'google-sitemap-generator'),
+				'daily' => esc_html__('Daily', 'google-sitemap-generator'),
+				'weekly' => esc_html__('Weekly', 'google-sitemap-generator'),
+				'monthly' => esc_html__('Monthly', 'google-sitemap-generator'),
+				'yearly' => esc_html__('Yearly', 'google-sitemap-generator'),
+				'never' => esc_html__('Never', 'google-sitemap-generator')
 			);
 
 
