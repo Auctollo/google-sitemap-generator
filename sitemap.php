@@ -21,7 +21,7 @@
  Version: 4.0.9
  Author: Arne Brachhold
  Author URI: http://www.arnebrachhold.de/
- Text Domain: sitemap
+ Text Domain: google-sitemap-generator
  Domain Path: /lang
 
 
