@@ -206,7 +206,7 @@ class GoogleSitemapGeneratorLoader {
 	 * @uses add_options_page()
 	 */
 	public static function RegisterAdminPage() {
-		add_options_page(__('XML-Sitemap Generator', 'google-sitemap-generator'), __('XML-Sitemap', 'google-sitemap-generator'), 'administrator', self::GetBaseName(), array(__CLASS__, 'CallHtmlShowOptionsPage'));
+		add_options_page( esc_html__('XML-Sitemap Generator', 'google-sitemap-generator'), esc_html__('XML-Sitemap', 'google-sitemap-generator'), 'administrator', self::GetBaseName(), array(__CLASS__, 'CallHtmlShowOptionsPage'));
 	}
 
 	/**
@@ -250,9 +250,9 @@ class GoogleSitemapGeneratorLoader {
 	public static function RegisterPluginLinks($links, $file) {
 		$base = self::GetBaseName();
 		if($file == $base) {
-			$links[] = '<a href="options-general.php?page=' . self::GetBaseName() . '">' . __('Settings', 'google-sitemap-generator') . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __('FAQ', 'google-sitemap-generator') . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __('Support', 'google-sitemap-generator') . '</a>';
+			$links[] = '<a href="options-general.php?page=' . self::GetBaseName() . '">' . esc_html__('Settings', 'google-sitemap-generator') . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . esc_html__('FAQ', 'google-sitemap-generator') . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . esc_html__('Support', 'google-sitemap-generator') . '</a>';
 		}
 		return $links;
 	}
@@ -352,8 +352,8 @@ class GoogleSitemapGeneratorLoader {
 			load_plugin_textdomain('google-sitemap-generator',false,dirname( plugin_basename( __FILE__ ) ) .  '/lang');
 
 			$links = array(
-				__('Plugin Homepage', 'google-sitemap-generator') => 'http://www.arnebrachhold.de/redir/sitemap-help-home/',
-				__('My Sitemaps FAQ', 'google-sitemap-generator') => 'http://www.arnebrachhold.de/redir/sitemap-help-faq/'
+				esc_html__('Plugin Homepage', 'google-sitemap-generator') => 'http://www.arnebrachhold.de/redir/sitemap-help-home/',
+				esc_html__('My Sitemaps FAQ', 'google-sitemap-generator') => 'http://www.arnebrachhold.de/redir/sitemap-help-faq/'
 			);
 
 			$filterVal[$id] = '';
@@ -366,8 +366,8 @@ class GoogleSitemapGeneratorLoader {
 
 			$screen->add_help_tab( array(
 			    'id'      => 'sitemap-links',
-			    'title'   => __('My Sitemaps FAQ', 'google-sitemap-generator'),
-			    'content' => '<p>' . __('dsf dsf sd f', 'google-sitemap-generator') . '</p>',
+			    'title'   => esc_html__('My Sitemaps FAQ', 'google-sitemap-generator'),
+			    'content' => '<p>' . esc_html__('dsf dsf sd f', 'google-sitemap-generator') . '</p>',
 
 			));
 			*/
