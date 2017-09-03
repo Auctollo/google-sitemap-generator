@@ -823,7 +823,7 @@ HTML;
 							</ul>
 							<ul>
 								<li>
-									<?php echo sprintf( esc_html__('If you like the plugin, please <a target="_blank" href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-works-note">rate it 5 stars</a>! :)', 'google-sitemap-generator'),$this->sg->GetRedirectLink('sitemap-works-note'),$this->sg->GetRedirectLink('sitemap-paypal')); ?>
+									<?php printf( esc_html__('If you like the plugin, please <a target="_blank" href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-works-note">rate it 5 stars</a>! :)', 'google-sitemap-generator'),$this->sg->GetRedirectLink('sitemap-works-note'),$this->sg->GetRedirectLink('sitemap-paypal')); ?>
 								</li>
 
 							</ul>
