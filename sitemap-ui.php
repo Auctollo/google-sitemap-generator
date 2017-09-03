@@ -921,7 +921,7 @@ HTML;
 							esc_html_e('Here you can specify files or URLs which should be included in the sitemap, but do not belong to your Site/WordPress.<br />For example, if your domain is www.foo.com and your site is located on www.foo.com/site you might want to include your homepage at www.foo.com','sitemap');
 							echo "<ul><li>";
 							echo "<strong>" . esc_html__('Note', 'google-sitemap-generator'). "</strong>: ";
-							esc_html_e('If your site is in a subdirectory and you want to add pages which are NOT in the site directory or beneath, you MUST place your sitemap file in the root directory (Look at the &quot;Location of your sitemap file&quot; section on this page)!', 'google-sitemap-generator');
+							esc_html_e('If your site is in a subdirectory and you want to add pages which are NOT in the site directory or beneath, you MUST place your sitemap file in the root directory (Look at the &quot;Override the base URL of the sitemap&quot; section on this page)!', 'google-sitemap-generator');
 							echo "</li><li>";
 							echo "<strong>" . esc_html__('URL to the page', 'google-sitemap-generator'). "</strong>: ";
 							esc_html_e('Enter the URL to the page. Examples: http://www.foo.com/index.html or www.foo.com/home ', 'google-sitemap-generator');
@@ -1119,10 +1119,10 @@ HTML;
 
 					<?php $this->HtmlPrintBoxFooter(); ?>
 
-					<!-- Excluded Items -->
-					<?php $this->HtmlPrintBoxHeader('sm_excludes', esc_html__('Excluded Items', 'google-sitemap-generator')); ?>
+					<!-- Exclude Items -->
+					<?php $this->HtmlPrintBoxHeader('sm_excludes', esc_html__('Exclude Items', 'google-sitemap-generator')); ?>
 
-						<b><?php esc_html_e('Excluded categories', 'google-sitemap-generator') ?>:</b>
+						<b><?php esc_html_e('Exclude categories', 'google-sitemap-generator') ?>:</b>
 
 						<div style="border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;">
 							<ul>
