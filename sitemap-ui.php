@@ -1144,7 +1144,7 @@ HTML;
 
 						<p>
 							<b><?php esc_html_e('Note', 'google-sitemap-generator') ?>:</b>
-							<?php esc_html_e('Please note that the value of this tag is considered a hint and not a command. Even though search engine crawlers consider this information when making decisions, they may crawl pages marked "hourly" less frequently than that, and they may crawl pages marked "yearly" more frequently than that. It is also likely that crawlers will periodically crawl pages marked "never" so that they can handle unexpected changes to those pages.', 'google-sitemap-generator') ?>
+							<?php esc_html_e('Please note that the value of this setting is considered as a hint and not as a command. Even though search engine crawlers consider this information when making decisions, they may crawl pages marked "hourly" less frequently than that, and they may crawl pages marked "yearly" more frequently than that. It is also likely that crawlers will periodically crawl pages marked "never" so that they can handle unexpected changes to those pages.', 'google-sitemap-generator') ?>
 						</p>
 						<ul>
 							<li>
