@@ -146,6 +146,11 @@ class GoogleSitemapGeneratorUI {
 		return $pages;
 	}
 
+	static public function escape($v) {
+		// prevent html tags in strings where they are not required
+		return strtr($v, '<>', '..');
+	}
+
 	/**
 	 * Displays the option page
 	 *
@@ -297,9 +302,9 @@ class GoogleSitemapGeneratorUI {
 				if(substr($k,0,5)=="sm_b_") {
 					if($k=="sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl") {
 						if($k=="sm_b_filename_manual" && strpos($_POST[$k],"\\")!==false){
-							$_POST[$k]=stripslashes($_POST[$k]);
+							$_POST[$k]=stripslashes(self::escape($_POST[$k]));
 						} else if($k=="sm_b_baseurl") {
-							$_POST[$k] = trim($_POST[$k]);
+							$_POST[$k] = trim(self::escape($_POST[$k]));
 							if(!empty($_POST[$k])) $_POST[$k] = trailingslashit($_POST[$k]);
 						}
 						$this->sg->SetOption($k,(string) $_POST[$k]);
@@ -335,7 +340,7 @@ class GoogleSitemapGeneratorUI {
 						foreach(array_keys((array) $_POST[$k]) AS $taxName) {
 							if(empty($taxName) || !taxonomy_exists($taxName)) continue;
 
-							$enabledTaxonomies[] = $taxName;
+							$enabledTaxonomies[] = self::escape($taxName);
 						}
 
 						$this->sg->SetOption($k,$enabledTaxonomies);
@@ -347,7 +352,7 @@ class GoogleSitemapGeneratorUI {
 						foreach(array_keys((array) $_POST[$k]) AS $postTypeName) {
 							if(empty($postTypeName) || !post_type_exists($postTypeName)) continue;
 
-							$enabledPostTypes[] = $postTypeName;
+							$enabledPostTypes[] = self::escape($postTypeName);
 						}
 
 						$this->sg->SetOption($k, $enabledPostTypes);
@@ -355,7 +360,7 @@ class GoogleSitemapGeneratorUI {
 					} else $this->sg->SetOption($k,(bool) $_POST[$k]);
 				//Options of the category "Change frequencies" are string
 				} else if(substr($k,0,6)=="sm_cf_") {
-					$this->sg->SetOption($k,(string) $_POST[$k]);
+					$this->sg->SetOption($k,(string) self::escape($_POST[$k]));
 				//Options of the category "Priorities" are float
 				} else if(substr($k,0,6)=="sm_pr_") {
 					$this->sg->SetOption($k,(float) $_POST[$k]);
@@ -1306,4 +1311,3 @@ HTML;
 		<?php
 	}
 }
-
