@@ -340,7 +340,7 @@ class GoogleSitemapGeneratorPage {
 
 		$r = "";
 		$r .= "\t<url>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML($this->_url) . "</loc>\n";
+		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
 		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
 		if(!empty($this->_changeFreq)) $r .= "\t\t<changefreq>" . $this->_changeFreq . "</changefreq>\n";
 		if($this->_priority !== false && $this->_priority !== "") $r .= "\t\t<priority>" . number_format($this->_priority, 1) . "</priority>\n";
@@ -451,7 +451,7 @@ class GoogleSitemapGeneratorSitemapEntry {
 
 		$r = "";
 		$r .= "\t<sitemap>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML($this->_url) . "</loc>\n";
+		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
 		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
 		$r .= "\t</sitemap>\n";
 		return $r;
@@ -845,7 +845,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public static function GetBackLink($extra = '') {
 		global $wp_version;
-		$url = admin_url("options-general.php?page=" . 
+		$url = admin_url("options-general.php?page=" .
 			GoogleSitemapGeneratorLoader::GetBaseName() . $extra);
 		return $url;
 	}
@@ -1686,7 +1686,7 @@ final class GoogleSitemapGenerator {
 				? $this->GetDefaultStyle() : $this->GetOption('b_style'));
 
 		if(!empty($styleSheet)) {
-			$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<' . '?xml-stylesheet type="text/xsl" href="' . $styleSheet . '"?' . '>'));
+			$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<' . '?xml-stylesheet type="text/xsl" href="' . esc_url( $styleSheet ) . '"?' . '>'));
 		}
 
 		$this->AddElement(new GoogleSitemapGeneratorDebugEntry("sitemap-generator-url=\"http://www.arnebrachhold.de\" sitemap-generator-version=\"" . $this->GetVersion() . "\""));
@@ -2260,13 +2260,13 @@ final class GoogleSitemapGenerator {
 		<div class="updated">
 			<strong>
 				<p>
-					<?php echo str_replace('%s', 'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/', 
-						__('Thank you for using Google XML Sitemaps! <a href="%s" target="_blank">Please help us improve by taking this short survey!</a>','sitemap')); 
+					<?php echo str_replace('%s', 'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
+						__('Thank you for using Google XML Sitemaps! <a href="%s" target="_blank">Please help us improve by taking this short survey!</a>','sitemap'));
 					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
 				</p>
 			</strong>
 			<div style="clear:right;"></div>
 		</div>
-		<?php		
+		<?php
 	}
 }

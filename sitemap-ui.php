@@ -304,7 +304,10 @@ class GoogleSitemapGeneratorUI {
 						if($k=="sm_b_filename_manual" && strpos($_POST[$k],"\\")!==false){
 							$_POST[$k]=stripslashes(self::escape($_POST[$k]));
 						} else if($k=="sm_b_baseurl") {
-							$_POST[$k] = trim(self::escape($_POST[$k]));
+							$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
+							if(!empty($_POST[$k])) $_POST[$k] = trailingslashit($_POST[$k]);
+						} else if($k=="sm_b_style") {
+							$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
 							if(!empty($_POST[$k])) $_POST[$k] = trailingslashit($_POST[$k]);
 						}
 						$this->sg->SetOption($k,(string) $_POST[$k]);
@@ -794,7 +797,7 @@ HTML;
 									echo "<li class=\"sm_error\">" . str_replace("%s",wp_nonce_url($this->sg->GetBackLink() . "&sm_delete_old=true",'sitemap'),__('There is still a sitemap.xml or sitemap.xml.gz file in your site directory. Please delete them as no static files are used anymore or <a href="%s">try to delete them automatically</a>.','sitemap')) . "</li>";
 								}
 
-								echo "<li>" . str_replace("%s",$this->sg->getXmlUrl(),__('The URL to your sitemap index file is: <a href="%s">%s</a>.','sitemap')) . "</li>";
+								echo "<li>" . str_replace("%s", esc_url($this->sg->getXmlUrl()),__('The URL to your sitemap index file is: <a href="%s">%s</a>.','sitemap')) . "</li>";
 
 								if($status == null) {
 									echo "<li>" . __('Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.','sitemap') . "</li>";
