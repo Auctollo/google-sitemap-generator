@@ -310,6 +310,8 @@ Release History:
                       Changed "Tested up to" to 4.0
 2014-11-15     4.0.8  Fixed bug with excluded categories, thanks to Claus Schöffel!
 2017-03-22     4.0.9  Fixed security issue with donation submission.
+2018-12-18     4.1.0  Fixed security issues related to forms and external URLs
+
 
 
 
@@ -321,7 +323,7 @@ Todo:
 
 License:
 ==============================================================================
-Copyright 2005 - 2017 ARNE BRACHHOLD  (email : himself - arnebrachhold - de)
+Copyright 2005 - 2018 ARNE BRACHHOLD  (email : himself - arnebrachhold - de)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
