@@ -2260,8 +2260,8 @@ final class GoogleSitemapGenerator {
 		<div class="updated">
 			<strong>
 				<p>
-					<?php echo str_replace('%s', 'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
-						__('Thank you for using Google XML Sitemaps! <a href="%s" target="_blank">Please help us improve by taking this short survey!</a>','sitemap'));
+					<?php echo str_replace('%s', 'https://forms.gle/aFkbBs2rfGqQoCqj8',
+						__('Google XML Sitemaps 5.0 is around the corner! <a href="%s" target="_blank"> Help us shape the future of sitemaps by taking this short survey</a>','sitemap'));
 					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
 				</p>
 			</strong>
