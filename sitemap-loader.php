@@ -68,6 +68,9 @@ class GoogleSitemapGeneratorLoader {
 		if (!wp_get_schedule('sm_ping_daily')) {
 			wp_schedule_event(time() + (60 * 60), 'daily', 'sm_ping_daily');
 		}
+
+		//Disable the WP core XML sitemaps.		 
+		add_filter( 'wp_sitemaps_enabled', '__return_false' );
 	}
 
 	/**
