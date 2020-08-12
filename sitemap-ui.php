@@ -305,10 +305,10 @@ class GoogleSitemapGeneratorUI {
 							$_POST[$k]=stripslashes(self::escape($_POST[$k]));
 						} else if($k=="sm_b_baseurl") {
 							$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
-							if(!empty($_POST[$k])) $_POST[$k] = trailingslashit($_POST[$k]);
+							if(!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
 						} else if($k=="sm_b_style") {
 							$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
-							if(!empty($_POST[$k])) $_POST[$k] = trailingslashit($_POST[$k]);
+							if(!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
 						}
 						$this->sg->SetOption($k,(string) $_POST[$k]);
 					} else if($k == "sm_b_time") {
