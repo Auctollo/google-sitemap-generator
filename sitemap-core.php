@@ -834,7 +834,7 @@ final class GoogleSitemapGenerator {
 	 * @return string The full url
 	 */
 	public static function GetRedirectLink($redir) {
-		return trailingslashit("http://www.arnebrachhold.de/redir/" . $redir);
+		return untrailingslashit("https://1jfy8ntovh.execute-api.us-east-2.amazonaws.com/prod/gsg/v1/" . $redir);
 	}
 
 	/**
