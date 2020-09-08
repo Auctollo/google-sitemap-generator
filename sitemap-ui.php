@@ -708,7 +708,7 @@ HTML;
 					<?php if(!$snl): ?>
 							<?php $this->HtmlPrintBoxHeader('sm_pnres',__('About this Plugin:','sitemap'),true); ?>
 								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-home'); ?>"><?php _e('Plugin Homepage','sitemap'); ?></a>
-								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-feedback'); ?>"><?php _e('Suggest a Feature','sitemap'); ?></a>
+								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-support'); ?>"><?php _e('Suggest a Feature','sitemap'); ?></a>
 								<a class="sm_button sm_pluginHelp"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help'); ?>"><?php _e('Help / FAQ','sitemap'); ?></a>
 								<a class="sm_button sm_pluginList"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-list'); ?>"><?php _e('Notify List','sitemap'); ?></a>
 								<a class="sm_button sm_pluginSupport" href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-support'); ?>"><?php _e('Support Forum','sitemap'); ?></a>
