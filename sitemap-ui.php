@@ -531,7 +531,7 @@ HTML;
 				?>
 				<!--
 				<div class="updated">
-					<strong><p><?php echo str_replace("%s",$this->sg->GetRedirectLink("sitemap-donate-note"),__('Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>','sitemap')); ?> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_donated=true"; ?>" style="float:right; display:block; border:none; margin-left:10px;"><small style="font-weight:normal; "><?php _e('Sure, but I already did!', 'sitemap'); ?></small></a> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_hide_note=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('No thanks, please don\'t bug me anymore!', 'sitemap'); ?></small></a></p></strong>
+					<strong><p><?php echo str_replace("%s",$this->sg->GetRedirectLink("redir/sitemap-donate-note"),__('Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>','sitemap')); ?> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_donated=true"; ?>" style="float:right; display:block; border:none; margin-left:10px;"><small style="font-weight:normal; "><?php _e('Sure, but I already did!', 'sitemap'); ?></small></a> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_hide_note=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('No thanks, please don\'t bug me anymore!', 'sitemap'); ?></small></a></p></strong>
 					<div style="clear:right;"></div>
 				</div>
 				-->
@@ -539,7 +539,7 @@ HTML;
 			} else if($this->sg->GetOption('i_install_date')>0 && $this->sg->GetOption('i_hide_works')!==true && time() > ($this->sg->GetOption('i_install_date') + (60*60*24*15))) {
 				?>
 				<div class="updated">
-					<strong><p><?php echo str_replace("%s",$this->sg->GetRedirectLink("sitemap-works-note"),__('Thanks for using this plugin! You\'ve installed this plugin some time ago. If it works and your are satisfied, why not <a href="%s">rate it</a> and <a href="%s">recommend it</a> to others? :-)','sitemap')); ?> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_hide_works=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a></p></strong>>
+					<strong><p><?php echo str_replace("%s",$this->sg->GetRedirectLink("redir/sitemap-works-note"),__('Thanks for using this plugin! You\'ve installed this plugin some time ago. If it works and your are satisfied, why not <a href="%s">rate it</a> and <a href="%s">recommend it</a> to others? :-)','sitemap')); ?> <a href="<?php echo $this->sg->GetBackLink() . "&amp;sm_hide_works=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a></p></strong>>
 					<div style="clear:right;"></div>
 				</div>
 				<?php
@@ -707,25 +707,25 @@ HTML;
 
 					<?php if(!$snl): ?>
 							<?php $this->HtmlPrintBoxHeader('sm_pnres',__('About this Plugin:','sitemap'),true); ?>
-								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('sitemap-home'); ?>"><?php _e('Plugin Homepage','sitemap'); ?></a>
-								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('sitemap-feedback'); ?>"><?php _e('Suggest a Feature','sitemap'); ?></a>
-								<a class="sm_button sm_pluginHelp"    href="<?php echo $this->sg->GetRedirectLink('sitemap-help'); ?>"><?php _e('Help / FAQ','sitemap'); ?></a>
-								<a class="sm_button sm_pluginList"    href="<?php echo $this->sg->GetRedirectLink('sitemap-list'); ?>"><?php _e('Notify List','sitemap'); ?></a>
-								<a class="sm_button sm_pluginSupport" href="<?php echo $this->sg->GetRedirectLink('sitemap-support'); ?>"><?php _e('Support Forum','sitemap'); ?></a>
-								<a class="sm_button sm_pluginBugs"    href="<?php echo $this->sg->GetRedirectLink('sitemap-bugs'); ?>"><?php _e('Report a Bug','sitemap'); ?></a>
+								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-home'); ?>"><?php _e('Plugin Homepage','sitemap'); ?></a>
+								<a class="sm_button sm_pluginHome"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-feedback'); ?>"><?php _e('Suggest a Feature','sitemap'); ?></a>
+								<a class="sm_button sm_pluginHelp"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help'); ?>"><?php _e('Help / FAQ','sitemap'); ?></a>
+								<a class="sm_button sm_pluginList"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-list'); ?>"><?php _e('Notify List','sitemap'); ?></a>
+								<a class="sm_button sm_pluginSupport" href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-support'); ?>"><?php _e('Support Forum','sitemap'); ?></a>
+								<a class="sm_button sm_pluginBugs"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-bugs'); ?>"><?php _e('Report a Bug','sitemap'); ?></a>
 								<?php if(__('translator_name','sitemap')!='translator_name') {?><a class="sm_button sm_pluginSupport" href="<?php _e('translator_url','sitemap'); ?>"><?php _e('translator_name','sitemap'); ?></a><?php } ?>
 							<?php $this->HtmlPrintBoxFooter(true); ?>
 
 							<?php $this->HtmlPrintBoxHeader('sm_smres',__('Sitemap Resources:','sitemap'),true); ?>
-								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('sitemap-gwt'); ?>"><?php _e('Webmaster Tools','sitemap'); ?></a>
-								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('sitemap-gwb'); ?>"><?php _e('Webmaster Blog','sitemap'); ?></a>
-								<a class="sm_button sm_resYahoo"     href="<?php echo $this->sg->GetRedirectLink('sitemap-ywb'); ?>"><?php _e('Search Blog','sitemap'); ?></a>
-								<a class="sm_button sm_resBing"      href="<?php echo $this->sg->GetRedirectLink('sitemap-lwt'); ?>"><?php _e('Webmaster Tools','sitemap'); ?></a>
-								<a class="sm_button sm_resBing"      href="<?php echo $this->sg->GetRedirectLink('sitemap-lswcb'); ?>"><?php _e('Webmaster Center Blog','sitemap'); ?></a>
+								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-gwt'); ?>"><?php _e('Webmaster Tools','sitemap'); ?></a>
+								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-gwb'); ?>"><?php _e('Webmaster Blog','sitemap'); ?></a>
+								<a class="sm_button sm_resYahoo"     href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-ywb'); ?>"><?php _e('Search Blog','sitemap'); ?></a>
+								<a class="sm_button sm_resBing"      href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-lwt'); ?>"><?php _e('Webmaster Tools','sitemap'); ?></a>
+								<a class="sm_button sm_resBing"      href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-lswcb'); ?>"><?php _e('Webmaster Center Blog','sitemap'); ?></a>
 								<br />
-								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('sitemap-prot'); ?>"><?php _e('Sitemaps Protocol','sitemap'); ?></a>
-								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('sitemap-ofat'); ?>"><?php _e('Official Sitemaps FAQ','sitemap'); ?></a>
-								<a class="sm_button sm_pluginHome"   href="<?php echo $this->sg->GetRedirectLink('sitemap-afaq'); ?>"><?php _e('My Sitemaps FAQ','sitemap'); ?></a>
+								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-prot'); ?>"><?php _e('Sitemaps Protocol','sitemap'); ?></a>
+								<a class="sm_button sm_resGoogle"    href="<?php echo $this->sg->GetRedirectLink('projects/wordpress-plugins/google-xml-sitemaps-generator/help'); ?>"><?php _e('Official Sitemaps FAQ','sitemap'); ?></a>
+								<a class="sm_button sm_pluginHome"   href="<?php echo $this->sg->GetRedirectLink('projects/wordpress-plugins/google-xml-sitemaps-generator/help'); ?>"><?php _e('My Sitemaps FAQ','sitemap'); ?></a>
 							<?php $this->HtmlPrintBoxFooter(true); ?>
 
 
@@ -828,7 +828,7 @@ HTML;
 							</ul>
 							<ul>
 								<li>
-									<?php echo sprintf(__('If you like the plugin, please <a target="_blank" href="%s">rate it 5 stars</a>! :)','sitemap'),$this->sg->GetRedirectLink('sitemap-works-note'),$this->sg->GetRedirectLink('sitemap-paypal')); ?>
+									<?php echo sprintf(__('If you like the plugin, please <a target="_blank" href="%s">rate it 5 stars</a>! :)','sitemap'),$this->sg->GetRedirectLink('redir/sitemap-works-note'),$this->sg->GetRedirectLink('redirsitemap-paypal')); ?>
 								</li>
 
 							</ul>
@@ -855,17 +855,17 @@ HTML;
 					<!-- Basic Options -->
 					<?php $this->HtmlPrintBoxHeader('sm_basic_options',__('Basic Options', 'sitemap')); ?>
 
-					<b><?php _e('Update notification:','sitemap'); ?></b> <a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-ping'); ?>"><?php _e('Learn more','sitemap'); ?></a>
+					<b><?php _e('Update notification:','sitemap'); ?></b> <a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-ping'); ?>"><?php _e('Learn more','sitemap'); ?></a>
 					<ul>
 						<li>
 							<input type="checkbox" id="sm_b_ping" name="sm_b_ping" <?php echo ($this->sg->GetOption("b_ping")==true?"checked=\"checked\"":"") ?> />
 							<label for="sm_b_ping"><?php _e('Notify Google about updates of your site', 'sitemap') ?></label><br />
-							<small><?php echo str_replace("%s",$this->sg->GetRedirectLink('sitemap-gwt'),__('No registration required, but you can join the <a href="%s">Google Webmaster Tools</a> to check crawling statistics.','sitemap')); ?></small>
+							<small><?php echo str_replace("%s",$this->sg->GetRedirectLink('redir/sitemap-gwt'),__('No registration required, but you can join the <a href="%s">Google Webmaster Tools</a> to check crawling statistics.','sitemap')); ?></small>
 						</li>
 						<li>
 							<input type="checkbox" id="sm_b_pingmsn" name="sm_b_pingmsn" <?php echo ($this->sg->GetOption("b_pingmsn")==true?"checked=\"checked\"":"") ?> />
 							<label for="sm_b_pingmsn"><?php _e('Notify Bing (formerly MSN Live Search) about updates of your site', 'sitemap') ?></label><br />
-							<small><?php echo str_replace("%s",$this->sg->GetRedirectLink('sitemap-lwt'),__('No registration required, but you can join the <a href="%s">Bing Webmaster Tools</a> to check crawling statistics.','sitemap')); ?></small>
+							<small><?php echo str_replace("%s",$this->sg->GetRedirectLink('redir/sitemap-lwt'),__('No registration required, but you can join the <a href="%s">Bing Webmaster Tools</a> to check crawling statistics.','sitemap')); ?></small>
 						</li>
 						<li>
 							<label for="sm_b_robots">
@@ -878,7 +878,7 @@ HTML;
 						</li>
 					</ul>
 					<?php if(is_super_admin()): ?>
-						<b><?php _e('Advanced options:','sitemap'); ?></b> <a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-adv'); ?>"><?php _e('Learn more','sitemap'); ?></a>
+						<b><?php _e('Advanced options:','sitemap'); ?></b> <a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-adv'); ?>"><?php _e('Learn more','sitemap'); ?></a>
 						<ul>
 							<li>
 								<label for="sm_b_memory"><?php _e('Try to increase the memory limit to:', 'sitemap') ?> <input type="text" name="sm_b_memory" id="sm_b_memory" style="width:40px;" value="<?php echo esc_attr($this->sg->GetOption("b_memory")); ?>" /></label> (<?php echo htmlspecialchars(__('e.g. "4M", "16M"', 'sitemap')); ?>)
@@ -900,7 +900,7 @@ HTML;
 							</li>
 							<li>
 								<label for="sm_b_baseurl"><?php _e('Override the base URL of the sitemap:', 'sitemap') ?> <input type="text" name="sm_b_baseurl" id="sm_b_baseurl"  value="<?php echo esc_attr($this->sg->GetOption("b_baseurl")); ?>" /></label><br />
-								<small><?php _e('Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.','sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more','sitemap'); ?></a></small>
+								<small><?php _e('Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.','sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more','sitemap'); ?></a></small>
 							</li>
 							<li>
 								<label for="sm_b_html">
@@ -912,7 +912,7 @@ HTML;
 								<label for="sm_b_stats">
 									<input type="checkbox" id="sm_b_stats" name="sm_b_stats" <?php echo ($this->sg->GetOption("b_stats")==true?"checked=\"checked\"":"") ?> />
 									<?php _e('Allow anonymous statistics (no personal information)', 'sitemap') ?>
-								</label> <label><a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-adv-stats'); ?>"><?php _e('Learn more','sitemap'); ?></a></label>
+								</label> <label><a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-adv-stats'); ?>"><?php _e('Learn more','sitemap'); ?></a></label>
 							</li>
 						</ul>
 					<?php endif; ?>
