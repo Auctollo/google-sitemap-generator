@@ -834,7 +834,7 @@ final class GoogleSitemapGenerator {
 	 * @return string The full url
 	 */
 	public static function GetRedirectLink($redir) {
-		return untrailingslashit("https://1jfy8ntovh.execute-api.us-east-2.amazonaws.com/prod/gsg/v2/" . $redir);
+		return trailingslashit("http://url.auctollo.com/" . $redir);
 	}
 
 	/**
