@@ -9,7 +9,6 @@
 			<head>
 				<title>XML Sitemap</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-				<meta name="robots" content="noindex,follow" />
 				<style type="text/css">
 					body {
 						font-family:"Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
