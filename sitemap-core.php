@@ -834,7 +834,7 @@ final class GoogleSitemapGenerator {
 	 * @return string The full url
 	 */
 	public static function GetRedirectLink($redir) {
-		return trailingslashit("http://www.arnebrachhold.de/redir/" . $redir);
+		return trailingslashit("http://url.auctollo.com/" . $redir);
 	}
 
 	/**
