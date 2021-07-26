@@ -48,6 +48,10 @@ class GoogleSitemapGeneratorLoader {
 		//Post is somehow changed (also publish to publish (=edit) is fired)
 		add_action('transition_post_status', array(__CLASS__, 'SchedulePingOnStatusChange'), 9999, 3);
 
+		add_action( 'init', function() {
+			remove_action( 'init', 'wp_sitemaps_get_server' );
+		}, 5 );
+
 		//Robots.txt request
 		add_action('do_robots', array(__CLASS__, 'CallDoRobots'), 100, 0);
 
