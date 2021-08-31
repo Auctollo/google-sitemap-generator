@@ -410,7 +410,17 @@ class GoogleSitemapGeneratorStandardBuilder {
 			remove_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
 
 			foreach($terms AS $term) {
-				$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_tags"), $gsg->GetOption("pr_tags"));
+				switch ($term->taxonomy) {
+					case 'category':
+						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_cats"), $gsg->GetOption("pr_cats"));
+						break;
+					case 'product_cat':
+						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"));
+						break;
+					default:
+						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_tags"), $gsg->GetOption("pr_tags"));
+						break;
+				}
 			}
 		}
 	}
