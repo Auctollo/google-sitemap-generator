@@ -143,6 +143,35 @@ class GoogleSitemapGeneratorLoader {
 		add_filter('rewrite_rules_array', array(__CLASS__, 'AddRewriteRules'), 1, 1);
 	}
 
+
+	/**
+	 * Deregisters the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param $wpRules Array of existing rewrite rules
+	 * @return Array An array containing the new rewrite rules
+	 */
+	public static function RemoveRewriteRules($wpRules) {
+		$smRules = array(
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true'
+		);
+		foreach ($wpRules as $key => $value) {
+			if (array_key_exists($key,$smRules)) {
+				unset($wpRules[$key]);
+			}
+		}
+		return $wpRules;
+	}
+
+	public static function RemoveRewriteHooks(){
+		add_filter('rewrite_rules_array', array(__CLASS__, 'RemoveRewriteRules'), 1, 1);
+	}
+
 	/**
 	 * Flushes the rewrite rules
 	 *
@@ -183,8 +212,11 @@ class GoogleSitemapGeneratorLoader {
 	 * @since 4.0
 	 */
 	public static function DeactivatePlugin() {
+		global $wp_rewrite;
 		delete_option("sm_rewrite_done");
 		wp_clear_scheduled_hook('sm_ping_daily');
+		self::RemoveRewriteHooks();
+		$wp_rewrite->flush_rules(false);
 	}
 
 
