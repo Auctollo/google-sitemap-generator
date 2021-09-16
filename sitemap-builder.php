@@ -81,8 +81,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			//Excluded posts by ID
 			$excludedPostIDs = $gsg->GetExcludedPostIDs($gsg);
-			$notAllowedSlugs = $this->robots_disallowed();
-			$excludedPostIDs = array_merge($excludedPostIDs,$notAllowedSlugs);
+			$notAllowedSlugs = $gsg->robots_disallowed();
+			$excludedPostIDs = array_unique(array_merge($excludedPostIDs,$notAllowedSlugs), SORT_REGULAR);
+			$gsg->SetOption('b_exclude', $excludedPostIDs);
+			$gsg->SaveOptions();
 			$exPostSQL = "";
 			if(count($excludedPostIDs) > 0) {
 				$exPostSQL = "AND p.ID NOT IN (" . implode(",", $excludedPostIDs) . ")";
@@ -567,33 +569,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 
 		return $urls;
-	}
-
-
-	public function robots_disallowed()
-	{
-	  // parse url to retrieve host and path
-	  $parsed = home_url();
-
-	  // location of robots.txt file
-	  $robotstxt = @file("{$parsed}/robots.txt");
-	  // if there isn't a robots, then we're allowed in
-	  if(empty($robotstxt)) return true;
-  
-	  $rules = array();
-	  $ruleApplies = true;
-	  foreach($robotstxt as $line) {
-		// skip blank lines
-		if(!$line = trim($line)) continue;
-		
-		if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
-		  // an empty rule implies full access - no further tests required
-		  if(!$regs[1]) return true;
-		  // add rules that apply to array for testing
-		  $rules[] = url_to_postid(home_url(trim($regs[1])));
-		}
-	  }
-	  return $rules;
 	}
 }
 
