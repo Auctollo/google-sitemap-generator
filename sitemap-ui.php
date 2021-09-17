@@ -1201,6 +1201,12 @@ HTML;
 								</label>
 							</li>
 							<li>
+								<label for="sm_cf_product_cat">
+									<select id="sm_cf_product_cat" name="sm_cf_product_cat"><?php $this->HtmlGetFreqNames($this->sg->GetOption("cf_product_cat")); ?></select>
+									<?php _e('Product Categories', 'sitemap') ?>
+								</label>
+							</li>
+							<li>
 								<label for="sm_cf_arch_curr">
 									<select id="sm_cf_arch_curr" name="sm_cf_arch_curr"><?php $this->HtmlGetFreqNames($this->sg->GetOption("cf_arch_curr")); ?></select>
 									<?php _e('The current archive of this month (Should be the same like your homepage)', 'sitemap') ?>
@@ -1261,6 +1267,12 @@ HTML;
 								<label for="sm_pr_cats">
 									<select id="sm_pr_cats" name="sm_pr_cats"><?php $this->HtmlGetPriorityValues($this->sg->GetOption("pr_cats")); ?></select>
 									<?php _e('Categories', 'sitemap') ?>
+								</label>
+							</li>
+							<li>
+								<label for="sm_pr_product_cat">
+									<select id="sm_pr_product_cat" name="sm_pr_product_cat"><?php $this->HtmlGetPriorityValues($this->sg->GetOption("pr_product_cat")); ?></select>
+									<?php _e('Product Categories', 'sitemap') ?>
 								</label>
 							</li>
 							<li>
