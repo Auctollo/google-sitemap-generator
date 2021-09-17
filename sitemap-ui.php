@@ -329,6 +329,17 @@ class GoogleSitemapGeneratorUI {
 						if(isset($_POST["post_category"])) {
 							foreach((array) $_POST["post_category"] AS $vv) if(!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
 						}
+						if(isset($_POST['tax_input']) && isset($_POST['tax_input']['product_cat'])){
+							$prod_cat = $_POST['tax_input']['product_cat'];
+							foreach((array) $prod_cat AS $vv) if(!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
+						}
+						$taxonomies = $this->sg->GetCustomTaxonomies();
+						foreach ($taxonomies as $key => $taxonomy) {
+							if(isset($_POST['tax_input']) && isset($_POST['tax_input'][$taxonomy])){
+								$custom_cat = $_POST['tax_input'][$taxonomy];
+								foreach((array) $custom_cat AS $vv) if(!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
+							}
+						}
 						$this->sg->SetOption($k,$exCats);
 					} else {
 						$this->sg->SetOption($k,(bool) $_POST[$k]);
@@ -1157,6 +1168,42 @@ HTML;
 							<ul>
 								<?php wp_category_checklist(0,0,$this->sg->GetOption("b_exclude_cats"),false); ?>
 							</ul>
+							<ul>
+								<?php
+									$defaults = array(
+										'descendants_and_self' => 0,
+										'selected_cats'        => $this->sg->GetOption("b_exclude_cats"),
+										'popular_cats'         => false,
+										'walker'               => null,
+										'taxonomy'             => 'product_cat',
+										'checked_ontop'        => true,
+										'echo'                 => true,
+									);
+									wp_terms_checklist(0,$defaults);
+								?>
+							</ul>
+							<?php
+							$taxonomies = $this->sg->GetCustomTaxonomies();
+							foreach ($taxonomies as $key => $taxonomy) {
+							?>
+							<ul>
+								<?php
+									$defaults = array(
+										'descendants_and_self' => 0,
+										'selected_cats'        => $this->sg->GetOption("b_exclude_cats"),
+										'popular_cats'         => false,
+										'walker'               => null,
+										'taxonomy'             => $taxonomy, 
+										'checked_ontop'        => true,
+										'echo'                 => true,
+									);
+									wp_terms_checklist(0,$defaults);
+								?>
+							</ul>
+							<?php
+
+								}
+							?>
 						</div>
 
 						<b><?php _e("Exclude posts","sitemap"); ?>:</b>

@@ -414,10 +414,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			$excludes = array();
 
-			if($taxonomy == "category") {
-				$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
-				if($exclCats) $excludes = $exclCats;
-			}
+			$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+			if($exclCats) $excludes = $exclCats;
 
 			add_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
 			$terms = get_terms($taxonomy, array('number' => $linksPerPage,'offset'=>$offset,"hide_empty" => true, "hierarchical" => false, "exclude" => $excludes));
@@ -427,14 +425,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 			for ($taxCount=0; $taxCount < sizeof($terms); $taxCount++) {
 				$term = $terms[$taxCount];
 				switch ($term->taxonomy) {
-					case 'category':
-						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_cats"), $gsg->GetOption("pr_cats"));
-						break;
 					case 'product_cat':
 						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"));
 						break;
 					default:
-						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_tags"), $gsg->GetOption("pr_tags"));
+						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_cats"), $gsg->GetOption("pr_cats"));
 						break;
 				}
 				$step++;
@@ -551,10 +546,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$taxonomies = $this->GetEnabledTaxonomies($gsg);
 		$taxonomiesToExclude = array("product_tag", "product_cat");
+		$excludes = array();
+		$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+		if($exclCats) $excludes = $exclCats;
 		foreach($taxonomies AS $tax) {
 			if(!in_array($tax,$taxonomiesToExclude)){
 				$step = 1;
-				$taxs = get_terms( $tax );
+				$taxs = get_terms( $tax, array("exclude" => $excludes) );
 				for ($taxCount=0; $taxCount < sizeof($taxs); $taxCount++) {
 					if($taxCount % $linksPerPage == 0 && $taxs[$taxCount]->taxonomy != ""){
 						$gsg->AddSitemap("tax-".$taxs[$taxCount]->taxonomy,$step, $blogUpdate);
