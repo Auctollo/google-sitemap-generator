@@ -1148,6 +1148,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_b_style_default"] = true; //Use default style
 		$this->options["sm_b_style"] = ''; //Include a stylesheet in the XML
 		$this->options["sm_b_baseurl"] = ''; //The base URL of the sitemap
+		$this->options["sm_b_sitemap_name"] = 'sitemap'; //The name of the sitemap file
 		$this->options["sm_b_robots"] = true; //Add sitemap location to WordPress' virtual robots.txt file
 		$this->options["sm_b_html"] = true; //Include a link to a html version of the sitemap in the XML sitemap
 		$this->options["sm_b_exclude"] = array(); //List of post / page IDs to exclude
@@ -1383,6 +1384,64 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
+	 * Registers the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param $wpRules Array of existing rewrite rules
+	 * @return Array An array containing the new rewrite rules
+	 */
+	public static function AddRewriteRules($wpRules) {
+		$sm_sitemap_name = $GLOBALS["sm_instance"]->GetOption('b_sitemap_name');
+		$smRules = array(
+			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true'
+		);
+		return array_merge($smRules,$wpRules);
+	}
+
+	/**
+	 * Adds the filters for wp rewrite rule adding
+	 *
+	 * @since 4.0
+	 * @uses add_filter()
+	 */
+	public static function SetupRewriteHooks() {
+		add_filter('rewrite_rules_array', array(__CLASS__, 'AddRewriteRules'), 1, 1);
+	}
+
+	public static function RemoveRewriteHooks(){
+		add_filter('rewrite_rules_array', array(__CLASS__, 'RemoveRewriteRules'), 1, 1);
+	}
+
+	/**
+	 * Deregisters the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param $wpRules Array of existing rewrite rules
+	 * @return Array An array containing the new rewrite rules
+	 */
+	public static function RemoveRewriteRules($wpRules) {
+		$smRules = array(
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true'
+		);
+		foreach ($wpRules as $key => $value) {
+			if (array_key_exists($key,$smRules)) {
+				unset($wpRules[$key]);
+			}
+		}
+		return $wpRules;
+	}
+
+	/**
 	 * Returns the URL for the sitemap file
 	 *
 	 * @since 3.0
@@ -1411,11 +1470,20 @@ final class GoogleSitemapGenerator {
 
 		//Manual override for root URL
 		$baseUrlSettings = $this->GetOption('b_baseurl');
+		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
 		if(!empty($baseUrlSettings)) $baseURL = $baseUrlSettings;
 		else if(defined("SM_BASE_URL") && SM_BASE_URL) $baseURL = SM_BASE_URL;
 
+		global $wp_rewrite;
+		delete_option("sm_rewrite_done");
+		wp_clear_scheduled_hook('sm_ping_daily');
+		self::RemoveRewriteHooks();
+		$wp_rewrite->flush_rules(false);
+		self::SetupRewriteHooks();
+		GoogleSitemapGeneratorLoader::ActivateRewrite();
+
 		if($pl) {
-			return trailingslashit($baseURL) . "sitemap" . ($options ? "-" . $options : "") . ($html
+			return trailingslashit($baseURL) . $sm_sitemap_name . ($options ? "-" . $options : "") . ($html
 					? ".html" : ".xml") . ($zip? ".gz" : "");
 		} else {
 			return trailingslashit($baseURL) . "index.php?xml_sitemap=params=" . $options . ($html
@@ -1429,8 +1497,9 @@ final class GoogleSitemapGenerator {
 	 * @return Boolean True if a sitemap file still exists
 	 */
 	public function OldFileExists() {
+		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
 		$path = trailingslashit(get_home_path());
-		return (file_exists($path . "sitemap.xml") || file_exists($path . "sitemap.xml.gz"));
+		return (file_exists($path . $sm_sitemap_name .".xml") || file_exists($path . "sitemap.xml.gz"));
 	}
 
 	/**
@@ -1438,11 +1507,12 @@ final class GoogleSitemapGenerator {
 	 * @return bool True on success
 	 */
 	public function DeleteOldFiles() {
+		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
 		$path = trailingslashit(get_home_path());
 
 		$res = true;
 
-		if(file_exists($f = $path . "sitemap.xml"))     if(!rename($f, $path . "sitemap.backup.xml")) $res = false;
+		if(file_exists($f = $path . $sm_sitemap_name . ".xml"))     if(!rename($f, $path . "sitemap.backup.xml")) $res = false;
 		if(file_exists($f = $path . "sitemap.xml.gz"))  if(!rename($f, $path . "sitemap.backup.xml.gz")) $res = false;
 
 		return $res;

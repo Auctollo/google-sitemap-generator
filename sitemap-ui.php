@@ -300,7 +300,7 @@ class GoogleSitemapGeneratorUI {
 
 				//Options of the category "Basic Settings" are boolean, except the filename and the autoprio provider
 				if(substr($k,0,5)=="sm_b_") {
-					if($k=="sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl") {
+					if($k=="sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl" || $k == "sm_b_sitemap_name") {
 						if($k=="sm_b_filename_manual" && strpos($_POST[$k],"\\")!==false){
 							$_POST[$k]=stripslashes(self::escape($_POST[$k]));
 						} else if($k=="sm_b_baseurl") {
@@ -309,6 +309,11 @@ class GoogleSitemapGeneratorUI {
 						} else if($k=="sm_b_style") {
 							$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
 							if(!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
+						}else if($k=="sm_b_sitemap_name"){
+							$_POST[$k] = trim(self::escape($_POST[$k]));
+							if($this->sg->OldFileExists()) {
+								$this->sg->DeleteOldFiles();
+							}
 						}
 						$this->sg->SetOption($k,(string) $_POST[$k]);
 					} else if($k == "sm_b_time") {
