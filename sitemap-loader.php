@@ -68,9 +68,6 @@ class GoogleSitemapGeneratorLoader {
 		if (!wp_get_schedule('sm_ping_daily')) {
 			wp_schedule_event(time() + (60 * 60), 'daily', 'sm_ping_daily');
 		}
-
-		//Disable the WP core XML sitemaps.		 
-		add_filter( 'wp_sitemaps_enabled', '__return_false' );
 	}
 
 	/**
@@ -459,6 +456,9 @@ if(defined('ABSPATH') && defined('WPINC')) {
 	add_action("init", array("GoogleSitemapGeneratorLoader", "Enable"), 15, 0);
 	register_activation_hook(sm_GetInitFile(), array('GoogleSitemapGeneratorLoader', 'ActivatePlugin'));
 	register_deactivation_hook(sm_GetInitFile(), array('GoogleSitemapGeneratorLoader', 'DeactivatePlugin'));
+
+	//Disable the WP core XML sitemaps.		 
+	add_filter( 'wp_sitemaps_enabled', '__return_false' );
 
 	//Set up hooks for adding permalinks, query vars.
 	//Don't wait until init with this, since other plugins might flush the rewrite rules in init already...
