@@ -151,6 +151,18 @@ class GoogleSitemapGeneratorUI {
 		return strtr($v, '<>', '..');
 	}
 
+	static public function array_map_r( $func, $arr )
+	{
+		$newArr = array();
+
+		foreach( $arr as $key => $value )
+		{
+			$newArr[ $key ] = ( is_array( $value ) ? self::array_map_r( $func, $value ) : ( is_array($func) ? call_user_func_array($func, $value) : $func( $value ) ) );
+		}
+
+		return $newArr;
+	}
+
 	/**
 	 * Displays the option page
 	 *
@@ -217,7 +229,7 @@ class GoogleSitemapGeneratorUI {
 				echo "</pre>";
 				echo '<h4>Sitemap Config</h4>';
 				echo "<pre>";
-				print_r($this->sg->GetOptions());
+				print_r(self::array_map_r('strip_tags',$this->sg->GetOptions()));
 				echo "</pre>";
 				echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
 				echo '<div>';
