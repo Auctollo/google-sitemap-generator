@@ -240,7 +240,7 @@ class GoogleSitemapGeneratorUI
 					echo "</pre>";
 					echo '<h4>Sitemap Config</h4>';
 					echo "<pre>";
-					print_r($this->sg->GetOptions());
+					print_r(self::array_map_r('strip_tags',$this->sg->GetOptions()));
 					echo "</pre>";
 					echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
 					echo '<div>';
