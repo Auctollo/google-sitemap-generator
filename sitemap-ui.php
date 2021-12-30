@@ -367,6 +367,10 @@ class GoogleSitemapGeneratorUI {
 				//Options of the category "Priorities" are float
 				} else if(substr($k,0,6)=="sm_pr_") {
 					$this->sg->SetOption($k,(float) $_POST[$k]);
+				} else if($k == "sm_links_page"){
+					$this->sg->SetOption($k,(float) $_POST[$k]);
+				} else if(substr($k,0,3) == "sm_"){
+					$this->sg->SetOption($k,(bool) $_POST[$k]);
 				}
 			}
 
@@ -1018,6 +1022,18 @@ HTML;
 								</label>
 							</li>
 							<li>
+								<label for="sm_in_product_cat">
+									<input type="checkbox" id="sm_in_product_cat" name="sm_in_product_cat"  <?php echo ($this->sg->GetOption("in_product_cat")==true?"checked=\"checked\"":"") ?> />
+									<?php _e('Include product categories', 'sitemap') ?>
+								</label>
+							</li>
+							<li>
+								<label for="sm_product_tags">
+									<input type="checkbox" id="sm_product_tags" name="sm_product_tags"  <?php echo ($this->sg->GetOption("product_tags")==true?"checked=\"checked\"":"") ?> />
+									<?php _e('Include product tags', 'sitemap') ?>
+								</label>
+							</li>
+							<li>
 								<label for="sm_in_pages">
 									<input type="checkbox" id="sm_in_pages" name="sm_in_pages"  <?php echo ($this->sg->GetOption("in_pages")==true?"checked=\"checked\"":"") ?> />
 									<?php _e('Include static pages', 'sitemap') ?>
@@ -1119,6 +1135,14 @@ HTML;
 									<?php _e('Include the last modification time.', 'sitemap') ?>
 								</label><br />
 								<small><?php _e('This is highly recommended and helps the search engines to know when your content has changed. This option affects <i>all</i> sitemap entries.', 'sitemap') ?></small>
+							</li>
+						</ul>
+						<ul>
+							<li>
+								<label for="sm_links_page">
+									<b><?php _e('Links per page', 'sitemap') ?>:</b>
+									<input type="number" name="sm_links_page" id="sm_links_page" style="width:50px; margin-left:10px;" value="<?php echo esc_attr($this->sg->GetOption("links_page")); ?>" />
+								</label>
 							</li>
 						</ul>
 

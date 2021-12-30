@@ -45,6 +45,12 @@ class GoogleSitemapGeneratorStandardBuilder {
 			case "tax":
 				$this->BuildTaxonomies($gsg, $params);
 				break;
+			case "producttags":
+				$this->BuildProductTags($gsg, $params);
+				break;
+			case "productcat":
+				$this->BuildProductCategories($gsg, $params);
+				break;
 			case "externals":
 				$this->BuildExternals($gsg);
 				break;
@@ -419,6 +425,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 */
 	public function BuildTaxonomies($gsg, $taxonomy) {
 
+		$offset = $taxonomy;
+		$linksPerPage = $gsg->GetOption("links_page");
+		if(strpos($taxonomy,"-") !== false){
+			$offset = substr($taxonomy, strrpos($taxonomy, '-') + 1);
+			$taxonomy = str_replace("-".$offset,"",$taxonomy);
+		}
+		$offset = ($offset-1) * $linksPerPage;
+
 		$enabledTaxonomies = $this->GetEnabledTaxonomies($gsg);
 		if(in_array($taxonomy, $enabledTaxonomies)) {
 
@@ -430,21 +444,24 @@ class GoogleSitemapGeneratorStandardBuilder {
 			}
 
 			add_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
-			$terms = get_terms($taxonomy, array("hide_empty" => true, "hierarchical" => false, "exclude" => $excludes));
+			$terms = get_terms($taxonomy, array('number' => $linksPerPage,'offset'=>$offset,"hide_empty" => true, "hierarchical" => false, "exclude" => $excludes));
 			remove_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
 
-			foreach($terms AS $term) {
+			$step = 1;
+			for ($taxCount=0; $taxCount < sizeof($terms); $taxCount++) {
+				$term = $terms[$taxCount];
 				switch ($term->taxonomy) {
 					case 'category':
-						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_cats"), $gsg->GetOption("pr_cats"));
+						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_cats"), $gsg->GetOption("pr_cats"));
 						break;
 					case 'product_cat':
-						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"));
+						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"));
 						break;
 					default:
-						$gsg->AddUrl(get_term_link($term, $term->taxonomy), $term->_mod_date, $gsg->GetOption("cf_tags"), $gsg->GetOption("pr_tags"));
+						$gsg->AddUrl(get_term_link($term, $step), $term->_mod_date, $gsg->GetOption("cf_tags"), $gsg->GetOption("pr_tags"));
 						break;
 				}
+				$step++;
 			}
 		}
 	}
@@ -467,6 +484,60 @@ class GoogleSitemapGeneratorStandardBuilder {
 			if($taxonomy && wp_count_terms($taxonomy->name, array('hide_empty' => true)) > 0) $taxList[] = $taxonomy->name;
 		}
 		return $taxList;
+	}
+
+	/**
+	 * Returns the enabled Product tags. Only Product Tags with posts are returned.
+	 *
+	 * @param GoogleSitemapGenerator $gsg
+	 * @return array
+	 */
+	public function BuildProductTags(GoogleSitemapGenerator $gsg, $offset) {
+		$linksPerPage = $gsg->GetOption("links_page");
+		$offset = ($offset-1) * $linksPerPage;
+
+		add_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
+		$terms = get_terms( 'product_tag', array('number' => $linksPerPage,'offset'=>$offset));
+		remove_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
+		$term_array = array();
+
+		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ){
+		    foreach ( $terms as $term ) {
+		        $term_array[] = $term->name;
+		        $url = get_term_link($term);
+				$gsg->AddUrl($url, $term->_mod_date, $gsg->GetOption("cf_auth"), $gsg->GetOption("pr_auth"), $term->ID, array(), array(), '');
+		    }
+		}
+	}
+
+	/**
+	 * Returns the enabled Product Categories. Only Product Categories with posts are returned.
+	 *
+	 * @param GoogleSitemapGenerator $gsg
+	 * @return array
+	 */
+
+	public function BuildProductCategories(GoogleSitemapGenerator $gsg, $offset) {
+		$linksPerPage = $gsg->GetOption("links_page");
+		$offset = ($offset-1) * $linksPerPage;
+		$excludes = array();
+		$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+		if($exclCats) $excludes = $exclCats;
+		add_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
+		$category = get_terms( 'product_cat', array('number' => $linksPerPage,'offset'=>$offset,"exclude" => $excludes));
+		remove_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
+		$cat_array = array();
+		if ( ! empty( $category ) && ! is_wp_error( $category ) ){
+			$step = 1;
+		    foreach ( $category as $cat ) {
+		        $cat_array[] = $cat->name;
+				if($cat && wp_count_terms($cat->name, array('hide_empty' => true)) > 0){
+					$step++;
+					$url = get_term_link($cat);
+					$gsg->AddUrl($url, $cat->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"),$cat->ID, array(), array(), '');
+				}
+		    }
+		}
 	}
 
 	/**
@@ -497,12 +568,56 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$blogUpdate = strtotime(get_lastpostmodified('gmt'));
 
+		$linksPerPage = $gsg->GetOption("links_page");
+
 		$gsg->AddSitemap("misc", null, $blogUpdate);
 
 
 		$taxonomies = $this->GetEnabledTaxonomies($gsg);
+		$taxonomiesToExclude = array("product_tag", "product_cat");
 		foreach($taxonomies AS $tax) {
-			$gsg->AddSitemap("tax", $tax, $blogUpdate);
+			if(!in_array($tax,$taxonomiesToExclude)){
+				$step = 1;
+				$taxs = get_terms( $tax );
+				for ($taxCount=0; $taxCount < sizeof($taxs); $taxCount++) {
+					if($taxCount % $linksPerPage == 0 && $taxs[$taxCount]->taxonomy != ""){
+						$gsg->AddSitemap("tax-".$taxs[$taxCount]->taxonomy,$step, $blogUpdate);
+						$step = $step +1;
+					}
+				}
+			}
+		}
+
+		//if Product Tags is enabled from sitemap settings
+		if($gsg->GetOption('product_tags') == true){
+			$productTags = get_terms( 'product_tag' );
+			if ( ! empty( $productTags ) && ! is_wp_error( $productTags ) ){
+				$step = 1;
+				for ($productCount=0; $productCount < sizeof($productTags); $productCount++) { 
+					if($productCount % $linksPerPage == 0){
+						$gsg->AddSitemap("producttags", $step, $blogUpdate);
+						$step = $step +1;
+					}
+				}
+			}
+		}
+
+		//if Product category is enabled from sitemap settings
+		if($gsg->GetOption('in_product_cat') == true){
+			$excludes = array();
+			$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+			if($exclCats) $excludes = $exclCats;
+			$productCat = get_terms( 'product_cat' , array("exclude" => $excludes) );
+
+			if ( ! empty( $productCat ) && ! is_wp_error( $productCat ) ){
+				$step = 1;
+				for ($productCount=0; $productCount < sizeof($productCat); $productCount++) { 
+					if($productCount % $linksPerPage == 0){
+						$gsg->AddSitemap("productcat", $step, $blogUpdate);
+						$step = $step +1;
+					}
+				}
+			}
 		}
 
 		$pages = $gsg->GetPages();
