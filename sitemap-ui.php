@@ -922,6 +922,10 @@ HTML;
 												<small><?php _e('Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.', 'sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more', 'sitemap'); ?></a></small>
 											</li>
 											<li>
+												<label for="sm_b_sitemap_name"><?php _e('Override the file name of the sitemap:', 'sitemap') ?> <input type="text" name="sm_b_sitemap_name" id="sm_b_sitemap_name"  value="<?php echo esc_attr($this->sg->GetOption("b_sitemap_name")); ?>" /></label><br />
+												<small><?php _e('Use this if you want to change the sitemap file name','sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more','sitemap'); ?></a></small>
+											</li>
+											<li>
 												<label for="sm_b_html">
 													<input type="checkbox" id="sm_b_html" name="sm_b_html" <?php if (!$this->sg->IsXslEnabled()) echo 'disabled="disabled"'; ?> <?php echo ($this->sg->GetOption("b_html") == true && $this->sg->IsXslEnabled() ? "checked=\"checked\"" : "") ?> />
 													<?php _e('Include sitemap in HTML format', 'sitemap') ?> <?php if (!$this->sg->IsXslEnabled()) _e('(The required PHP XSL Module is not installed)', 'sitemap') ?>
