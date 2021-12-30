@@ -1169,6 +1169,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_cf_posts"] = "monthly"; //Change frequency of posts
 		$this->options["sm_cf_pages"] = "weekly"; //Change frequency of static pages
 		$this->options["sm_cf_cats"] = "weekly"; //Change frequency of categories
+		$this->options["sm_cf_product_cat"] = "weekly"; //Change frequency of product categories
 		$this->options["sm_cf_auth"] = "weekly"; //Change frequency of author pages
 		$this->options["sm_cf_arch_curr"] = "daily"; //Change frequency of the current archive (this month)
 		$this->options["sm_cf_arch_old"] = "yearly"; //Change frequency of older archives
@@ -1179,6 +1180,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_pr_posts_min"] = 0.2; //Minimum Priority of posts, even if autocalc is enabled
 		$this->options["sm_pr_pages"] = 0.6; //Priority of static pages
 		$this->options["sm_pr_cats"] = 0.3; //Priority of categories
+		$this->options["sm_pr_product_cat"] = 0.3; //Priority of product categories
 		$this->options["sm_pr_arch"] = 0.3; //Priority of archives
 		$this->options["sm_pr_auth"] = 0.3; //Priority of author pages
 		$this->options["sm_pr_tags"] = 0.3; //Priority of tags
