@@ -311,6 +311,7 @@ Release History:
 2014-11-15     4.0.8  Fixed bug with excluded categories, thanks to Claus Schöffel!
 2017-03-22     4.0.9  Fixed security issue with donation submission.
 2018-12-18     4.1.0  Fixed security issues related to forms and external URLs
+2022-04-07     4.1.1  Fixed security issues and added support for WooCommerce based sitemap
 
 
 
