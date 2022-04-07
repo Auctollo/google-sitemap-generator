@@ -87,6 +87,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			//Excluded posts by ID
 			$excludedPostIDs = $gsg->GetExcludedPostIDs($gsg);
+			$notAllowedSlugs = $gsg->robots_disallowed();
+			$excludedPostIDs = array_unique(array_merge($excludedPostIDs,$notAllowedSlugs), SORT_REGULAR);
+			$gsg->SetOption('b_exclude', $excludedPostIDs);
+			$gsg->SaveOptions();
 			$exPostSQL = "";
 			if(count($excludedPostIDs) > 0) {
 				$exPostSQL = "AND p.ID NOT IN (" . implode(",", $excludedPostIDs) . ")";
@@ -328,19 +332,19 @@ class GoogleSitemapGeneratorStandardBuilder {
 					$p = get_post($pageOnFront);
 					if($p) {
 						$gsg->AddUrl(trailingslashit($home), $gsg->GetTimestampFromMySql(($p->post_modified_gmt && $p->post_modified_gmt != '0000-00-00 00:00:00'
-								? $p->post_modified_gmt
-								: $p->post_date_gmt)), $gsg->GetOption("cf_home"), $gsg->GetOption("pr_home"));
+							? $p->post_modified_gmt
+							: $p->post_date_gmt)), $gsg->GetOption("cf_home"), $gsg->GetOption("pr_home"));
 					}
 				} else {
 					$gsg->AddUrl(trailingslashit($home), ($lm ? $gsg->GetTimestampFromMySql($lm)
-							: time()), $gsg->GetOption("cf_home"), $gsg->GetOption("pr_home"));
+						: time()), $gsg->GetOption("cf_home"), $gsg->GetOption("pr_home"));
 				}
 			}
 		}
 
 		if($gsg->IsXslEnabled() && $gsg->GetOption("b_html") === true) {
 			$gsg->AddUrl($gsg->GetXmlUrl("", "", array("html" => true)), ($lm ? $gsg->GetTimestampFromMySql($lm)
-					: time()));
+				: time()));
 		}
 
 		do_action('sm_buildmap');
@@ -438,10 +442,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			$excludes = array();
 
-			if($taxonomy == "category") {
-				$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
-				if($exclCats) $excludes = $exclCats;
-			}
+			$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+			if($exclCats) $excludes = $exclCats;
 
 			add_filter("get_terms_fields", array($this, "FilterTermsQuery"), 20, 2);
 			$terms = get_terms($taxonomy, array('number' => $linksPerPage,'offset'=>$offset,"hide_empty" => true, "hierarchical" => false, "exclude" => $excludes));
@@ -502,11 +504,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$term_array = array();
 
 		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ){
-		    foreach ( $terms as $term ) {
-		        $term_array[] = $term->name;
-		        $url = get_term_link($term);
+			foreach ( $terms as $term ) {
+				$term_array[] = $term->name;
+				$url = get_term_link($term);
 				$gsg->AddUrl($url, $term->_mod_date, $gsg->GetOption("cf_auth"), $gsg->GetOption("pr_auth"), $term->ID, array(), array(), '');
-		    }
+			}
 		}
 	}
 
@@ -529,14 +531,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$cat_array = array();
 		if ( ! empty( $category ) && ! is_wp_error( $category ) ){
 			$step = 1;
-		    foreach ( $category as $cat ) {
-		        $cat_array[] = $cat->name;
+			foreach ( $category as $cat ) {
+				$cat_array[] = $cat->name;
 				if($cat && wp_count_terms($cat->name, array('hide_empty' => true)) > 0){
 					$step++;
 					$url = get_term_link($cat);
 					$gsg->AddUrl($url, $cat->_mod_date, $gsg->GetOption("cf_product_cat"), $gsg->GetOption("pr_product_cat"),$cat->ID, array(), array(), '');
 				}
-		    }
+			}
 		}
 	}
 
@@ -575,10 +577,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$taxonomies = $this->GetEnabledTaxonomies($gsg);
 		$taxonomiesToExclude = array("product_tag", "product_cat");
+		$excludes = array();
+		$exclCats = $gsg->GetOption("b_exclude_cats"); // Excluded cats
+		if($exclCats) $excludes = $exclCats;
 		foreach($taxonomies AS $tax) {
 			if(!in_array($tax,$taxonomiesToExclude)){
 				$step = 1;
-				$taxs = get_terms( $tax );
+				$taxs = get_terms( $tax, array("exclude" => $excludes) );
 				for ($taxCount=0; $taxCount < sizeof($taxs); $taxCount++) {
 					if($taxCount % $linksPerPage == 0 && $taxs[$taxCount]->taxonomy != ""){
 						$gsg->AddSitemap("tax-".$taxs[$taxCount]->taxonomy,$step, $blogUpdate);
@@ -593,7 +598,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$productTags = get_terms( 'product_tag' );
 			if ( ! empty( $productTags ) && ! is_wp_error( $productTags ) ){
 				$step = 1;
-				for ($productCount=0; $productCount < sizeof($productTags); $productCount++) { 
+				for ($productCount=0; $productCount < sizeof($productTags); $productCount++) {
 					if($productCount % $linksPerPage == 0){
 						$gsg->AddSitemap("producttags", $step, $blogUpdate);
 						$step = $step +1;
@@ -611,7 +616,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			if ( ! empty( $productCat ) && ! is_wp_error( $productCat ) ){
 				$step = 1;
-				for ($productCount=0; $productCount < sizeof($productCat); $productCount++) { 
+				for ($productCount=0; $productCount < sizeof($productCat); $productCount++) {
 					if($productCount % $linksPerPage == 0){
 						$gsg->AddSitemap("productcat", $step, $blogUpdate);
 						$step = $step +1;
@@ -638,6 +643,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if(count($enabledPostTypes) > 0) {
 
 			$excludedPostIDs = $gsg->GetExcludedPostIDs($gsg);
+			$notAllowedSlugs = $gsg->robots_disallowed();
+			$excludedPostIDs = array_unique(array_merge($excludedPostIDs,$notAllowedSlugs), SORT_REGULAR);
+			$gsg->SetOption('b_exclude', $excludedPostIDs);
+			$gsg->SaveOptions();
 			$exPostSQL = "";
 			if(count($excludedPostIDs) > 0) {
 				$exPostSQL = "AND p.ID NOT IN (" . implode(",", $excludedPostIDs) . ")";
