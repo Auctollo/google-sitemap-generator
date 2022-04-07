@@ -162,17 +162,27 @@ class GoogleSitemapGeneratorUI
 			return strtr($v, '<>', '..');
 		}
 
-		/**
-		 * Displays the option page
-		 *
-		 * @since 3.0
-		 * @access public
-		 * @author Arne Brachhold
-		 */
-		public function HtmlShowOptionsPage()
-		{
-			global $wp_version;
+	static public function array_map_r( $func, $arr )
+	{
+		$newArr = array();
 
+		foreach( $arr as $key => $value )
+		{
+			$newArr[ $key ] = ( is_array( $value ) ? self::array_map_r( $func, $value ) : ( is_array($func) ? call_user_func_array($func, $value) : $func( $value ) ) );
+		}
+
+		return $newArr;
+	}
+
+	/**
+	 * Displays the option page
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @author Arne Brachhold
+	 */
+	public function HtmlShowOptionsPage() {
+		global $wp_version;
 			$snl = false; //SNL
 
 			$this->sg->Initate();
@@ -219,20 +229,20 @@ class GoogleSitemapGeneratorUI
 						foreach ((array) $os as $o) $opts[$o->option_name] = $o->option_value;
 					}
 
-					$popts = array();
-					foreach ($opts as $k => $v) {
-						//Try to filter out passwords etc...
-						if (preg_match("/pass|login|pw|secret|user|usr|key|auth|token/si", $k)) continue;
-						$popts[$k] = htmlspecialchars($v);
-					}
-					print_r($popts);
-					echo "</pre>";
-					echo '<h4>Sitemap Config</h4>';
-					echo "<pre>";
-					print_r($this->sg->GetOptions());
-					echo "</pre>";
-					echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
-					echo '<div>';
+				$popts = array();
+				foreach($opts as $k=>$v) {
+					//Try to filter out passwords etc...
+					if(preg_match("/pass|login|pw|secret|user|usr|key|auth|token/si",$k)) continue;
+					$popts[$k] = htmlspecialchars($v);
+				}
+				print_r($popts);
+				echo "</pre>";
+				echo '<h4>Sitemap Config</h4>';
+				echo "<pre>";
+				print_r(self::array_map_r('strip_tags',$this->sg->GetOptions()));
+				echo "</pre>";
+				echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
+				echo '<div>';
 
 					$sitemaps = $this->sg->SimulateIndex();
 
