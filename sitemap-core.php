@@ -1367,6 +1367,9 @@ final class GoogleSitemapGenerator {
 			$url = $this->GetPluginUrl();
 			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
 			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
+
+			$host = $_SERVER['HTTP_HOST'];
+			$url = $this->getXslUrl($url,$host);
 			return $url . 'sitemap.xsl';
 		}
 		return '';
@@ -2270,5 +2273,24 @@ final class GoogleSitemapGenerator {
 			<div style="clear:right;"></div>
 		</div>
 		<?php
+	}
+
+	public function getXslUrl($url,$host){
+		if (substr($host, 0, 4) === 'www.'){
+			if(substr(get_bloginfo('url'), 0, 5) != "https"){
+				if(strpos($url,"www.") === false){
+					$url = str_replace("http://","http://www.",$url);
+				}
+			} else{
+				if(strpos($url,"www.") === false){
+					$url = str_replace("https://","https://www.",$url);
+				}
+			}
+		} else{
+			if(strpos($url,"www.") !== false){
+				$url = str_replace("://www.","://",$url);
+			}
+		}
+		return $url;
 	}
 }
