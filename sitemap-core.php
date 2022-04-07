@@ -2347,34 +2347,50 @@ final class GoogleSitemapGenerator {
 		</div>
 		<?php
 	}
-
-	
+	public function getXslUrl($url,$host){
+		if (substr($host, 0, 4) === 'www.'){
+			if(substr(get_bloginfo('url'), 0, 5) != "https"){
+				if(strpos($url,"www.") === false){
+					$url = str_replace("http://","http://www.",$url);
+				}
+			} else{
+				if(strpos($url,"www.") === false){
+					$url = str_replace("https://","https://www.",$url);
+				}
+			}
+		} else{
+			if(strpos($url,"www.") !== false){
+				$url = str_replace("://www.","://",$url);
+			}
+		}
+		return $url;
+	}
 	public function robots_disallowed()
 	{
-	  // parse url to retrieve host and path
-	  $parsed = home_url();
+		// parse url to retrieve host and path
+		$parsed = home_url();
 
-	  // location of robots.txt file
-	  $robotstxt = @file("{$parsed}/robots.txt");
-	  // if there isn't a robots, then we're allowed in
-	  if(empty($robotstxt)) return true;
-  
-	  $rules = array();
-	  $ruleApplies = true;
-	  foreach($robotstxt as $line) {
-		// skip blank lines
-		if(!$line = trim($line)) continue;
-		
-		if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
-		  // an empty rule implies full access - no further tests required
-		  if(!$regs[1]) continue;
-		  // add rules that apply to array for testing
-		  $id = url_to_postid(home_url(trim($regs[1])));
-		  if($id > 0){
-			$rules[] = $id;
-		  }
+		// location of robots.txt file
+		$robotstxt = @file("{$parsed}/robots.txt");
+		// if there isn't a robots, then we're allowed in
+		if(empty($robotstxt)) return true;
+	
+		$rules = array();
+		$ruleApplies = true;
+		foreach($robotstxt as $line) {
+			// skip blank lines
+			if(!$line = trim($line)) continue;
+			
+			if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
+				// an empty rule implies full access - no further tests required
+				if(!$regs[1]) continue;
+				// add rules that apply to array for testing
+				$id = url_to_postid(home_url(trim($regs[1])));
+				if($id > 0){
+					$rules[] = $id;
+				}
+			}
 		}
-	  }
 	  return $rules;
 	}
 

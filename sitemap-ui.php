@@ -229,20 +229,20 @@ class GoogleSitemapGeneratorUI
 						foreach ((array) $os as $o) $opts[$o->option_name] = $o->option_value;
 					}
 
-				$popts = array();
-				foreach($opts as $k=>$v) {
-					//Try to filter out passwords etc...
-					if(preg_match("/pass|login|pw|secret|user|usr|key|auth|token/si",$k)) continue;
-					$popts[$k] = htmlspecialchars($v);
-				}
-				print_r($popts);
-				echo "</pre>";
-				echo '<h4>Sitemap Config</h4>';
-				echo "<pre>";
-				print_r(self::array_map_r('strip_tags',$this->sg->GetOptions()));
-				echo "</pre>";
-				echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
-				echo '<div>';
+					$popts = array();
+					foreach ($opts as $k => $v) {
+						//Try to filter out passwords etc...
+						if (preg_match("/pass|login|pw|secret|user|usr|key|auth|token/si", $k)) continue;
+						$popts[$k] = htmlspecialchars($v);
+					}
+					print_r($popts);
+					echo "</pre>";
+					echo '<h4>Sitemap Config</h4>';
+					echo "<pre>";
+					print_r(self::array_map_r('strip_tags',$this->sg->GetOptions()));
+					echo "</pre>";
+					echo '<h3>Sitemap Content and Errors, Warnings, Notices</h3>';
+					echo '<div>';
 
 					$sitemaps = $this->sg->SimulateIndex();
 
@@ -311,15 +311,14 @@ class GoogleSitemapGeneratorUI
 				}
 
 				foreach ($this->sg->GetOptions() as $k => $v) {
-
 					//Skip some options if the user is not super admin...
 					if (!is_super_admin() && in_array($k, array("sm_b_time", "sm_b_memory", "sm_b_style", "sm_b_style_default"))) {
 						continue;
 					}
 
 					//Check vor values and convert them into their types, based on the category they are in
-				if(!isset($_POST[$k])) $_POST[$k]=""; // Empty string will get false on 2bool and 0 on 2float
-
+					if(!isset($_POST[$k])) $_POST[$k]=""; // Empty string will get false on 2bool and 0 on 2float
+	
 					//Options of the category "Basic Settings" are boolean, except the filename and the autoprio provider
 					if(substr($k,0,5)=="sm_b_") {
 						if($k=="sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl" || $k == "sm_b_sitemap_name") {
@@ -931,6 +930,10 @@ HTML;
 											<li>
 												<label for="sm_b_baseurl"><?php _e('Override the base URL of the sitemap:', 'sitemap') ?> <input type="text" name="sm_b_baseurl" id="sm_b_baseurl" value="<?php echo esc_attr($this->sg->GetOption("b_baseurl")); ?>" /></label><br />
 												<small><?php _e('Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.', 'sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('redir/sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more', 'sitemap'); ?></a></small>
+											</li>
+											<li>
+												<label for="sm_b_sitemap_name"><?php _e('Override the file name of the sitemap:', 'sitemap') ?> <input type="text" name="sm_b_sitemap_name" id="sm_b_sitemap_name"  value="<?php echo esc_attr($this->sg->GetOption("b_sitemap_name")); ?>" /></label><br />
+												<small><?php _e('Use this if you want to change the sitemap file name','sitemap'); ?> <a href="<?php echo $this->sg->GetRedirectLink('sitemap-help-options-adv-baseurl'); ?>"><?php _e('Learn more','sitemap'); ?></a></small>
 											</li>
 											<li>
 												<label for="sm_b_html">
