@@ -948,7 +948,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function GetCustomTaxonomies() {
 		$taxonomies = get_taxonomies(array("public" => 1));
-		return array_diff($taxonomies, array("category", "post_tag", "nav_menu", "link_category", "post_format"));
+		return array_diff($taxonomies, array("category", "post_tag", "nav_menu", "link_category", "product_tag", "product_cat", "post_format"));
 	}
 
 	/**
@@ -1158,6 +1158,8 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_in_posts_sub"] = false; //Include post pages (<!--nextpage--> tag)
 		$this->options["sm_in_pages"] = true; //Include static pages
 		$this->options["sm_in_cats"] = false; //Include categories
+		$this->options["sm_product_tags"] = true; //Hide product tags in sitemap
+		$this->options["sm_in_product_cat"] = false; //Include product categories
 		$this->options["sm_in_arch"] = false; //Include archives
 		$this->options["sm_in_auth"] = false; //Include author pages
 		$this->options["sm_in_tags"] = false; //Include tag pages
@@ -1196,6 +1198,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_lastping"] = 0; //When was the last ping
 		$this->options["sm_i_supportfeed"] = true; //shows the support feed
 		$this->options["sm_i_supportfeed_cache"] = 0; //Last refresh of support feed
+		$this->options["sm_links_page"] = 10; // Link per page support with default value 10.
 	}
 
 	/**
