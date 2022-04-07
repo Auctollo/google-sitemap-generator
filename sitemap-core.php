@@ -948,7 +948,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function GetCustomTaxonomies() {
 		$taxonomies = get_taxonomies(array("public" => 1));
-		return array_diff($taxonomies, array("category", "post_tag", "nav_menu", "link_category", "post_format"));
+		return array_diff($taxonomies, array("category", "post_tag", "nav_menu", "link_category", "product_tag", "product_cat", "post_format"));
 	}
 
 	/**
@@ -1159,6 +1159,8 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_in_posts_sub"] = false; //Include post pages (<!--nextpage--> tag)
 		$this->options["sm_in_pages"] = true; //Include static pages
 		$this->options["sm_in_cats"] = false; //Include categories
+		$this->options["sm_product_tags"] = true; //Hide product tags in sitemap
+		$this->options["sm_in_product_cat"] = false; //Include product categories
 		$this->options["sm_in_arch"] = false; //Include archives
 		$this->options["sm_in_auth"] = false; //Include author pages
 		$this->options["sm_in_tags"] = false; //Include tag pages
@@ -1170,6 +1172,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_cf_posts"] = "monthly"; //Change frequency of posts
 		$this->options["sm_cf_pages"] = "weekly"; //Change frequency of static pages
 		$this->options["sm_cf_cats"] = "weekly"; //Change frequency of categories
+		$this->options["sm_cf_product_cat"] = "weekly"; //Change frequency of product categories
 		$this->options["sm_cf_auth"] = "weekly"; //Change frequency of author pages
 		$this->options["sm_cf_arch_curr"] = "daily"; //Change frequency of the current archive (this month)
 		$this->options["sm_cf_arch_old"] = "yearly"; //Change frequency of older archives
@@ -1180,6 +1183,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_pr_posts_min"] = 0.2; //Minimum Priority of posts, even if autocalc is enabled
 		$this->options["sm_pr_pages"] = 0.6; //Priority of static pages
 		$this->options["sm_pr_cats"] = 0.3; //Priority of categories
+		$this->options["sm_pr_product_cat"] = 0.3; //Priority of product categories
 		$this->options["sm_pr_arch"] = 0.3; //Priority of archives
 		$this->options["sm_pr_auth"] = 0.3; //Priority of author pages
 		$this->options["sm_pr_tags"] = 0.3; //Priority of tags
@@ -1195,6 +1199,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_lastping"] = 0; //When was the last ping
 		$this->options["sm_i_supportfeed"] = true; //shows the support feed
 		$this->options["sm_i_supportfeed_cache"] = 0; //Last refresh of support feed
+		$this->options["sm_links_page"] = 10; // Link per page support with default value 10.
 	}
 
 	/**
@@ -1366,6 +1371,9 @@ final class GoogleSitemapGenerator {
 			$url = $this->GetPluginUrl();
 			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
 			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
+
+			$host = $_SERVER['HTTP_HOST'];
+			$url = $this->getXslUrl($url,$host);
 			return $url . 'sitemap.xsl';
 		}
 		return '';
@@ -2330,13 +2338,62 @@ final class GoogleSitemapGenerator {
 		<div class="updated">
 			<strong>
 				<p>
-					<?php echo str_replace('%s', 'https://forms.gle/aFkbBs2rfGqQoCqj8',
-						__('Google XML Sitemaps 5.0 is around the corner! <a href="%s" target="_blank"> Help us shape the future of sitemaps by taking this short survey</a>','sitemap'));
+					<?php echo str_replace('%s', 'https://forms.gle/kx47Rkk2P8GZ257Q8',
+						__('Help us shape the future of sitemaps. <a href="%s" target="_blank"> Share with us how we can improve Google XML Sitemaps for you by taking this short survey.</a>','sitemap'));
 					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
 				</p>
 			</strong>
 			<div style="clear:right;"></div>
 		</div>
 		<?php
+	}
+
+	
+	public function robots_disallowed()
+	{
+	  // parse url to retrieve host and path
+	  $parsed = home_url();
+
+	  // location of robots.txt file
+	  $robotstxt = @file("{$parsed}/robots.txt");
+	  // if there isn't a robots, then we're allowed in
+	  if(empty($robotstxt)) return true;
+  
+	  $rules = array();
+	  $ruleApplies = true;
+	  foreach($robotstxt as $line) {
+		// skip blank lines
+		if(!$line = trim($line)) continue;
+		
+		if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
+		  // an empty rule implies full access - no further tests required
+		  if(!$regs[1]) continue;
+		  // add rules that apply to array for testing
+		  $id = url_to_postid(home_url(trim($regs[1])));
+		  if($id > 0){
+			$rules[] = $id;
+		  }
+		}
+	  }
+	  return $rules;
+	}
+
+	public function getXslUrl($url,$host){
+		if (substr($host, 0, 4) === 'www.'){
+			if(substr(get_bloginfo('url'), 0, 5) != "https"){
+				if(strpos($url,"www.") === false){
+					$url = str_replace("http://","http://www.",$url);
+				}
+			} else{
+				if(strpos($url,"www.") === false){
+					$url = str_replace("https://","https://www.",$url);
+				}
+			}
+		} else{
+			if(strpos($url,"www.") !== false){
+				$url = str_replace("://www.","://",$url);
+			}
+		}
+		return $url;
 	}
 }
