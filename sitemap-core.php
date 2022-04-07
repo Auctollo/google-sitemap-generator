@@ -2275,6 +2275,36 @@ final class GoogleSitemapGenerator {
 		<?php
 	}
 
+	
+	public function robots_disallowed()
+	{
+	  // parse url to retrieve host and path
+	  $parsed = home_url();
+
+	  // location of robots.txt file
+	  $robotstxt = @file("{$parsed}/robots.txt");
+	  // if there isn't a robots, then we're allowed in
+	  if(empty($robotstxt)) return true;
+  
+	  $rules = array();
+	  $ruleApplies = true;
+	  foreach($robotstxt as $line) {
+		// skip blank lines
+		if(!$line = trim($line)) continue;
+		
+		if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
+		  // an empty rule implies full access - no further tests required
+		  if(!$regs[1]) continue;
+		  // add rules that apply to array for testing
+		  $id = url_to_postid(home_url(trim($regs[1])));
+		  if($id > 0){
+			$rules[] = $id;
+		  }
+		}
+	  }
+	  return $rules;
+	}
+
 	public function getXslUrl($url,$host){
 		if (substr($host, 0, 4) === 'www.'){
 			if(substr(get_bloginfo('url'), 0, 5) != "https"){

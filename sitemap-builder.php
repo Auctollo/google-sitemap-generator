@@ -81,6 +81,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 			//Excluded posts by ID
 			$excludedPostIDs = $gsg->GetExcludedPostIDs($gsg);
+			$notAllowedSlugs = $gsg->robots_disallowed();
+			$excludedPostIDs = array_unique(array_merge($excludedPostIDs,$notAllowedSlugs), SORT_REGULAR);
+			$gsg->SetOption('b_exclude', $excludedPostIDs);
+			$gsg->SaveOptions();
 			$exPostSQL = "";
 			if(count($excludedPostIDs) > 0) {
 				$exPostSQL = "AND p.ID NOT IN (" . implode(",", $excludedPostIDs) . ")";
@@ -523,6 +527,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if(count($enabledPostTypes) > 0) {
 
 			$excludedPostIDs = $gsg->GetExcludedPostIDs($gsg);
+			$notAllowedSlugs = $gsg->robots_disallowed();
+			$excludedPostIDs = array_unique(array_merge($excludedPostIDs,$notAllowedSlugs), SORT_REGULAR);
+			$gsg->SetOption('b_exclude', $excludedPostIDs);
+			$gsg->SaveOptions();
 			$exPostSQL = "";
 			if(count($excludedPostIDs) > 0) {
 				$exPostSQL = "AND p.ID NOT IN (" . implode(",", $excludedPostIDs) . ")";
