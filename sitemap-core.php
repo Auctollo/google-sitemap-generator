@@ -1171,6 +1171,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_cf_posts"] = "monthly"; //Change frequency of posts
 		$this->options["sm_cf_pages"] = "weekly"; //Change frequency of static pages
 		$this->options["sm_cf_cats"] = "weekly"; //Change frequency of categories
+		$this->options["sm_cf_product_cat"] = "weekly"; //Change frequency of product categories
 		$this->options["sm_cf_auth"] = "weekly"; //Change frequency of author pages
 		$this->options["sm_cf_arch_curr"] = "daily"; //Change frequency of the current archive (this month)
 		$this->options["sm_cf_arch_old"] = "yearly"; //Change frequency of older archives
@@ -1181,6 +1182,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_pr_posts_min"] = 0.2; //Minimum Priority of posts, even if autocalc is enabled
 		$this->options["sm_pr_pages"] = 0.6; //Priority of static pages
 		$this->options["sm_pr_cats"] = 0.3; //Priority of categories
+		$this->options["sm_pr_product_cat"] = 0.3; //Priority of product categories
 		$this->options["sm_pr_arch"] = 0.3; //Priority of archives
 		$this->options["sm_pr_auth"] = 0.3; //Priority of author pages
 		$this->options["sm_pr_tags"] = 0.3; //Priority of tags
@@ -1368,6 +1370,9 @@ final class GoogleSitemapGenerator {
 			$url = $this->GetPluginUrl();
 			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
 			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
+
+			$host = $_SERVER['HTTP_HOST'];
+			$url = $this->getXslUrl($url,$host);
 			return $url . 'sitemap.xsl';
 		}
 		return '';
@@ -2263,13 +2268,32 @@ final class GoogleSitemapGenerator {
 		<div class="updated">
 			<strong>
 				<p>
-					<?php echo str_replace('%s', 'https://forms.gle/aFkbBs2rfGqQoCqj8',
-						__('Google XML Sitemaps 5.0 is around the corner! <a href="%s" target="_blank"> Help us shape the future of sitemaps by taking this short survey</a>','sitemap'));
+					<?php echo str_replace('%s', 'https://forms.gle/kx47Rkk2P8GZ257Q8',
+						__('Help us shape the future of sitemaps. <a href="%s" target="_blank"> Share with us how we can improve Google XML Sitemaps for you by taking this short survey.</a>','sitemap'));
 					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
 				</p>
 			</strong>
 			<div style="clear:right;"></div>
 		</div>
 		<?php
+	}
+
+	public function getXslUrl($url,$host){
+		if (substr($host, 0, 4) === 'www.'){
+			if(substr(get_bloginfo('url'), 0, 5) != "https"){
+				if(strpos($url,"www.") === false){
+					$url = str_replace("http://","http://www.",$url);
+				}
+			} else{
+				if(strpos($url,"www.") === false){
+					$url = str_replace("https://","https://www.",$url);
+				}
+			}
+		} else{
+			if(strpos($url,"www.") !== false){
+				$url = str_replace("://www.","://",$url);
+			}
+		}
+		return $url;
 	}
 }
