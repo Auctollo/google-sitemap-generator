@@ -162,28 +162,27 @@ class GoogleSitemapGeneratorUI
 			return strtr($v, '<>', '..');
 		}
 
-		static public function array_map_r( $func, $arr )
-		{
-			$newArr = array();
-	
-			foreach( $arr as $key => $value )
-			{
-				$newArr[ $key ] = ( is_array( $value ) ? self::array_map_r( $func, $value ) : ( is_array($func) ? call_user_func_array($func, $value) : $func( $value ) ) );
-			}
-	
-			return $newArr;
-		}
-	
-		/**
-		 * Displays the option page
-		 *
-		 * @since 3.0
-		 * @access public
-		 * @author Arne Brachhold
-		 */
-		public function HtmlShowOptionsPage() {
-			global $wp_version;
+	static public function array_map_r( $func, $arr )
+	{
+		$newArr = array();
 
+		foreach( $arr as $key => $value )
+		{
+			$newArr[ $key ] = ( is_array( $value ) ? self::array_map_r( $func, $value ) : ( is_array($func) ? call_user_func_array($func, $value) : $func( $value ) ) );
+		}
+
+		return $newArr;
+	}
+
+	/**
+	 * Displays the option page
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @author Arne Brachhold
+	 */
+	public function HtmlShowOptionsPage() {
+		global $wp_version;
 			$snl = false; //SNL
 
 			$this->sg->Initate();

@@ -2391,6 +2391,25 @@ final class GoogleSitemapGenerator {
 				}
 			}
 		}
-		return $rules;
+	  return $rules;
+	}
+
+	public function getXslUrl($url,$host){
+		if (substr($host, 0, 4) === 'www.'){
+			if(substr(get_bloginfo('url'), 0, 5) != "https"){
+				if(strpos($url,"www.") === false){
+					$url = str_replace("http://","http://www.",$url);
+				}
+			} else{
+				if(strpos($url,"www.") === false){
+					$url = str_replace("https://","https://www.",$url);
+				}
+			}
+		} else{
+			if(strpos($url,"www.") !== false){
+				$url = str_replace("://www.","://",$url);
+			}
+		}
+		return $url;
 	}
 }
