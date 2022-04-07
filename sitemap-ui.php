@@ -308,53 +308,47 @@ class GoogleSitemapGeneratorUI
 					}
 
 					//Check vor values and convert them into their types, based on the category they are in
-					if (!isset($_POST[$k])) $_POST[$k] = ""; // Empty string will get false on 2bool and 0 on 2float
+				if(!isset($_POST[$k])) $_POST[$k]=""; // Empty string will get false on 2bool and 0 on 2float
 
 					//Options of the category "Basic Settings" are boolean, except the filename and the autoprio provider
-					if (substr($k, 0, 5) == "sm_b_") {
-						if ($k == "sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl") {
-							if ($k == "sm_b_filename_manual" && strpos($_POST[$k], "\\") !== false) {
-								$_POST[$k] = stripslashes(self::escape($_POST[$k]));
-							} else if ($k == "sm_b_baseurl") {
+					if(substr($k,0,5)=="sm_b_") {
+						if($k=="sm_b_prio_provider" || $k == "sm_b_style" || $k == "sm_b_memory" || $k == "sm_b_baseurl" || $k == "sm_b_sitemap_name") {
+							if($k=="sm_b_filename_manual" && strpos($_POST[$k],"\\")!==false){
+								$_POST[$k]=stripslashes(self::escape($_POST[$k]));
+							} else if($k=="sm_b_baseurl") {
 								$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
-								if (!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
-							} else if ($k == "sm_b_style") {
+								if(!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
+							} else if($k=="sm_b_style") {
 								$_POST[$k] = esc_url_raw(trim(self::escape($_POST[$k])));
-								if (!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
-							}
-							$this->sg->SetOption($k, (string) $_POST[$k]);
-						} else if ($k == "sm_b_time") {
-							if ($_POST[$k] == '') $_POST[$k] = -1;
-							$this->sg->SetOption($k, intval($_POST[$k]));
-						} else if ($k == "sm_i_install_date") {
-							if ($this->sg->GetOption('i_install_date') <= 0) $this->sg->SetOption($k, time());
-						} else if ($k == "sm_b_exclude") {
-							$IDss = array();
-							$IDs = explode(",", $_POST[$k]);
-							for ($x = 0; $x < count($IDs); $x++) {
-								$ID = intval(trim($IDs[$x]));
-								if ($ID > 0) $IDss[] = $ID;
-							}
-							$this->sg->SetOption($k, $IDss);
-						} else if ($k == "sm_b_exclude_cats") {
-							$exCats = array();
-							if (isset($_POST["post_category"])) {
-								foreach ((array) $_POST["post_category"] as $vv) if (!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
-							}
-							if (isset($_POST['tax_input']) && isset($_POST['tax_input']['product_cat'])) {
-								$prod_cat = $_POST['tax_input']['product_cat'];
-								foreach ((array) $prod_cat as $vv) if (!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
-							}
-							$taxonomies = $this->sg->GetCustomTaxonomies();
-							foreach ($taxonomies as $key => $taxonomy) {
-								if (isset($_POST['tax_input']) && isset($_POST['tax_input'][$taxonomy])) {
-									$custom_cat = $_POST['tax_input'][$taxonomy];
-									foreach ((array) $custom_cat as $vv) if (!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
+								if(!empty($_POST[$k])) $_POST[$k] = untrailingslashit($_POST[$k]);
+							}else if($k=="sm_b_sitemap_name"){
+								$_POST[$k] = trim(self::escape($_POST[$k]));
+								if($this->sg->OldFileExists()) {
+									$this->sg->DeleteOldFiles();
 								}
 							}
-							$this->sg->SetOption($k, $exCats);
+							$this->sg->SetOption($k,(string) $_POST[$k]);
+						} else if($k == "sm_b_time") {
+							if($_POST[$k]=='') $_POST[$k] = -1;
+							$this->sg->SetOption($k,intval($_POST[$k]));
+						} else if($k== "sm_i_install_date") {
+							if($this->sg->GetOption('i_install_date')<=0) $this->sg->SetOption($k,time());
+						} else if($k=="sm_b_exclude") {
+							$IDss = array();
+							$IDs = explode(",",$_POST[$k]);
+							for($x = 0; $x<count($IDs); $x++) {
+								$ID = intval(trim($IDs[$x]));
+								if($ID>0) $IDss[] = $ID;
+							}
+							$this->sg->SetOption($k,$IDss);
+						} else if($k == "sm_b_exclude_cats") {
+							$exCats = array();
+							if(isset($_POST["post_category"])) {
+								foreach((array) $_POST["post_category"] AS $vv) if(!empty($vv) && is_numeric($vv)) $exCats[] = intval($vv);
+							}
+							$this->sg->SetOption($k,$exCats);
 						} else {
-							$this->sg->SetOption($k, (bool) $_POST[$k]);
+							$this->sg->SetOption($k,(bool) $_POST[$k]);
 						}
 						//Options of the category "Includes" are boolean
 					} else if (substr($k, 0, 6) == "sm_in_") {
