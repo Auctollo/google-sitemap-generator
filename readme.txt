@@ -2,8 +2,8 @@
 Contributors: arnee
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
-Tested up to: 5.0.1
-Stable tag: 4.1.0
+Tested up to: 5.8.4
+Stable tag: 4.1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,18 @@ The changelog is maintained [here](http://www.arnebrachhold.de/projects/wordpres
 The WordPress.org repository is just another place to download this plugin. I don't want to maintain too many pages with the same content. Thank you for your understanding!
 
 == Changelog ==
+
+= 4.1.1 (2022-04-07) =
+* fix security issue related to Cross-Site Scripting attacks on debug page
+* fix  HTTP error while generating sitemap (because of conflict of www and now www site)
+* fix handles the removal of Wordpress native sitemap entry from robots.txt
+* added option for flush database rewrite on deactivate plugin 
+* added options for split the custom categories into multiple sitemap by custom taxonomy
+* added options to omit the posts which added in robots.txt to disallow
+* added option to set links per page for tags and categories
+* added option for provide the custom name for the sitemap.xml file
+* added option for custom post type's list into the archive sitemap
+* added support of manage priorities and frequencies for products category
 
 = 4.1.0 (2018-12-18) =
 * Fixed security issue related to escaping external URLs
