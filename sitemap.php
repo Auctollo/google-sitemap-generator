@@ -109,5 +109,6 @@ function sm_GetInitFile() {
 //Don't do anything if this file was called directly
 if (defined('ABSPATH') && defined('WPINC') && !class_exists("GoogleSitemapGeneratorLoader", false)) {
 	sm_Setup();
+	add_filter('wp_sitemaps_enabled', '__return_false');
 }
 
