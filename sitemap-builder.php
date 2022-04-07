@@ -277,6 +277,30 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$gsg->AddUrl($url, $gsg->GetTimestampFromMySql($archive->last_mod), $changeFreq, $gsg->GetOption("pr_arch"));
 			}
 		}
+
+		$post_types = get_post_types(array('public' => 1));
+		$post_types = array_diff($post_types, array( 'page', 'attachment','product','post'));
+		foreach($post_types as $post_type){
+			$latest = new WP_Query(
+				array(
+					'post_type' => $post_type,
+					'post_status' => 'publish',
+					'posts_per_page' => 1,
+					'orderby' => 'modified',
+					'order' => 'DESC'
+				)
+			);
+		
+			if($latest->have_posts()){
+				$modified_date = $latest->posts[0]->post_modified;
+				if( date("n",strtotime($modified_date)) == date("n") && date("Y",strtotime($modified_date)) == date("Y")) {
+					$changeFreq = $gsg->GetOption("cf_arch_curr");
+				} else { // Archive is older
+					$changeFreq = $gsg->GetOption("cf_arch_old");
+				}
+				$gsg->AddUrl(get_post_type_archive_link($post_type), $gsg->GetTimestampFromMySql($modified_date), $changeFreq, $gsg->GetOption("pr_arch"),0, array(),array(),'');
+			}
+		}
 	}
 
 	/**
