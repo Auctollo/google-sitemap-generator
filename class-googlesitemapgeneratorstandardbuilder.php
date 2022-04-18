@@ -679,7 +679,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		global $wpdb;
 		$blog_update    = strtotime( get_lastpostmodified( 'gmt' ) );
 		$links_per_page = $gsg->get_option( 'links_page' );
-		if ( 0 == $links_per_page ) {
+		if ( 0 === $links_per_page ) {
 			$links_per_page = 10;
 			$gsg->set_option( 'links_page', 10 );
 		}
@@ -769,7 +769,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$excluded_post_ids = array_unique( array_merge( $excluded_post_ids, $not_allowed_slugs ), SORT_REGULAR );
 			$gsg->set_option( 'b_exclude', $excluded_post_ids );
 			$gsg->save_options();
-			$ex_post_s_q_l = '';
+			$ex_post_s_q_l           = '';
 			$excluded_post_ids_count = count( $excluded_post_ids );
 			if ( $excluded_post_ids_count > 0 ) {
 				$ex_post_s_q_l = 'AND p.ID NOT IN (' . implode( ',', $excluded_post_ids ) . ')';

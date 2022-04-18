@@ -68,7 +68,7 @@ class GoogleSitemapGeneratorLoader {
 		// add_filter('contextual_help_list', array( __CLASS__, 'call_html_show_help_list' ), 9999, 2); .
 
 		// Check if the result of a ping request should be shown .
-		if ( isset( $_GET['sm_ping_service'] ) && ! empty( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['sm_ping_service'] ) ) ) ) ) {
+		if ( isset( $_GET['sm_ping_service'] ) && ! empty( sanitize_text_field( wp_unslash( $_GET['sm_ping_service'] ) ) ) ) {
 			self::call_show_ping_result();
 		}
 

@@ -107,3 +107,4 @@ function sm_loadPages() {
 		sm_addPage(pages[i].url,pages[i].priority,pages[i].changeFreq,pages[i].lastChanged);
 	}
 }
+if (typeof(sm_loadPages) == 'function') addLoadEvent(sm_loadPages);

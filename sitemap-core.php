@@ -1360,7 +1360,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_in_tax']         = array(); // Include additional taxonomies .
 		$this->options['sm_in_customtypes'] = array(); // Include custom post types .
 		$this->options['sm_in_lastmod']     = true; // Include the last modification date .
-
+		$this->options['sm_b_sitemap_name'] = 'sitemap'; // Name of custom sitemap.
 		$this->options['sm_cf_home']        = 'daily'; // Change frequency of the homepage .
 		$this->options['sm_cf_posts']       = 'monthly'; // Change frequency of posts .
 		$this->options['sm_cf_pages']       = 'weekly'; // Change frequency of static pages .
@@ -1517,7 +1517,7 @@ final class GoogleSitemapGenerator {
 		}
 
 		if ( ! empty( $pages_string ) ) {
-			$storedpages = json_decode( $pages_string );
+			$storedpages = unserialize( $pages_string );
 			$this->pages = $storedpages;
 		} else {
 			$this->pages = array();
@@ -1609,6 +1609,69 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
+	 * Registers the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param string $wp_rules Array of existing rewrite rules.
+	 * @return Array An array containing the new rewrite rules.
+	 */
+	public static function add_rewrite_rules( $wp_rules ) {
+		$sm_sitemap_name = $GLOBALS['sm_instance']->get_option( 'b_sitemap_name' );
+		$sm_rules        = array(
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+		);
+		return array_merge( $sm_rules, $wp_rules );
+	}
+
+	/**
+	 * Adds the filters for wp rewrite rule adding
+	 *
+	 * @since 4.0
+	 * @uses add_filter()
+	 */
+	public static function setup_rewrite_hooks() {
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'add_rewrite_rules' ), 1, 1 );
+	}
+	/**
+	 * Removes the filters for wp rewrite rule adding
+	 *
+	 * @since 4.0
+	 * @uses remove_filter()
+	 */
+	public static function remove_rewrite_hooks() {
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
+	}
+
+	/**
+	 * Deregisters the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param array $wp_rules Array of existing rewrite rules.
+	 * @return Array An array containing the new rewrite rules
+	 */
+	public static function remove_rewrite_rules( $wp_rules ) {
+		$sm_rules = array(
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+		);
+		foreach ( $wp_rules as $key => $value ) {
+			if ( array_key_exists( $key, $sm_rules ) ) {
+				unset( $wp_rules[ $key ] );
+			}
+		}
+		return $wp_rules;
+	}
+
+	/**
 	 * Returns the URL for the sitemap file
 	 *
 	 * @since 3.0
@@ -1638,14 +1701,21 @@ final class GoogleSitemapGenerator {
 
 		// Manual override for root URL .
 		$base_url_settings = $this->get_option( 'b_baseurl' );
+		$sm_sitemap_name   = $this->get_option( 'b_sitemap_name' );
 		if ( ! empty( $base_url_settings ) ) {
 			$base_url = $base_url_settings;
 		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
 			$base_url = SM_BASE_URL;
 		}
-
+		global $wp_rewrite;
+		delete_option( 'sm_rewrite_done' );
+		wp_clear_scheduled_hook( 'sm_ping_daily' );
+		self::remove_rewrite_hooks();
+		$wp_rewrite->flush_rules( false );
+		self::setup_rewrite_hooks();
+		GoogleSitemapGeneratorLoader::activate_rewrite();
 		if ( $pl ) {
-			return trailingslashit( $base_url ) . 'sitemap' . ( $options ? '-' . $options : '' ) . ( $html
+			return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 		} else {
 			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html
@@ -1659,8 +1729,9 @@ final class GoogleSitemapGenerator {
 	 * @return Boolean True if a sitemap file still exists
 	 */
 	public function old_file_exists() {
-		$path = trailingslashit( get_home_path() );
-		return ( file_exists( $path . 'sitemap.xml' ) || file_exists( $path . 'sitemap.xml.gz' ) );
+		$sm_sitemap_name = $this->get_option( 'b_sitemap_name' );
+		$path            = trailingslashit( get_home_path() );
+		return ( file_exists( $path . $sm_sitemap_name . '.xml' ) || file_exists( $path . 'sitemap.xml.gz' ) );
 	}
 
 	/**
@@ -2579,7 +2650,7 @@ final class GoogleSitemapGenerator {
 	public function show_survey() {
 		$this->load_options();
 		if ( isset( $_REQUEST['sm_survey'] ) ) {
-			return ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['sm_survey'] ) ) ) ) || ! $this->get_option( 'i_hide_survey' );
+			return ( sanitize_text_field( wp_unslash( $_REQUEST['sm_survey'] ) ) ) || ! $this->get_option( 'i_hide_survey' );
 		}
 	}
 
