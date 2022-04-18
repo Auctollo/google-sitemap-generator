@@ -1,16 +1,25 @@
 <?php
-/*
+/**
+ * Default sitemap core class
+ *
+ * @package Sitemap
+ * @author  Arne Brachhold
+ * @since   4.0
+ */
 
- $Id: sitemap-core.php 935247 2014-06-19 17:13:03Z arnee $
+use function Bhittani\StarRating\functions\sanitize;
+/**
+ * $Id: sitemap-core.php 935247 2014-06-19 17:13:03Z arnee $
+ */
 
-*/
+// Enable for dev! Good code doesn't generate any notices...
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1); .
 
-//Enable for dev! Good code doesn't generate any notices...
-//error_reporting(E_ALL);
-//ini_set("display_errors", 1);
 
 /**
  * Represents the status (successes and failures) of a ping process
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0b5
@@ -18,49 +27,59 @@
 class GoogleSitemapGeneratorStatus {
 
 	/**
-	 * @var float $_startTime The start time of the building process
+	 * Var start time of building process .
+	 *
+	 * @var float $_start_time The start time of the building process .
 	 */
-	private $startTime = 0;
+	private $start_time = 0;
 
 	/**
-	 * @var float $_endTime The end time of the building process
+	 * The end time of the building process.
+	 *
+	 * @var float $_end_time The end time of the building process
 	 */
-	private $endTime = 0;
+	private $end_time = 0;
 
 	/**
+	 * Holding an array with the results and information of the last ping .
+	 *
 	 * @var array Holding an array with the results and information of the last ping
 	 */
-	private $pingResults = array();
+	private $ping_results = array();
 
 	/**
+	 * If the status should be saved to the database automatically .
+	 *
 	 * @var bool If the status should be saved to the database automatically
 	 */
-	private $autoSave = true;
+	private $auto_save = true;
 
 	/**
 	 * Constructs a new status ued for saving the ping results
+	 *
+	 * @param string $auto_save .
 	 */
-	public function __construct($autoSave = true) {
-		$this->startTime = microtime(true);
+	public function __construct( $auto_save = true ) {
+		$this->start_time = microtime( true );
 
-		$this->autoSave = $autoSave;
+		$this->auto_save = $auto_save;
 
-		if($autoSave) {
+		if ( $auto_save ) {
 
-			$exists = get_option("sm_status");
+			$exists = get_option( 'sm_status' );
 
-			if ($exists === false)
-				add_option("sm_status", "", null, "no");
-
-			$this->Save();
+			if ( false === $exists ) {
+				add_option( 'sm_status', '', '', 'no' );
+			}
+			$this->save();
 		}
 	}
 
 	/**
 	 * Saves the status back to the database
 	 */
-	public function Save() {
-		update_option("sm_status", $this);
+	public function save() {
+		update_option( 'sm_status', $this );
 	}
 
 	/**
@@ -68,117 +87,130 @@ class GoogleSitemapGeneratorStatus {
 	 *
 	 * @return GoogleSitemapGeneratorStatus
 	 */
-	public static function Load() {
-		$status = @get_option("sm_status");
-		if(is_a($status, "GoogleSitemapGeneratorStatus")) {
+	public static function load() {
+		$status = get_option( 'sm_status' );
+		if ( is_a( $status, 'GoogleSitemapGeneratorStatus' ) ) {
 			return $status;
+		} else {
+			return null;
 		}
-		else return null;
 	}
 
 	/**
 	 * Ends the ping process
 	 */
-	public function End() {
-		$this->endTime = microtime(true);
-		if($this->autoSave) $this->Save();
+	public function end() {
+		$this->end_time = microtime( true );
+		if ( $this->auto_save ) {
+			$this->save();
+		}
 	}
 
 	/**
 	 * Returns the duration of the ping process
+	 *
 	 * @return int
 	 */
-	public function GetDuration() {
-		return round($this->endTime - $this->startTime, 2);
+	public function get_duration() {
+		return round( $this->end_time - $this->start_time, 2 );
 	}
 
 	/**
 	 * Returns the time when the pings were started
+	 *
 	 * @return int
 	 */
-	public function GetStartTime() {
-		return round($this->startTime, 2);
+	public function get_start_time() {
+		return round( $this->start_time, 2 );
 	}
 
 	/**
-	 * @param  $service string The internal name of the ping service
-	 * @param  $url string The URL to ping
-	 * @param  $name string The display name of the service
+	 * Start ping .
+	 *
+	 * @param string $service string The internal name of the ping service .
+	 * @param string $url string The URL to ping .
+	 * @param string $name string The display name of the service .
 	 * @return void
 	 */
-	public function StartPing($service, $url, $name = null) {
-		$this->pingResults[$service] = array(
-			'startTime' => microtime(true),
-			'endTime' => 0,
-			'success' => false,
-			'url' => $url,
-			'name' => $name ? $name : $service
+	public function start_ping( $service, $url, $name = null ) {
+		$this->ping_results[ $service ] = array(
+			'start_time' => microtime( true ),
+			'end_time'   => 0,
+			'success'    => false,
+			'url'        => $url,
+			'name'       => $name ? $name : $service,
 		);
 
-		if($this->autoSave) $this->Save();
+		if ( $this->auto_save ) {
+			$this->save();
+		}
 	}
 
 	/**
-	 * @param  $service string The internal name of the ping service
-	 * @param  $success boolean If the ping was successful
+	 * End ping .
+	 *
+	 * @param string $service string The internal name of the ping service .
+	 * @param string $success boolean If the ping was successful .
 	 * @return void
 	 */
-	public function EndPing($service, $success) {
-		$this->pingResults[$service]['endTime'] = microtime(true);
-		$this->pingResults[$service]['success'] = $success;
+	public function end_ping( $service, $success ) {
+		$this->ping_results[ $service ]['end_time'] = microtime( true );
+		$this->ping_results[ $service ]['success']  = $success;
 
-		if($this->autoSave) $this->Save();
+		if ( $this->auto_save ) {
+			$this->save();
+		}
 	}
 
 	/**
 	 * Returns the duration of the last ping of a specific ping service
 	 *
-	 * @param  $service string The internal name of the ping service
+	 * @param string $service string The internal name of the ping service .
 	 * @return float
 	 */
-	public function GetPingDuration($service) {
-		$res = $this->pingResults[$service];
-		return round($res['endTime'] - $res['startTime'], 2);
+	public function get_ping_duration( $service ) {
+		$res = $this->ping_results[ $service ];
+		return round( $res['end_time'] - $res['start_time'], 2 );
 	}
 
 	/**
 	 * Returns the last result for a specific ping service
 	 *
-	 * @param  $service string The internal name of the ping service
+	 * @param string $service string The internal name of the ping service .
 	 * @return array
 	 */
-	public function GetPingResult($service) {
-		return $this->pingResults[$service]['success'];
+	public function get_ping_result( $service ) {
+		return $this->ping_results[ $service ]['success'];
 	}
 
 	/**
 	 * Returns the URL for a specific ping service
 	 *
-	 * @param  $service string The internal name of the ping service
+	 * @param string $service string The internal name of the ping service .
 	 * @return array
 	 */
-	public function GetPingUrl($service) {
-		return $this->pingResults[$service]['url'];
+	public function get_ping_url( $service ) {
+		return $this->ping_results[ $service ]['url'];
 	}
 
 	/**
 	 * Returns the name for a specific ping service
 	 *
-	 * @param  $service string The internal name of the ping service
+	 * @param string $service string The internal name of the ping service .
 	 * @return array
 	 */
-	public function GetServiceName($service) {
-		return $this->pingResults[$service]['name'];
+	public function get_service_name( $service ) {
+		return $this->ping_results[ $service ]['name'];
 	}
 
 	/**
 	 * Returns if a service was used in the last ping
 	 *
-	 * @param  $service string The internal name of the ping service
+	 * @param string $service string The internal name of the ping service .
 	 * @return bool
 	 */
-	public function UsedPingService($service) {
-		return array_key_exists($service, $this->pingResults);
+	public function used_ping_service( $service ) {
+		return array_key_exists( $service, $this->ping_results );
 	}
 
 	/**
@@ -186,13 +218,14 @@ class GoogleSitemapGeneratorStatus {
 	 *
 	 * @return array
 	 */
-	public function GetUsedPingServices() {
-		return array_keys($this->pingResults);
+	public function get_used_ping_services() {
+		return array_keys( $this->ping_results );
 	}
 }
 
 /**
  * Represents an item in the page list
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
@@ -200,48 +233,56 @@ class GoogleSitemapGeneratorStatus {
 class GoogleSitemapGeneratorPage {
 
 	/**
+	 * Sets the URL or the relative path to the site dir of the page .
+	 *
 	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
-	public $_url;
+	public $url;
 
 	/**
+	 * Sets the priority of this page .
+	 *
 	 * @var float $_priority Sets the priority of this page
 	 */
-	public $_priority;
+	public $priority;
 
 	/**
-	 * @var string $_changeFreq Sets the chanfe frequency of the page. I want Enums!
+	 * Sets the chanfe frequency of the page. I want Enums! .
+	 *
+	 * @var string $_change_freq Sets the chanfe frequency of the page. I want Enums!
 	 */
-	public $_changeFreq;
+	public $change_freq;
 
 	/**
-	 * @var int $_lastMod Sets the lastMod date as a UNIX timestamp.
+	 * Sets the last_mod date as a UNIX timestamp. .
+	 *
+	 * @var int $_last_mod Sets the last_mod date as a UNIX timestamp.
 	 */
-	public $_lastMod;
+	public $last_mod;
 
 	/**
-	 * @var int $_postID Sets the post ID in case this item is a WordPress post or page
+	 * Sets the post ID in case this item is a WordPress post or page .
+	 *
+	 * @var int $_post_id Sets the post ID in case this item is a WordPress post or page
 	 */
-	public $_postID;
+	public $post_id;
 
 	/**
 	 * Initialize a new page object
 	 *
 	 * @since 3.0
-	 * @param string $url The URL or path of the file
-	 * @param float $priority The Priority of the page 0.0 to 1.0
-	 * @param string $changeFreq The change frequency like daily, hourly, weekly
-	 * @param int $lastMod The last mod date as a unix timestamp
-	 * @param int $postID The post ID of this page
-	 * @return GoogleSitemapGeneratorPage
-	 *
+	 * @param string $url The URL or path of the file .
+	 * @param float  $priority The Priority of the page 0.0 to 1.0 .
+	 * @param string $change_freq The change frequency like daily, hourly, weekly .
+	 * @param int    $last_mod The last mod date as a unix timestamp .
+	 * @param int    $post_id The post ID of this page .
 	 */
-	public function __construct($url = "", $priority = 0.0, $changeFreq = "never", $lastMod = 0, $postID = 0) {
-		$this->SetUrl($url);
-		$this->SetProprity($priority);
-		$this->SetChangeFreq($changeFreq);
-		$this->SetLastMod($lastMod);
-		$this->SetPostID($postID);
+	public function __construct( $url = '', $priority = 0.0, $change_freq = 'never', $last_mod = 0, $post_id = 0 ) {
+		$this->set_url( $url );
+		$this->set_priority( $priority );
+		$this->set_change_freq( $change_freq );
+		$this->set_last_mod( $last_mod );
+		$this->set_post_id( $post_id );
 	}
 
 	/**
@@ -249,17 +290,17 @@ class GoogleSitemapGeneratorPage {
 	 *
 	 * @return string The URL
 	 */
-	public function GetUrl() {
-		return $this->_url;
+	public function get_url() {
+		return $this->url;
 	}
 
 	/**
 	 * Sets the URL of the page
 	 *
-	 * @param string $url The new URL
+	 * @param string $url The new URL .
 	 */
-	public function SetUrl($url) {
-		$this->_url = (string) $url;
+	public function set_url( $url ) {
+		$this->url = (string) $url;
 	}
 
 	/**
@@ -267,17 +308,17 @@ class GoogleSitemapGeneratorPage {
 	 *
 	 * @return float the priority, from 0.0 to 1.0
 	 */
-	public function GetPriority() {
-		return $this->_priority;
+	public function get_priority() {
+		return $this->priority;
 	}
 
 	/**
 	 * Sets the priority of the page
 	 *
-	 * @param float $priority The new priority from 0.1 to 1.0
+	 * @param float $priority The new priority from 0.1 to 1.0 .
 	 */
-	public function SetProprity($priority) {
-		$this->_priority = floatval($priority);
+	public function set_priority( $priority ) {
+		$this->priority = floatval( $priority );
 	}
 
 	/**
@@ -285,17 +326,17 @@ class GoogleSitemapGeneratorPage {
 	 *
 	 * @return string The change frequncy like hourly, weekly, monthly etc.
 	 */
-	public function GetChangeFreq() {
-		return $this->_changeFreq;
+	public function get_change_freq() {
+		return $this->change_freq;
 	}
 
 	/**
 	 * Sets the change frequency of the page
 	 *
-	 * @param string $changeFreq The new change frequency
+	 * @param string $change_freq The new change frequency .
 	 */
-	public function SetChangeFreq($changeFreq) {
-		$this->_changeFreq = (string) $changeFreq;
+	public function set_change_freq( $change_freq ) {
+		$this->change_freq = (string) $change_freq;
 	}
 
 	/**
@@ -303,17 +344,17 @@ class GoogleSitemapGeneratorPage {
 	 *
 	 * @return int The lastmod value in seconds
 	 */
-	public function GetLastMod() {
-		return $this->_lastMod;
+	public function get_last_mod() {
+		return $this->last_mod;
 	}
 
 	/**
 	 * Sets the last mod of the page
 	 *
-	 * @param int $lastMod The lastmod of the page
+	 * @param int $last_mod The lastmod of the page .
 	 */
-	public function SetLastMod($lastMod) {
-		$this->_lastMod = intval($lastMod);
+	public function set_last_mod( $last_mod ) {
+		$this->last_mod = intval( $last_mod );
 	}
 
 	/**
@@ -321,73 +362,107 @@ class GoogleSitemapGeneratorPage {
 	 *
 	 * @return int The post ID
 	 */
-	public function GetPostID() {
-		return $this->_postID;
+	public function get_post_id() {
+		return $this->post_id;
 	}
 
 	/**
 	 * Sets the ID of the post
 	 *
-	 * @param int $postID The new ID
+	 * @param int $post_id The new ID .
 	 */
-	public function SetPostID($postID) {
-		$this->_postID = intval($postID);
+	public function set_post_id( $post_id ) {
+		$this->post_id = intval( $post_id );
 	}
 
-	public function Render() {
+	/**
+	 * Render method .
+	 */
+	public function render() {
 
-		if($this->_url == "/" || empty($this->_url)) return '';
+		if ( '/' === $this->url || empty( $this->url ) ) {
+			return '';
+		}
 
-		$r = "";
-		$r .= "\t<url>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
-		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
-		if(!empty($this->_changeFreq)) $r .= "\t\t<changefreq>" . $this->_changeFreq . "</changefreq>\n";
-		if($this->_priority !== false && $this->_priority !== "") $r .= "\t\t<priority>" . number_format($this->_priority, 1) . "</priority>\n";
-		$r .= "\t</url>\n";
+		$r  = '';
+		$r .= '\\t<url>\\n';
+		$r .= '\\t\\t<loc>' . $this->escape_xml( esc_url_raw( $this->url ) ) . '</loc>\\n';
+		if ( $this->last_mod > 0 ) {
+			$r .= '\\t\\t<lastmod>' . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . '</lastmod>\\n';
+		}
+		if ( ! empty( $this->change_freq ) ) {
+			$r .= '\\t\\t<changefreq>' . $this->change_freq . '</changefreq>\\n';
+		}
+		if ( false !== $this->priority && '' !== $this->priority ) {
+			$r .= '\\t\\t<priority>' . number_format( $this->priority, 1 ) . '</priority>\\n';
+		}
+		$r .= '\\t</url>\\n';
 		return $r;
 	}
 
-	protected function EscapeXML($string) {
-		return str_replace(array('&', '"', "'", '<', '>'), array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;'), $string);
+	/**
+	 * Escape xml .
+	 *
+	 * @param string $string .
+	 */
+	protected function escape_xml( $string ) {
+		return str_replace( array( '&', '"', '\'', '<', '>' ), array( '&amp;', '&quot;', '&apos;', '&lt;', '&gt;' ), $string );
 	}
 }
 
 /**
  * Represents an XML entry, like definitions
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
  */
 class GoogleSitemapGeneratorXmlEntry {
 
-	protected $_xml;
+	/**
+	 * Xml
+	 *
+	 * @var string $_xml .
+	 */
+	protected $xml;
 
-	public function __construct($xml) {
-		$this->_xml = $xml;
+	/**
+	 * Constructor function
+	 *
+	 * @param string $xml .
+	 */
+	public function __construct( $xml ) {
+		$this->xml = $xml;
 	}
 
-	public function Render() {
-		return $this->_xml;
+	/**
+	 * Render function
+	 */
+	public function render() {
+		return $this->xml;
 	}
 }
 
 /**
  * Represents an comment
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
  * @uses GoogleSitemapGeneratorXmlEntry
  */
 class GoogleSitemapGeneratorDebugEntry extends GoogleSitemapGeneratorXmlEntry {
-
-	public function Render() {
-		return "<!-- " . $this->_xml . " -->\n";
+	/**
+	 * Render function
+	 */
+	public function render() {
+		return '<!-- ' . $this->xml . " -->\n";
 	}
 }
 
 /**
  * Represents an item in the sitemap
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
@@ -395,31 +470,35 @@ class GoogleSitemapGeneratorDebugEntry extends GoogleSitemapGeneratorXmlEntry {
 class GoogleSitemapGeneratorSitemapEntry {
 
 	/**
+	 * Sets the URL or the relative path to the site dir of the page .
+	 *
 	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
-	protected $_url;
+	protected $url;
 
 	/**
-	 * @var int $_lastMod Sets the lastMod date as a UNIX timestamp.
+	 * Sets the last_mod date as a UNIX timestamp. .
+	 *
+	 * @var int $_last_mod Sets the last_mod date as a UNIX timestamp.
 	 */
-	protected $_lastMod;
+	protected $last_mod;
 
 	/**
 	 * Returns the URL of the page
 	 *
 	 * @return string The URL
 	 */
-	public function GetUrl() {
-		return $this->_url;
+	public function get_url() {
+		return $this->url;
 	}
 
 	/**
 	 * Sets the URL of the page
 	 *
-	 * @param string $url The new URL
+	 * @param string $url The new URL .
 	 */
-	public function SetUrl($url) {
-		$this->_url = (string) $url;
+	public function set_url( $url ) {
+		$this->url = (string) $url;
 	}
 
 	/**
@@ -427,57 +506,74 @@ class GoogleSitemapGeneratorSitemapEntry {
 	 *
 	 * @return int The lastmod value in seconds
 	 */
-	public function GetLastMod() {
-		return $this->_lastMod;
+	public function get_last_mod() {
+		return $this->last_mod;
 	}
 
 	/**
 	 * Sets the last mod of the page
 	 *
-	 * @param int $lastMod The lastmod of the page
+	 * @param int $last_mod The lastmod of the page .
 	 */
-	public function SetLastMod($lastMod) {
-		$this->_lastMod = intval($lastMod);
+	public function set_last_mod( $last_mod ) {
+		$this->last_mod = intval( $last_mod );
 	}
-
-	public function __construct($url = "", $lastMod = 0) {
-		$this->SetUrl($url);
-		$this->SetLastMod($lastMod);
+	/**
+	 * Constructor
+	 *
+	 * @param string $url .
+	 * @param int    $last_mod .
+	 */
+	public function __construct( $url = '', $last_mod = 0 ) {
+		$this->set_url( $url );
+		$this->set_last_mod( $last_mod );
 	}
+	/**
+	 * Render function
+	 */
+	public function render() {
 
-	public function Render() {
+		if ( '/' === $this->url || empty( $this->url ) ) {
+			return '';
+		}
 
-		if($this->_url == "/" || empty($this->_url)) return '';
-
-		$r = "";
-		$r .= "\t<sitemap>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
-		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
-		$r .= "\t</sitemap>\n";
+		$r  = '';
+		$r .= '\\t<sitemap>\\n';
+		$r .= '\\t\\t<loc>' . $this->escape_xml( esc_url_raw( $this->url ) ) . '</loc>\\n';
+		if ( $this->last_mod > 0 ) {
+			$r .= '\\t\\t<lastmod>' . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . '</lastmod>\\n';
+		}
+		$r .= '\\t</sitemap>\\n';
 		return $r;
 	}
 
-	protected function EscapeXML($string) {
-		return str_replace(array('&', '"', "'", '<', '>'), array('&amp;', '&quot;', '&apos;', '&lt;', '&gt;'), $string);
+	/**
+	 * Escape_xml function .
+	 *
+	 * @param string $string .
+	 */
+	protected function escape_xml( $string ) {
+		return str_replace( array( '&', '\'', '\'', '<', '>' ), array( '&amp;', '&quot;', '&apos;', '&lt;', '&gt;' ), $string );
 	}
 }
 
 /**
  * Interface for all priority providers
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
  */
-interface GoogleSitemapGeneratorPrioProviderBase {
+interface Google_Sitemap_Generator_Prio_Provider_Base {
 
 	/**
 	 * Initializes a new priority provider
 	 *
-	 * @param $totalComments int The total number of comments of all posts
-	 * @param $totalPosts int The total number of posts
+	 * @param int $total_comments int The total number of comments of all posts .
+	 * @param int $total_posts int The total number of posts .
 	 * @since 3.0
 	 */
-	function __construct($totalComments, $totalPosts);
+	public function __construct( $total_comments, $total_posts );
 
 	/**
 	 * Returns the (translated) name of this priority provider
@@ -485,7 +581,7 @@ interface GoogleSitemapGeneratorPrioProviderBase {
 	 * @since 3.0
 	 * @return string The translated name
 	 */
-	static function GetName();
+	public static function get_name();
 
 	/**
 	 * Returns the (translated) description of this priority provider
@@ -493,48 +589,52 @@ interface GoogleSitemapGeneratorPrioProviderBase {
 	 * @since 3.0
 	 * @return string The translated description
 	 */
-	static function GetDescription();
+	public static function get_description();
 
 	/**
 	 * Returns the priority for a specified post
 	 *
-	 * @param $postID int The ID of the post
-	 * @param $commentCount int The number of comments for this post
+	 * @param int $post_id int The ID of the post .
+	 * @param int $comment_count int The number of comments for this post .
 	 * @since 3.0
 	 * @return int The calculated priority
 	 */
-	function GetPostPriority($postID, $commentCount);
+	public function get_post_priority( $post_id, $comment_count );
 }
 
 /**
  * Priority Provider which calculates the priority based on the number of comments
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
  */
-class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGeneratorPrioProviderBase {
+class GoogleSitemapGeneratorPrioByCountProvider implements Google_Sitemap_Generator_Prio_Provider_Base {
 
 	/**
-	 * @var int $_totalComments The total number of comments of all posts
+	 * The total number of comments of all posts .
+	 *
+	 * @var int $total_comments The total number of comments of all posts
 	 */
-	protected $_totalComments = 0;
+	protected $total_comments = 0;
 
 	/**
-	 * @var int $_totalComments The total number of posts
+	 * The total number of posts .
+	 *
+	 * @var int $total_posts The total number of posts
 	 */
-	protected $_totalPosts = 0;
+	protected $total_posts = 0;
 
 	/**
 	 * Initializes a new priority provider
 	 *
-	 * @param $totalComments int The total number of comments of all posts
-	 * @param $totalPosts int The total number of posts
+	 * @param int $total_comments int The total number of comments of all posts .
+	 * @param int $total_posts int The total number of posts .
 	 * @since 3.0
 	 */
-	public function __construct($totalComments, $totalPosts) {
-		$this->_totalComments = $totalComments;
-		$this->_totalPosts = $totalPosts;
-
+	public function __construct( $total_comments, $total_posts ) {
+		$this->total_comments = $total_comments;
+		$this->total_posts    = $total_posts;
 	}
 
 	/**
@@ -543,8 +643,8 @@ class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGenerato
 	 * @since 3.0
 	 * @return string The translated name
 	 */
-	public static function GetName() {
-		return __("Comment Count", 'sitemap');
+	public static function get_name() {
+		return __( 'Comment Count', 'sitemap' );
 	}
 
 	/**
@@ -553,21 +653,21 @@ class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGenerato
 	 * @since 3.0
 	 * @return string The translated description
 	 */
-	public static function GetDescription() {
-		return __("Uses the number of comments of the post to calculate the priority", 'sitemap');
+	public static function get_description() {
+		return __( 'Uses the number of comments of the post to calculate the priority', 'sitemap' );
 	}
 
 	/**
 	 * Returns the priority for a specified post
 	 *
-	 * @param $postID int The ID of the post
-	 * @param $commentCount int The number of comments for this post
+	 * @param int $post_id int The ID of the post .
+	 * @param int $comment_count int The number of comments for this post .
 	 * @since 3.0
 	 * @return int The calculated priority
 	 */
-	public function GetPostPriority($postID, $commentCount) {
-		if($this->_totalComments > 0 && $commentCount > 0) {
-			return round(($commentCount * 100 / $this->_totalComments) / 100, 1);
+	public function get_post_priority( $post_id, $comment_count ) {
+		if ( $this->total_comments > 0 && $comment_count > 0 ) {
+			return round( ( $comment_count * 100 / $this->total_comments ) / 100, 1 );
 		} else {
 			return 0;
 		}
@@ -576,27 +676,34 @@ class GoogleSitemapGeneratorPrioByCountProvider implements GoogleSitemapGenerato
 
 /**
  * Priority Provider which calculates the priority based on the average number of comments
+ *
  * @author Arne Brachhold
  * @package sitemap
  * @since 3.0
  */
-class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGeneratorPrioProviderBase {
+class GoogleSitemapGeneratorPrioByAverageProvider implements Google_Sitemap_Generator_Prio_Provider_Base {
 
 
 	/**
-	 * @var int $_totalComments The total number of comments of all posts
+	 * The total number of comments of all posts .
+	 *
+	 * @var int $total_comments The total number of comments of all posts
 	 */
-	protected $_totalComments = 0;
+	protected $total_comments = 0;
 
 	/**
-	 * @var int $_totalComments The total number of posts
+	 * The total number of posts .
+	 *
+	 * @var int $total_comments The total number of posts
 	 */
-	protected $_totalPosts = 0;
+	protected $total_posts = 0;
 
 	/**
-	 * @var int $_average The average number of comments per post
+	 * The average number of comments per post .
+	 *
+	 * @var int $average The average number of comments per post
 	 */
-	protected $_average = 0.0;
+	protected $average = 0.0;
 
 	/**
 	 * Returns the (translated) name of this priority provider
@@ -604,8 +711,8 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 	 * @since 3.0
 	 * @return string The translated name
 	 */
-	public static function GetName() {
-		return __("Comment Average", 'sitemap');
+	public static function get_name() {
+		return __( 'Comment Average', 'sitemap' );
 	}
 
 	/**
@@ -614,48 +721,54 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 	 * @since 3.0
 	 * @return string The translated description
 	 */
-	public static function GetDescription() {
-		return __("Uses the average comment count to calculate the priority", 'sitemap');
+	public static function get_description() {
+		return __( 'Uses the average comment count to calculate the priority', 'sitemap' );
 	}
 
 	/**
 	 * Initializes a new priority provider which calculates the post priority based on the average number of comments
 	 *
-	 * @param $totalComments int The total number of comments of all posts
-	 * @param $totalPosts int The total number of posts
+	 * @param int $total_comments int The total number of comments of all posts .
+	 * @param int $total_posts int The total number of posts .
 	 * @since 3.0
 	 */
-	public function __construct($totalComments, $totalPosts) {
+	public function __construct( $total_comments, $total_posts ) {
 
-		$this->_totalComments = $totalComments;
-		$this->_totalPosts = $totalPosts;
+		$this->total_comments = $total_comments;
+		$this->total_posts    = $total_posts;
 
-		if($this->_totalComments > 0 && $this->_totalPosts > 0) {
-			$this->_average = (double) $this->_totalComments / $this->_totalPosts;
+		if ( $this->total_comments > 0 && $this->total_posts > 0 ) {
+			$this->average = (float) $this->total_comments / $this->total_posts;
 		}
 	}
 
 	/**
 	 * Returns the priority for a specified post
 	 *
-	 * @param $postID int The ID of the post
-	 * @param $commentCount int The number of comments for this post
+	 * @param int $post_id int The ID of the post .
+	 * @param int $comment_count int The number of comments for this post .
 	 * @since 3.0
 	 * @return int The calculated priority
 	 */
-	public function GetPostPriority($postID, $commentCount) {
+	public function get_post_priority( $post_id, $comment_count ) {
 
-		//Do not divide by zero!
-		if($this->_average == 0) {
-			if($commentCount > 0) $priority = 1;
-			else $priority = 0;
+		// Do not divide by zero !
+		if ( 0 === $this->average ) {
+			if ( $comment_count > 0 ) {
+				$priority = 1;
+			} else {
+				$priority = 0;
+			}
 		} else {
-			$priority = $commentCount / $this->_average;
-			if($priority > 1) $priority = 1;
-			else if($priority < 0) $priority = 0;
+			$priority = $comment_count / $this->average;
+			if ( $priority > 1 ) {
+				$priority = 1;
+			} elseif ( $priority < 0 ) {
+				$priority = 0;
+			}
 		}
 
-		return round($priority, 1);
+		return round( $priority, 1 );
 	}
 }
 
@@ -668,39 +781,53 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
  */
 final class GoogleSitemapGenerator {
 	/**
+	 * The unserialized array with the stored options .
+	 *
 	 * @var array The unserialized array with the stored options
 	 */
 	private $options = array();
 
 	/**
+	 * The saved additional pages .
+	 *
 	 * @var array The saved additional pages
 	 */
 	private $pages = array();
 
 	/**
+	 * The values and names of the change frequencies .
+	 *
 	 * @var array The values and names of the change frequencies
 	 */
-	private $freqNames = array();
+	private $freq_names = array();
 
 	/**
+	 * A list of class names which my be called for priority calculation .
+	 *
 	 * @var array A list of class names which my be called for priority calculation
 	 */
-	private $prioProviders = array();
+	private $prio_providers = array();
 
 	/**
+	 * True if init complete (options loaded etc) .
+	 *
 	 * @var bool True if init complete (options loaded etc)
 	 */
-	private $isInitiated = false;
+	private $is_initiated = false;
 
 	/**
+	 * Defines if the sitemap building process is active at the moment .
+	 *
 	 * @var bool Defines if the sitemap building process is active at the moment
 	 */
-	private $isActive = false;
+	private $is_active = false;
 
 	/**
+	 * Holds options like output format and compression for the current request .
+	 *
 	 * @var array Holds options like output format and compression for the current request
 	 */
-	private $buildOptions = array();
+	private $build_options = array();
 
 	/**
 	 * Holds the user interface object
@@ -712,20 +839,27 @@ final class GoogleSitemapGenerator {
 
 	/**
 	 * Defines if the simulation mode is on. In this case, data is not echoed but saved instead.
+	 *
 	 * @var boolean
 	 */
-	private $simMode = false;
+	private $sim_mode = false;
 
 	/**
 	 * Holds the data if simulation mode is on
+	 *
 	 * @var array
 	 */
-	private $simData = array("sitemaps" => array(), "content" => array());
+	private $sim_data = array(
+		'sitemaps' => array(),
+		'content'  => array(),
+	);
 
 	/**
+	 * Defines if the options have been loaded.
+	 *
 	 * @var bool Defines if the options have been loaded
 	 */
-	private $optionsLoaded = false;
+	private $options_loaded = false;
 
 
 	/*************************************** CONSTRUCTION AND INITIALIZING ***************************************/
@@ -736,7 +870,6 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0
 	 */
 	private function __construct() {
-
 	}
 
 	/**
@@ -745,10 +878,12 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return GoogleSitemapGenerator The instance or null if not available.
 	 */
-	public static function GetInstance() {
-		if(isset($GLOBALS["sm_instance"])) {
-			return $GLOBALS["sm_instance"];
-		} else return null;
+	public static function get_instance() {
+		if ( isset( $GLOBALS['sm_instance'] ) ) {
+			return $GLOBALS['sm_instance'];
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -756,9 +891,9 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	public static function Enable() {
-		if(!isset($GLOBALS["sm_instance"])) {
-			$GLOBALS["sm_instance"] = new GoogleSitemapGenerator();
+	public static function enable() {
+		if ( ! isset( $GLOBALS['sm_instance'] ) ) {
+			$GLOBALS['sm_instance'] = new GoogleSitemapGenerator();
 		}
 	}
 
@@ -769,37 +904,38 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	public function Initate() {
-		if(!$this->isInitiated) {
+	public function initate() {
+		if ( ! $this->is_initiated ) {
 
-			load_plugin_textdomain('sitemap',false,dirname( plugin_basename( __FILE__ ) ) .  '/lang');
+			load_plugin_textdomain( 'sitemap', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
-			$this->freqNames = array(
-				"always" => __("Always", "sitemap"),
-				"hourly" => __("Hourly", "sitemap"),
-				"daily" => __("Daily", "sitemap"),
-				"weekly" => __("Weekly", "sitemap"),
-				"monthly" => __("Monthly", "sitemap"),
-				"yearly" => __("Yearly", "sitemap"),
-				"never" => __("Never", "sitemap")
+			$this->freq_names = array(
+				'always'  => __( 'Always', 'sitemap' ),
+				'hourly'  => __( 'Hourly', 'sitemap' ),
+				'daily'   => __( 'Daily', 'sitemap' ),
+				'weekly'  => __( 'Weekly', 'sitemap' ),
+				'monthly' => __( 'Monthly', 'sitemap' ),
+				'yearly'  => __( 'Yearly', 'sitemap' ),
+				'never'   => __( 'Never', 'sitemap' ),
 			);
 
+			$this->load_options();
+			$this->load_pages();
 
-			$this->LoadOptions();
-			$this->LoadPages();
+			// Register our own priority providers.
+			add_filter( 'sm_add_prio_provider', array( $this, 'add_default_prio_providers' ) );
 
-			//Register our own priority providers
-			add_filter("sm_add_prio_provider", array($this, 'AddDefaultPrioProviders'));
+			// Let other plugins register their providers.
+			$r = apply_filters( 'sm_add_prio_provider', $this->prio_providers );
 
-			//Let other plugins register their providers
-			$r = apply_filters("sm_add_prio_provider", $this->prioProviders);
+			// Check if no plugin return null.
+			if ( null !== $r ) {
+				$this->prio_providers = $r;
+			}
 
-			//Check if no plugin return null
-			if($r != null) $this->prioProviders = $r;
+			$this->validate_prio_providers();
 
-			$this->ValidatePrioProviders();
-
-			$this->isInitiated = true;
+			$this->is_initiated = true;
 		}
 	}
 
@@ -812,8 +948,8 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return int The version
 	 */
-	public static function GetVersion() {
-		return GoogleSitemapGeneratorLoader::GetVersion();
+	public static function get_version() {
+		return GoogleSitemapGeneratorLoader::get_version();
 	}
 
 	/**
@@ -822,44 +958,45 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0
 	 * @return string The SVN version string
 	 */
-	public static function GetSvnVersion() {
-		return GoogleSitemapGeneratorLoader::GetSvnVersion();
+	public static function get_svn_version() {
+		return GoogleSitemapGeneratorLoader::get_svn_version();
 	}
 
 	/**
 	 * Returns a link pointing to a specific page of the authors website
 	 *
 	 * @since 3.0
-	 * @param $redir string The to link to
+	 * @param string $redir string The to link to .
 	 * @return string The full url
 	 */
-	public static function GetRedirectLink($redir) {
-		return trailingslashit("http://url.auctollo.com/" . $redir);
+	public static function get_redirect_link( $redir ) {
+		return trailingslashit( 'http://www.arnebrachhold.de/redir/' . $redir );
 	}
 
 	/**
 	 * Returns a link pointing back to the plugin page in WordPress
 	 *
 	 * @since 3.0
+	 * @param string $extra .
 	 * @return string The full url
 	 */
-	public static function GetBackLink($extra = '') {
+	public static function get_back_link( $extra = '' ) {
 		global $wp_version;
-		$url = admin_url("options-general.php?page=" .
-			GoogleSitemapGeneratorLoader::GetBaseName() . $extra);
+		$url = admin_url( 'options-general.php?page=' . GoogleSitemapGeneratorLoader::get_base_name() . $extra );
 		return $url;
 	}
 
 	/**
 	 * Converts a mysql datetime value into a unix timestamp
-	 * @param $mysqlDateTime string The timestamp in the mysql datetime format
+	 *
+	 * @param string $mysql_date_time string The timestamp in the mysql datetime format .
 	 * @return int The time in seconds
 	 */
-	public static function GetTimestampFromMySql($mysqlDateTime) {
-		list($date, $hours) = explode(' ', $mysqlDateTime);
-		list($year, $month, $day) = explode('-', $date);
-		list($hour, $min, $sec) = explode(':', $hours);
-		return mktime(intval($hour), intval($min), intval($sec), intval($month), intval($day), intval($year));
+	public static function get_timestamp_from_my_sql( $mysql_date_time ) {
+		list( $date, $hours)       = explode( ' ', $mysql_date_time );
+		list( $year, $month, $day) = explode( '-', $date );
+		list( $hour, $min, $sec)   = explode( ':', $hours );
+		return mktime( intval( $hour ), intval( $min ), intval( $sec ), intval( $month ), intval( $day ), intval( $year ) );
 	}
 
 
@@ -867,19 +1004,21 @@ final class GoogleSitemapGenerator {
 
 	/**
 	 * Returns the names for the frequency values
+	 *
 	 * @return array
 	 */
-	public function GetFreqNames() {
-		return $this->freqNames;
+	public function get_freq_names() {
+		return $this->freq_names;
 	}
 
 	/**
 	 * Returns if the site is running in multi site mode
+	 *
 	 * @since 4.0
 	 * @return bool
 	 */
-	public function IsMultiSite() {
-		return (function_exists("is_multisite") && is_multisite());
+	public function is_multi_site() {
+		return ( function_exists( 'is_multisite' ) && is_multisite() );
 	}
 
 	/**
@@ -888,9 +1027,9 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return bool true if active
 	 */
-	public function IsActive() {
-		$inst = GoogleSitemapGenerator::GetInstance();
-		return ($inst != null && $inst->isActive);
+	public function is_active() {
+		$inst = self::get_instance();
+		return ( null !== $inst && $inst->is_active );
 	}
 
 	/**
@@ -899,8 +1038,8 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0b8
 	 * @return true if compressed
 	 */
-	public function IsGzipEnabled() {
-		return (function_exists("gzwrite") && $this->GetOption('b_autozip'));
+	public function is_gzip_enabled() {
+		return ( function_exists( 'gzwrite' ) && $this->get_option( 'b_autozip' ) );
 	}
 
 	/**
@@ -909,18 +1048,19 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b1
 	 * @return true if compressed
 	 */
-	public function IsXslEnabled() {
-		return (class_exists("DomDocument") && class_exists("XSLTProcessor"));
+	public function is_xsl_enabled() {
+		return ( class_exists( 'DomDocument' ) && class_exists( 'XSLTProcessor' ) );
 	}
 
 	/**
 	 * Returns if Nginx is used as the server software
+	 *
 	 * @since 4.0.3
 	 *
 	 * @return bool
 	 */
-	function IsNginx() {
-		if ( isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false ) {
+	public function is_nginx() {
+		if ( isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'nginx' ) !== false ) {
 			return true;
 		}
 		return false;
@@ -936,8 +1076,8 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0b8
 	 * @return true if supported
 	 */
-	public function IsTaxonomySupported() {
-		return (function_exists("get_taxonomy") && function_exists("get_terms") && function_exists("get_taxonomies"));
+	public function is_taxonomy_supported() {
+		return ( function_exists( 'get_taxonomy' ) && function_exists( 'get_terms' ) && function_exists( 'get_taxonomies' ) );
 	}
 
 	/**
@@ -946,9 +1086,9 @@ final class GoogleSitemapGenerator {
 	 * @since 3.1.7
 	 * @return array Array of names of user-defined taxonomies
 	 */
-	public function GetCustomTaxonomies() {
-		$taxonomies = get_taxonomies(array("public" => 1));
-		return array_diff($taxonomies, array("category", "post_tag", "nav_menu", "link_category", "product_tag", "product_cat", "post_format"));
+	public function get_custom_taxonomies() {
+		$taxonomies = get_taxonomies( array( 'public' => 1 ) );
+		return array_diff( $taxonomies, array( 'category', 'product_cat', 'post_tag', 'nav_menu', 'link_category', 'post_format' ) );
 	}
 
 	/**
@@ -957,8 +1097,8 @@ final class GoogleSitemapGenerator {
 	 * @since 3.2.5
 	 * @return true if supported
 	 */
-	public function IsCustomPostTypesSupported() {
-		return (function_exists("get_post_types") && function_exists("register_post_type"));
+	public function is_custom_post_types_supported() {
+		return ( function_exists( 'get_post_types' ) && function_exists( 'register_post_type' ) );
 	}
 
 	/**
@@ -967,9 +1107,9 @@ final class GoogleSitemapGenerator {
 	 * @since 3.2.5
 	 * @return array Array of custom post types as per get_post_types
 	 */
-	public function GetCustomPostTypes() {
-		$post_types = get_post_types(array("public" => 1));
-		$post_types = array_diff($post_types, array("post", "page", "attachment"));
+	public function get_custom_post_types() {
+		$post_types = get_post_types( array( 'public' => 1 ) );
+		$post_types = array_diff( $post_types, array( 'post', 'page', 'attachment' ) );
 		return $post_types;
 	}
 
@@ -980,30 +1120,33 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b5
 	 * @return array Array of custom post types as per get_post_types
 	 */
-	public function GetActivePostTypes() {
+	public function get_active_post_types() {
 
+		$cache_key = __CLASS__ . '::get_active_post_types';
 
-		$cacheKey = __CLASS__ . "::GetActivePostTypes";
+		$active_post_types = wp_cache_get( $cache_key, 'sitemap' );
 
-		$activePostTypes = wp_cache_get($cacheKey,'sitemap');
+		if ( false === $active_post_types ) {
+			$all_post_types     = get_post_types();
+			$enabled_post_types = $this->get_option( 'in_customtypes' );
+			if ( $this->get_option( 'in_posts' ) ) {
+				$enabled_post_types[] = 'post';
+			}
+			if ( $this->get_option( 'in_pages' ) ) {
+				$enabled_post_types[] = 'page';
+			}
 
-		if($activePostTypes === false) {
-			$allPostTypes = get_post_types();
-			$enabledPostTypes = $this->GetOption('in_customtypes');
-			if($this->GetOption("in_posts")) $enabledPostTypes[] = "post";
-			if($this->GetOption("in_pages")) $enabledPostTypes[] = "page";
-
-			$activePostTypes = array();
-			foreach($enabledPostTypes AS $postType) {
-				if(!empty($postType) && in_array($postType, $allPostTypes)) {
-					$activePostTypes[] = $postType;
+			$active_post_types = array();
+			foreach ( $enabled_post_types as $post_type ) {
+				if ( ! empty( $post_type ) && in_array( $post_type, $all_post_types, true ) ) {
+					$active_post_types[] = $post_type;
 				}
 			}
 
-			wp_cache_set($cacheKey, $activePostTypes, 'sitemap', 20);
+			wp_cache_set( $cache_key, $active_post_types, 'sitemap', 20 );
 		}
 
-		return $activePostTypes;
+		return $active_post_types;
 	}
 
 	/**
@@ -1012,52 +1155,103 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b11
 	 * @return int[] Array with excluded post IDs
 	 */
-	public function GetExcludedPostIDs() {
+	public function get_excluded_post_i_ds() {
 
-		$excludes = (array)$this->GetOption('b_exclude');
+		$excludes = (array) $this->get_option( 'b_exclude' );
 
-		//Exclude front page page if defined
-		if (get_option('show_on_front') == 'page' && get_option('page_on_front')) {
-			$excludes[] = get_option('page_on_front');
+		// Exclude front page page if defined .
+		if ( get_option( 'show_on_front' ) === 'page' && get_option( 'page_on_front' ) ) {
+			$excludes[] = get_option( 'page_on_front' );
 			return $excludes;
 		}
-
-		return array_filter(array_map('intval',$excludes),array($this,'IsGreaterZero'));
+		return array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
 	}
 
+	/**
+	 * Robots disallowed
+	 */
+	public function robots_disallowed() {
+
+		// parse url to retrieve host and path.
+		$parsed = home_url();
+		$rules  = array();
+
+		// location of robots.txt file.
+		try {
+			if ( file_exists( $parsed . '/robots.txt' ) ) {
+				$robotstxt = file( $parsed . '/robots.txt' );
+
+			} elseif ( file_exists( ABSPATH . '/robots.txt' ) ) {
+				// if there isn't a robots, then we're allowed in.
+				$robotstxt = file( ABSPATH . '/robots.txt' );
+
+			}
+		} catch ( Exception $e ) {
+			return $rules;
+		}
+
+		if ( empty( $robotstxt ) ) {
+			return $rules;
+		}
+
+		foreach ( $robotstxt as $line ) {
+			$line = trim( $line );
+			// Skip blank lines .
+			if ( ! $line ) {
+				continue;
+			}
+
+			if ( preg_match( '/^\s*Disallow:(.*)/i', $line, $regs ) ) {
+
+				// An empty rule implies full access - no further tests required .
+				if ( ! $regs[1] ) {
+					continue;
+				}
+
+				// Add rules that apply to array for testing  .
+				$id = url_to_postid( home_url( trim( $regs[1] ) ) );
+				if ( $id > 0 ) {
+					$rules[] = $id;
+				}
+			}
+		}
+
+		return $rules;
+	}
 	/**
 	 * Returns an array with all excluded category IDs.
 	 *
 	 * @since 4.0b11
 	 * @return int[] Array with excluded category IDs
 	 */
-	public function GetExcludedCategoryIDs() {
-		$exclCats = (array)$this->GetOption("b_exclude_cats");
-		return array_filter(array_map('intval',$exclCats),array($this,'IsGreaterZero'));
+	public function get_excluded_category_i_ds() {
+		$excl_cats = (array) $this->get_option( 'b_exclude_cats' );
+		return array_filter( array_map( 'intval', $excl_cats ), array( $this, 'is_greater_zero' ) );
 	}
 
 	/*************************************** PRIORITY PROVIDERS ***************************************/
 
 	/**
 	 * Returns the list of PriorityProviders
+	 *
 	 * @return array
 	 */
-	public function GetPrioProviders() {
-		return $this->prioProviders;
+	public function get_prio_providers() {
+		return $this->prio_providers;
 	}
 
 	/**
 	 * Adds the default Priority Providers to the provider list
 	 *
 	 * @since 3.0
-	 * @param $providers
+	 * @param array $providers .
 	 * @return array
 	 */
-	public function AddDefaultPrioProviders($providers) {
-		array_push($providers, "GoogleSitemapGeneratorPrioByCountProvider");
-		array_push($providers, "GoogleSitemapGeneratorPrioByAverageProvider");
-		if(class_exists("ak_popularity_contest")) {
-			array_push($providers, "GoogleSitemapGeneratorPrioByPopularityContestProvider");
+	public function add_default_prio_providers( $providers ) {
+		array_push( $providers, 'GoogleSitemapGeneratorPrioByCountProvider' );
+		array_push( $providers, 'GoogleSitemapGeneratorPrioByAverageProvider' );
+		if ( class_exists( 'ak_popularity_contest' ) ) {
+			array_push( $providers, 'GoogleSitemapGeneratorPrioByPopularityContestProvider' );
 		}
 		return $providers;
 	}
@@ -1067,21 +1261,21 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	private function ValidatePrioProviders() {
-		$validProviders = array();
-
-		for($i = 0; $i < count($this->prioProviders); $i++) {
-			if(class_exists($this->prioProviders[$i])) {
-				if(class_implements($this->prioProviders[$i], "GoogleSitemapGeneratorPrioProviderBase")) {
-					array_push($validProviders, $this->prioProviders[$i]);
+	private function validate_prio_providers() {
+		$valid_providers = array();
+		$len             = count( $this->prio_providers );
+		for ( $i = 0; $i < $len; $i++ ) {
+			if ( class_exists( $this->prio_providers[ $i ] ) ) {
+				if ( class_implements( $this->prio_providers[ $i ], 'Google_Sitemap_Generator_Prio_Provider_Base' ) ) {
+					array_push( $valid_providers, $this->prio_providers[ $i ] );
 				}
 			}
 		}
-		$this->prioProviders = $validProviders;
+		$this->prio_providers = $valid_providers;
 
-		if(!$this->GetOption("b_prio_provider")) {
-			if(!in_array($this->GetOption("b_prio_provider"), $this->prioProviders, true)) {
-				$this->SetOption("b_prio_provider", "");
+		if ( ! $this->get_option( 'b_prio_provider' ) ) {
+			if ( ! in_array( $this->get_option( 'b_prio_provider' ), $this->prio_providers, true ) ) {
+				$this->set_option( 'b_prio_provider', '' );
 			}
 		}
 	}
@@ -1091,21 +1285,21 @@ final class GoogleSitemapGenerator {
 
 	/**
 	 * Retrieves the number of comments of a post in a asso. array
-	 * The key is the postID, the value the number of comments
+	 * The key is the post_id, the value the number of comments
 	 *
 	 * @since 3.0
-	 * @return array An array with postIDs and their comment count
+	 * @return array An array with post_ids and their comment count
 	 */
-	public function GetComments() {
-		/** @var $wpdb wpdb */
+	public function get_comments() {
+		// @var $wpdb wpdb .
 		global $wpdb;
 		$comments = array();
 
-		//Query comments and add them into the array
-		$commentRes = $wpdb->get_results("SELECT `comment_post_ID` as `post_id`, COUNT(comment_ID) as `comment_count` FROM `" . $wpdb->comments . "` WHERE `comment_approved`='1' GROUP BY `comment_post_ID`");
-		if($commentRes) {
-			foreach($commentRes as $comment) {
-				$comments[$comment->post_id] = $comment->comment_count;
+		// Query comments and add them into the array .
+		$comment_res = $wpdb->get_results( 'SELECT `comment_post_ID` as `post_id`, COUNT( comment_ID ) as `comment_count` FROM `' . $wpdb->comments . '` WHERE `comment_approved`=\'1\' GROUP BY `comment_post_ID`' ); // db call ok; no-cache ok.
+		if ( $comment_res ) {
+			foreach ( $comment_res as $comment ) {
+				$comments[ $comment->post_id ] = $comment->comment_count;
 			}
 		}
 		return $comments;
@@ -1115,16 +1309,16 @@ final class GoogleSitemapGenerator {
 	 * Calculates the full number of comments from an sm_getComments() generated array
 	 *
 	 * @since 3.0
-	 * @param $comments array The Array with posts and c0mment count
+	 * @param object $comments array The Array with posts and c0mment count .
 	 * @see sm_getComments
 	 * @return int The full number of comments
 	 */
-	public function GetCommentCount($comments) {
-		$commentCount = 0;
-		foreach($comments AS $k => $v) {
-			$commentCount += $v;
+	public function get_comment_count( $comments ) {
+		$comment_count = 0;
+		foreach ( $comments as $k => $v ) {
+			$comment_count += $v;
 		}
-		return $commentCount;
+		return $comment_count;
 	}
 
 
@@ -1135,71 +1329,70 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	public function InitOptions() {
+	public function init_options() {
 
-		$this->options = array();
-		$this->options["sm_b_prio_provider"] = "GoogleSitemapGeneratorPrioByCountProvider"; //Provider for automatic priority calculation
-		$this->options["sm_b_ping"] = true; //Auto ping Google
-		$this->options["sm_b_stats"] = false; //Send anonymous stats
-		$this->options["sm_b_pingmsn"] = true; //Auto ping MSN
-		$this->options["sm_b_autozip"] = true; //Try to gzip the output
-		$this->options["sm_b_memory"] = ''; //Set Memory Limit (e.g. 16M)
-		$this->options["sm_b_time"] = -1; //Set time limit in seconds, 0 for unlimited, -1 for disabled
-		$this->options["sm_b_style_default"] = true; //Use default style
-		$this->options["sm_b_style"] = ''; //Include a stylesheet in the XML
-		$this->options["sm_b_baseurl"] = ''; //The base URL of the sitemap
-		$this->options["sm_b_sitemap_name"] = 'sitemap'; //The name of the sitemap file
-		$this->options["sm_b_robots"] = true; //Add sitemap location to WordPress' virtual robots.txt file
-		$this->options["sm_b_html"] = true; //Include a link to a html version of the sitemap in the XML sitemap
-		$this->options["sm_b_exclude"] = array(); //List of post / page IDs to exclude
-		$this->options["sm_b_exclude_cats"] = array(); //List of post / page IDs to exclude
+		$this->options                       = array();
+		$this->options['sm_b_prio_provider'] = 'GoogleSitemapGeneratorPrioByCountProvider'; // Provider for automatic priority calculation .
+		$this->options['sm_b_ping']          = true; // Auto ping Google .
+		$this->options['sm_b_stats']         = false; // Send anonymous stats .
+		$this->options['sm_b_pingmsn']       = true; // Auto ping MSN .
+		$this->options['sm_b_autozip']       = true; // Try to gzip the output .
+		$this->options['sm_b_memory']        = ''; // Set Memory Limit (e.g. 16M) .
+		$this->options['sm_b_time']          = -1; // Set time limit in seconds, 0 for unlimited, -1 for disabled .
+		$this->options['sm_b_style_default'] = true; // Use default style .
+		$this->options['sm_b_style']         = ''; // Include a stylesheet in the XML .
+		$this->options['sm_b_baseurl']       = ''; // The base URL of the sitemap .
+		$this->options['sm_b_robots']        = true; // Add sitemap location to WordPress' virtual robots.txt file .
+		$this->options['sm_b_html']          = true; // Include a link to a html version of the sitemap in the XML sitemap .
+		$this->options['sm_b_exclude']       = array(); // List of post / page IDs to exclude .
+		$this->options['sm_b_exclude_cats']  = array(); // List of post / page IDs to exclude .
 
-		$this->options["sm_in_home"] = true; //Include homepage
-		$this->options["sm_in_posts"] = true; //Include posts
-		$this->options["sm_in_posts_sub"] = false; //Include post pages (<!--nextpage--> tag)
-		$this->options["sm_in_pages"] = true; //Include static pages
-		$this->options["sm_in_cats"] = false; //Include categories
-		$this->options["sm_product_tags"] = true; //Hide product tags in sitemap
-		$this->options["sm_in_product_cat"] = false; //Include product categories
-		$this->options["sm_in_arch"] = false; //Include archives
-		$this->options["sm_in_auth"] = false; //Include author pages
-		$this->options["sm_in_tags"] = false; //Include tag pages
-		$this->options["sm_in_tax"] = array(); //Include additional taxonomies
-		$this->options["sm_in_customtypes"] = array(); //Include custom post types
-		$this->options["sm_in_lastmod"] = true; //Include the last modification date
+		$this->options['sm_in_home']        = true; // Include homepage .
+		$this->options['sm_in_posts']       = true; // Include posts .
+		$this->options['sm_in_posts_sub']   = false; // Include post pages (<!--nextpage--> tag) .
+		$this->options['sm_in_pages']       = true; // Include static pages .
+		$this->options['sm_in_cats']        = false; // Include categories .
+		$this->options['sm_product_tags']   = true; // Hide product tags in sitemap .
+		$this->options['sm_in_product_cat'] = false; // Include product categories .
+		$this->options['sm_in_arch']        = false; // Include archives .
+		$this->options['sm_in_auth']        = false; // Include author pages .
+		$this->options['sm_in_tags']        = false; // Include tag pages .
+		$this->options['sm_in_tax']         = array(); // Include additional taxonomies .
+		$this->options['sm_in_customtypes'] = array(); // Include custom post types .
+		$this->options['sm_in_lastmod']     = true; // Include the last modification date .
+		$this->options['sm_b_sitemap_name'] = 'sitemap'; // Name of custom sitemap.
+		$this->options['sm_cf_home']        = 'daily'; // Change frequency of the homepage .
+		$this->options['sm_cf_posts']       = 'monthly'; // Change frequency of posts .
+		$this->options['sm_cf_pages']       = 'weekly'; // Change frequency of static pages .
+		$this->options['sm_cf_cats']        = 'weekly'; // Change frequency of categories .
+		$this->options['sm_cf_product_cat'] = 'weekly'; // Change frequency of categories .
+		$this->options['sm_cf_auth']        = 'weekly'; // Change frequency of author pages .
+		$this->options['sm_cf_arch_curr']   = 'daily'; // Change frequency of the current archive (this month) .
+		$this->options['sm_cf_arch_old']    = 'yearly'; // Change frequency of older archives .
+		$this->options['sm_cf_tags']        = 'weekly'; // Change frequency of tags .
 
-		$this->options["sm_cf_home"] = "daily"; //Change frequency of the homepage
-		$this->options["sm_cf_posts"] = "monthly"; //Change frequency of posts
-		$this->options["sm_cf_pages"] = "weekly"; //Change frequency of static pages
-		$this->options["sm_cf_cats"] = "weekly"; //Change frequency of categories
-		$this->options["sm_cf_product_cat"] = "weekly"; //Change frequency of product categories
-		$this->options["sm_cf_auth"] = "weekly"; //Change frequency of author pages
-		$this->options["sm_cf_arch_curr"] = "daily"; //Change frequency of the current archive (this month)
-		$this->options["sm_cf_arch_old"] = "yearly"; //Change frequency of older archives
-		$this->options["sm_cf_tags"] = "weekly"; //Change frequency of tags
+		$this->options['sm_pr_home']        = 1.0; // Priority of the homepage .
+		$this->options['sm_pr_posts']       = 0.6; // Priority of posts (if auto prio is disabled) .
+		$this->options['sm_pr_posts_min']   = 0.2; // Minimum Priority of posts, even if autocalc is enabled .
+		$this->options['sm_pr_pages']       = 0.6; // Priority of static pages .
+		$this->options['sm_pr_cats']        = 0.3; // Priority of categories .
+		$this->options['sm_pr_product_cat'] = 0.3; // Priority of categories .
+		$this->options['sm_pr_arch']        = 0.3; // Priority of archives .
+		$this->options['sm_pr_auth']        = 0.3; // Priority of author pages .
+		$this->options['sm_pr_tags']        = 0.3; // Priority of tags .
 
-		$this->options["sm_pr_home"] = 1.0; //Priority of the homepage
-		$this->options["sm_pr_posts"] = 0.6; //Priority of posts (if auto prio is disabled)
-		$this->options["sm_pr_posts_min"] = 0.2; //Minimum Priority of posts, even if autocalc is enabled
-		$this->options["sm_pr_pages"] = 0.6; //Priority of static pages
-		$this->options["sm_pr_cats"] = 0.3; //Priority of categories
-		$this->options["sm_pr_product_cat"] = 0.3; //Priority of product categories
-		$this->options["sm_pr_arch"] = 0.3; //Priority of archives
-		$this->options["sm_pr_auth"] = 0.3; //Priority of author pages
-		$this->options["sm_pr_tags"] = 0.3; //Priority of tags
-
-		$this->options["sm_i_donated"] = false; //Did you donate? Thank you! :)
-		$this->options["sm_i_hide_donated"] = false; //And hide the thank you..
-		$this->options["sm_i_install_date"] = time(); //The installation date
-		$this->options["sm_i_hide_survey"] = false; //Hide the survey note
-		$this->options["sm_i_hide_note"] = false; //Hide the note which appears after 30 days
-		$this->options["sm_i_hide_works"] = false; //Hide the "works?" message which appears after 15 days
-		$this->options["sm_i_hide_donors"] = false; //Hide the list of donations
-		$this->options["sm_i_hash"] = substr(sha1(sha1(get_bloginfo('url'))),0,20); //Partial hash for GA stats, NOT identifiable!
-		$this->options["sm_i_lastping"] = 0; //When was the last ping
-		$this->options["sm_i_supportfeed"] = true; //shows the support feed
-		$this->options["sm_i_supportfeed_cache"] = 0; //Last refresh of support feed
-		$this->options["sm_links_page"] = 10; // Link per page support with default value 10.
+		$this->options['sm_i_donated']           = false; // Did you donate? Thank you! :) .
+		$this->options['sm_i_hide_donated']      = false; // And hide the thank you.. .
+		$this->options['sm_i_install_date']      = time(); // The installation date .
+		$this->options['sm_i_hide_survey']       = false; // Hide the survey note .
+		$this->options['sm_i_hide_note']         = false; // Hide the note which appears after 30 days .
+		$this->options['sm_i_hide_works']        = false; // Hide the 'works?' message which appears after 15 days .
+		$this->options['sm_i_hide_donors']       = false; // Hide the list of donations .
+		$this->options['sm_i_hash']              = substr( sha1( sha1( get_bloginfo( 'url' ) ) ), 0, 20 ); // Partial hash for GA stats, NOT identifiable! .
+		$this->options['sm_i_lastping']          = 0; // When was the last ping .
+		$this->options['sm_i_supportfeed']       = true; // shows the support feed .
+		$this->options['sm_i_supportfeed_cache'] = 0; // Last refresh of support feed .
+		$this->options['sm_links_page']          = 10; // Link per page support with default value 10. .
 	}
 
 	/**
@@ -1207,40 +1400,50 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	private function LoadOptions() {
+	private function load_options() {
 
-		if($this->optionsLoaded) return;
+		if ( $this->options_loaded ) {
+			return;
+		}
 
-		$this->InitOptions();
+		$this->init_options();
 
-		//First init default values, then overwrite it with stored values so we can add default
-		//values with an update which get stored by the next edit.
-		$storedOptions = get_option("sm_options");
+		// First init default values, then overwrite it with stored values so we can add default
+		// values with an update which get stored by the next edit.
+		$stored_options = get_option( 'sm_options' );
 
-		if($storedOptions && is_array($storedOptions)) {
-			foreach($storedOptions AS $k => $v) {
-				if(array_key_exists($k,$this->options))	$this->options[$k] = $v;
+		if ( $stored_options && is_array( $stored_options ) ) {
+			foreach ( $stored_options as $k => $v ) {
+				if ( array_key_exists( $k, $this->options ) ) {
+					$this->options[ $k ] = $v;
+				}
 			}
-		} else update_option("sm_options", $this->options); //First time use, store default values
+		} else {
+			update_option( 'sm_options', $this->options ); // First time use, store default values .
+		}
 
-		$this->optionsLoaded = true;
+		$this->options_loaded = true;
 	}
 
 	/**
 	 * Returns the option value for the given key
 	 *
 	 * @since 3.0
-	 * @param $key string The Configuration Key
+	 * @param string $key string The Configuration Key .
 	 * @return mixed The value
 	 */
-	public function GetOption($key) {
-		$key = "sm_" . $key;
-		if(array_key_exists($key, $this->options)) {
-			return $this->options[$key];
-		} else return null;
+	public function get_option( $key ) {
+		$key = 'sm_' . $key;
+		if ( array_key_exists( $key, $this->options ) ) {
+			return $this->options[ $key ];
+		} else {
+			return null;
+		}
 	}
-
-	public function GetOptions() {
+	/**
+	 * Get options .
+	 */
+	public function get_options() {
 		return $this->options;
 	}
 
@@ -1248,13 +1451,15 @@ final class GoogleSitemapGenerator {
 	 * Sets an option to a new value
 	 *
 	 * @since 3.0
-	 * @param $key string The configuration key
-	 * @param $value mixed The new object
+	 * @param string $key string The configuration key .
+	 * @param string $value mixed The new object .
 	 */
-	public function SetOption($key, $value) {
-		if(strpos($key, "sm_") !== 0) $key = "sm_" . $key;
+	public function set_option( $key, $value ) {
+		if ( 0 !== strpos( $key, 'sm_' ) ) {
+			$key = 'sm_' . $key;
+		}
 
-		$this->options[$key] = $value;
+		$this->options[ $key ] = $value;
 	}
 
 	/**
@@ -1263,28 +1468,32 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return bool true on success
 	 */
-	public function SaveOptions() {
-		$oldvalue = get_option("sm_options");
-		if($oldvalue == $this->options) {
+	public function save_options() {
+		$oldvalue = get_option( 'sm_options' );
+		if ( $oldvalue === $this->options ) {
 			return true;
-		} else return update_option("sm_options", $this->options);
+		} else {
+			return update_option( 'sm_options', $this->options );
+		}
 	}
 
 	/**
 	 * Returns the additional pages
+	 *
 	 * @since 4.0
 	 * @return GoogleSitemapGeneratorPage[]
 	 */
-	function GetPages() {
+	public function get_pages() {
 		return $this->pages;
 	}
 
 	/**
 	 * Returns the additional pages
+	 *
 	 * @since 4.0
-	 * @param array $pages
+	 * @param array $pages .
 	 */
-	function SetPages(array $pages) {
+	public function set_pages( array $pages ) {
 		$this->pages = $pages;
 	}
 
@@ -1293,28 +1502,30 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.0
 	 */
-	private function LoadPages() {
-		/** @var $wpdb wpdb */
+	private function load_pages() {
+		// @var $wpdb wpdb .
 		global $wpdb;
 
-		$needsUpdate = false;
+		$needs_update = false;
 
-		$pagesString = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name = 'sm_cpages'");
+		$pages_string = $wpdb->get_var( "SELECT option_value FROM $wpdb->options WHERE option_name = 'sm_cpages'" ); // db call ok; no-cache ok.
 
-		//Class sm_page was renamed with 3.0 -> rename it in serialized value for compatibility
-		if(!empty($pagesString) && strpos($pagesString, "sm_page") !== false) {
-			$pagesString = str_replace("O:7:\"sm_page\"", "O:26:\"GoogleSitemapGeneratorPage\"", $pagesString);
-			$needsUpdate = true;
+		// Class sm_page was renamed with 3.0 -> rename it in serialized value for compatibility .
+		if ( ! empty( $pages_string ) && strpos( $pages_string, 'sm_page' ) !== false ) {
+			$pages_string = str_replace( 'O:7:\'sm_page\'', 'O:26:\'GoogleSitemapGeneratorPage\'', $pages_string );
+			$needs_update = true;
 		}
 
-		if(!empty($pagesString)) {
-			$storedpages = unserialize($pagesString);
+		if ( ! empty( $pages_string ) ) {
+			$storedpages = unserialize( $pages_string );
 			$this->pages = $storedpages;
 		} else {
 			$this->pages = array();
 		}
 
-		if($needsUpdate) $this->SavePages();
+		if ( $needs_update ) {
+			$this->save_pages();
+		}
 	}
 
 	/**
@@ -1323,14 +1534,14 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return true on success
 	 */
-	public function SavePages() {
-		$oldvalue = get_option("sm_cpages");
-		if($oldvalue == $this->pages) {
+	public function save_pages() {
+		$oldvalue = get_option( 'sm_cpages' );
+		if ( $oldvalue === $this->pages ) {
 			return true;
 		} else {
-			delete_option("sm_cpages");
-			//Add the option, Note the autoload=false because when the autoload happens, our class GoogleSitemapGeneratorPage doesn't exist
-			add_option("sm_cpages", $this->pages, null, "no");
+			delete_option( 'sm_cpages' );
+			// Add the option, Note the autoload=false because when the autoload happens, our class GoogleSitemapGeneratorPage doesn't exist .
+			add_option( 'sm_cpages', $this->pages, '', 'no' );
 			return true;
 		}
 	}
@@ -1340,40 +1551,46 @@ final class GoogleSitemapGenerator {
 
 	/**
 	 * Returns the URL to the directory where the plugin file is located
+	 *
 	 * @since 3.0b5
 	 * @return string The URL to the plugin directory
 	 */
-	public function GetPluginUrl() {
+	public function get_plugin_url() {
 
-		$url = trailingslashit(plugins_url("", __FILE__));
+		$url = trailingslashit( plugins_url( '', __FILE__ ) );
 
 		return $url;
 	}
 
 	/**
 	 * Returns the path to the directory where the plugin file is located
+	 *
 	 * @since 3.0b5
 	 * @return string The path to the plugin directory
 	 */
-	public function GetPluginPath() {
-		$path = dirname(__FILE__);
-		return trailingslashit(str_replace("\\", "/", $path));
+	public function get_plugin_path() {
+		$path = dirname( __FILE__ );
+		return trailingslashit( str_replace( '\\', '/', $path ) );
 	}
 
 	/**
 	 * Returns the URL to default XSLT style if it exists
+	 *
 	 * @since 3.0b5
 	 * @return string The URL to the default stylesheet, empty string if not available.
 	 */
-	public function GetDefaultStyle() {
-		$p = $this->GetPluginPath();
-		if(file_exists($p . "sitemap.xsl")) {
-			$url = $this->GetPluginUrl();
-			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
-			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
-
-			$host = $_SERVER['HTTP_HOST'];
-			$url = $this->getXslUrl($url,$host);
+	public function get_default_style() {
+		$p = $this->get_plugin_path();
+		if ( file_exists( $p . 'sitemap.xsl' ) ) {
+			$url = $this->get_plugin_url();
+			// If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
+			if ( substr( get_bloginfo( 'url' ), 0, 5 ) !== 'https' && substr( $url, 0, 5 ) === 'https' ) {
+				$url = 'http' . substr( $url, 5 );
+			}
+			if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+				$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
+			}
+			$url = $this->get_xsl_url( $url, $host );
 			return $url . 'sitemap.xsl';
 		}
 		return '';
@@ -1384,8 +1601,8 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @return bool
 	 */
-	public function IsUsingPermalinks() {
-		/** @var $wp_rewrite WP_Rewrite */
+	public function is_using_permalinks() {
+		// @var $wp_rewrite WP_Rewrite .
 		global $wp_rewrite;
 
 		return $wp_rewrite->using_mod_rewrite_permalinks();
@@ -1397,18 +1614,18 @@ final class GoogleSitemapGenerator {
 	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
 	 *
 	 * @since 4.0
-	 * @param $wpRules Array of existing rewrite rules
-	 * @return Array An array containing the new rewrite rules
+	 * @param string $wp_rules Array of existing rewrite rules.
+	 * @return Array An array containing the new rewrite rules.
 	 */
-	public static function AddRewriteRules($wpRules) {
-		$sm_sitemap_name = $GLOBALS["sm_instance"]->GetOption('b_sitemap_name');
-		$smRules = array(
-			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
-			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			$sm_sitemap_name.'(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true'
+	public static function add_rewrite_rules( $wp_rules ) {
+		$sm_sitemap_name = $GLOBALS['sm_instance']->get_option( 'b_sitemap_name' );
+		$sm_rules        = array(
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 		);
-		return array_merge($smRules,$wpRules);
+		return array_merge( $sm_rules, $wp_rules );
 	}
 
 	/**
@@ -1417,12 +1634,17 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0
 	 * @uses add_filter()
 	 */
-	public static function SetupRewriteHooks() {
-		add_filter('rewrite_rules_array', array(__CLASS__, 'AddRewriteRules'), 1, 1);
+	public static function setup_rewrite_hooks() {
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'add_rewrite_rules' ), 1, 1 );
 	}
-
-	public static function RemoveRewriteHooks(){
-		add_filter('rewrite_rules_array', array(__CLASS__, 'RemoveRewriteRules'), 1, 1);
+	/**
+	 * Removes the filters for wp rewrite rule adding
+	 *
+	 * @since 4.0
+	 * @uses remove_filter()
+	 */
+	public static function remove_rewrite_hooks() {
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
 	}
 
 	/**
@@ -1431,71 +1653,73 @@ final class GoogleSitemapGenerator {
 	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
 	 *
 	 * @since 4.0
-	 * @param $wpRules Array of existing rewrite rules
+	 * @param array $wp_rules Array of existing rewrite rules.
 	 * @return Array An array containing the new rewrite rules
 	 */
-	public static function RemoveRewriteRules($wpRules) {
-		$smRules = array(
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+	public static function remove_rewrite_rules( $wp_rules ) {
+		$sm_rules = array(
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
 			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true'
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 		);
-		foreach ($wpRules as $key => $value) {
-			if (array_key_exists($key,$smRules)) {
-				unset($wpRules[$key]);
+		foreach ( $wp_rules as $key => $value ) {
+			if ( array_key_exists( $key, $sm_rules ) ) {
+				unset( $wp_rules[ $key ] );
 			}
 		}
-		return $wpRules;
+		return $wp_rules;
 	}
 
 	/**
 	 * Returns the URL for the sitemap file
 	 *
 	 * @since 3.0
-	 * @param string $type
-	 * @param string $params
-	 * @param array $buildOptions
+	 *
+	 * @param string $type .
+	 * @param string $params .
+	 * @param array  $build_options .
 	 * @return string The URL to the Sitemap file
 	 */
-	public function GetXmlUrl($type = "", $params = "", $buildOptions = array()) {
+	public function get_xml_url( $type = '', $params = '', $build_options = array() ) {
 
-		$pl = $this->IsUsingPermalinks();
-		$options = "";
-		if(!empty($type)) {
+		$pl      = $this->is_using_permalinks();
+		$options = '';
+		if ( ! empty( $type ) ) {
 			$options .= $type;
-			if(!empty($params)) {
-				$options .= "-" . $params;
+			if ( ! empty( $params ) ) {
+				$options .= '-' . $params;
 			}
 		}
 
-		$buildOptions = array_merge($this->buildOptions, $buildOptions);
+		$build_options = array_merge( $this->build_options, $build_options );
 
-		$html = (isset($buildOptions["html"]) ? $buildOptions["html"] : false);
-		$zip = (isset($buildOptions["zip"]) ? $buildOptions["zip"] : false);
+		$html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
+		$zip  = ( isset( $build_options['zip'] ) ? $build_options['zip'] : false );
 
-		$baseURL = get_bloginfo('url');
+		$base_url = get_bloginfo( 'url' );
 
-		//Manual override for root URL
-		$baseUrlSettings = $this->GetOption('b_baseurl');
-		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
-		if(!empty($baseUrlSettings)) $baseURL = $baseUrlSettings;
-		else if(defined("SM_BASE_URL") && SM_BASE_URL) $baseURL = SM_BASE_URL;
-
+		// Manual override for root URL .
+		$base_url_settings = $this->get_option( 'b_baseurl' );
+		$sm_sitemap_name   = $this->get_option( 'b_sitemap_name' );
+		if ( ! empty( $base_url_settings ) ) {
+			$base_url = $base_url_settings;
+		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
+			$base_url = SM_BASE_URL;
+		}
 		global $wp_rewrite;
-		delete_option("sm_rewrite_done");
-		wp_clear_scheduled_hook('sm_ping_daily');
-		self::RemoveRewriteHooks();
-		$wp_rewrite->flush_rules(false);
-		self::SetupRewriteHooks();
-		GoogleSitemapGeneratorLoader::ActivateRewrite();
-
-		if($pl) {
-			return trailingslashit($baseURL) . $sm_sitemap_name . ($options ? "-" . $options : "") . ($html
-					? ".html" : ".xml") . ($zip? ".gz" : "");
+		delete_option( 'sm_rewrite_done' );
+		wp_clear_scheduled_hook( 'sm_ping_daily' );
+		self::remove_rewrite_hooks();
+		$wp_rewrite->flush_rules( false );
+		self::setup_rewrite_hooks();
+		GoogleSitemapGeneratorLoader::activate_rewrite();
+		if ( $pl ) {
+			return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
+				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 		} else {
-			return trailingslashit($baseURL) . "index.php?xml_sitemap=params=" . $options . ($html
-					? ";html=true" : "") . ($zip? ";zip=true" : "");
+			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html
+				? ';html=true' : '' ) . ( $zip ? ';zip=true' : '' );
 		}
 	}
 
@@ -1504,24 +1728,33 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @return Boolean True if a sitemap file still exists
 	 */
-	public function OldFileExists() {
-		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
-		$path = trailingslashit(get_home_path());
-		return (file_exists($path . $sm_sitemap_name .".xml") || file_exists($path . "sitemap.xml.gz"));
+	public function old_file_exists() {
+		$sm_sitemap_name = $this->get_option( 'b_sitemap_name' );
+		$path            = trailingslashit( get_home_path() );
+		return ( file_exists( $path . $sm_sitemap_name . '.xml' ) || file_exists( $path . 'sitemap.xml.gz' ) );
 	}
 
 	/**
 	 * Renames old sitemap files in the site directory from previous versions of this plugin
+	 *
 	 * @return bool True on success
 	 */
-	public function DeleteOldFiles() {
-		$sm_sitemap_name = $this->GetOption('b_sitemap_name');
-		$path = trailingslashit(get_home_path());
+	public function delete_old_files() {
+		$path = trailingslashit( get_home_path() );
 
 		$res = true;
-
-		if(file_exists($f = $path . $sm_sitemap_name . ".xml"))     if(!rename($f, $path . "sitemap.backup.xml")) $res = false;
-		if(file_exists($f = $path . "sitemap.xml.gz"))  if(!rename($f, $path . "sitemap.backup.xml.gz")) $res = false;
+		$f   = $path . 'sitemap.xml';
+		if ( file_exists( $f ) ) {
+			if ( ! rename( $f, $path . 'sitemap.backup.xml' ) ) {
+				$res = false;
+			}
+		}
+		$f = $path . 'sitemap.xml.gz';
+		if ( file_exists( $f ) ) {
+			if ( ! rename( $f, $path . 'sitemap.backup.xml.gz' ) ) {
+				$res = false;
+			}
+		}
 
 		return $res;
 	}
@@ -1532,22 +1765,22 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Simulates the building of the sitemap index file.
 	 *
-	 * @see GoogleSitemapGenerator::SimulateSitemap
+	 * @see GoogleSitemapGenerator::simulate_sitemap
 	 * @since 4.0
 	 * @return array The data of the sitemap index file
 	 */
-	public function SimulateIndex() {
+	public function simulate_index() {
 
-		$this->simMode = true;
+		$this->sim_mode = true;
 
-		require_once(trailingslashit(dirname(__FILE__)) . "sitemap-builder.php");
-		do_action("sm_build_index", $this);
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
+		do_action( 'sm_build_index', $this );
 
-		$this->simMode = false;
+		$this->sim_mode = false;
 
-		$r = $this->simData["sitemaps"];
+		$r = $this->sim_data['sitemaps'];
 
-		$this->ClearSimData("sitemaps");
+		$this->clear_sim_data( 'sitemaps' );
 
 		return $r;
 	}
@@ -1555,23 +1788,23 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Simulates the building of the sitemap file.
 	 *
-	 * @see GoogleSitemapGenerator::SimulateIndex
+	 * @see GoogleSitemapGenerator::simulate_index
 	 * @since 4.0
-	 * @param $type string The type of the sitemap
-	 * @param $params string Additional parameters for this type
+	 * @param string $type string The type of the sitemap .
+	 * @param string $params string Additional parameters for this type .
 	 * @return array The data of the sitemap file
 	 */
-	public function SimulateSitemap($type, $params) {
-		$this->simMode = true;
+	public function simulate_sitemap( $type, $params ) {
+		$this->sim_mode = true;
 
-		require_once(trailingslashit(dirname(__FILE__)) . "sitemap-builder.php");
-		do_action("sm_build_content", $this, $type, $params);
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
+		do_action( 'sm_build_content', $this, $type, $params );
 
-		$this->simMode = false;
+		$this->sim_mode = false;
 
-		$r = $this->simData["content"];
+		$r = $this->sim_data['content'];
 
-		$this->ClearSimData("content");
+		$this->clear_sim_data( 'content' );
 
 		return $r;
 	}
@@ -1579,30 +1812,31 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Clears the data of the simulation
 	 *
-	 * @param string $what Defines what to clear, either both, sitemaps or content
-	 * @see GoogleSitemapGenerator::SimulateIndex
-	 * @see GoogleSitemapGenerator::SimulateSitemap
+	 * @param string $what Defines what to clear, either both, sitemaps or content .
+	 * @see GoogleSitemapGenerator::simulate_index
+	 * @see GoogleSitemapGenerator::simulate_sitemap
 	 * @since 4.0
 	 */
-	public function ClearSimData($what) {
-		if($what == "both" || $what == "sitemaps") {
-			$this->simData["sitemaps"] = array();
+	public function clear_sim_data( $what ) {
+		if ( 'both' === $what || 'sitemaps' === $what ) {
+			$this->sim_data['sitemaps'] = array();
 		}
 
-		if($what == "both" || $what == "content") {
-			$this->simData["content"] = array();
+		if ( 'both' === $what || 'content' === $what ) {
+			$this->sim_data['content'] = array();
 		}
 	}
 
 	/**
 	 * Returns the first caller outside of this __CLASS__
-	 * @param array $trace The backtrace
+	 *
+	 * @param array $trace The backtrace .
 	 * @return array The caller information
 	 */
-	private function GetExternalBacktrace($trace) {
+	private function get_external_backtrace( $trace ) {
 		$caller = null;
-		foreach($trace AS $b) {
-			if($b["class"] != __CLASS__) {
+		foreach ( $trace as $b ) {
+			if ( __CLASS__ !== $b['class'] ) {
 				$caller = $b;
 				break;
 			}
@@ -1615,136 +1849,150 @@ final class GoogleSitemapGenerator {
 
 	/**
 	 * Shows the sitemap. Main entry point from HTTP
+	 *
 	 * @param string $options Options for the sitemap. What type, what parameters.
 	 * @since 4.0
 	 */
-	public function ShowSitemap($options) {
+	public function show_sitemap( $options ) {
 
-		$startTime = microtime(true);
-		$startQueries = $GLOBALS["wpdb"]->num_queries;
-		$startMemory = memory_get_peak_usage(true);
+		$start_time    = microtime( true );
+		$start_queries = $GLOBALS['wpdb']->num_queries;
+		$start_memory  = memory_get_peak_usage( true );
 
-		//Raise memory and time limits
-		if($this->GetOption("b_memory") != '') {
-			@ini_set("memory_limit", $this->GetOption("b_memory"));
+		// Raise memory and time limits .
+		if ( $this->get_option( 'b_memory' ) !== '' ) {
+			wp_raise_memory_limit( $this->get_option( 'b_memory' ) );
+
 		}
 
-		if($this->GetOption("b_time") != -1) {
-			@set_time_limit($this->GetOption("b_time"));
+		if ( $this->get_option( 'b_time' ) !== -1 ) {
+			set_time_limit( $this->get_option( 'b_time' ) );
 		}
 
-		do_action("sm_init", $this);
+		do_action( 'sm_init', $this );
 
-		$this->isActive = true;
+		$this->is_active = true;
 
-		$parsedOptions = array();
+		$parsed_options = array();
 
-		$options = explode(";", $options);
-		foreach($options AS $k) {
-			$kv = explode("=", $k);
-			$parsedOptions[$kv[0]] = @$kv[1];
+		$options = explode( ';', $options );
+		foreach ( $options as $k ) {
+			$kv                       = explode( '=', $k );
+			$parsed_options[ $kv[0] ] = $kv[1];
 		}
 
-		$options = $parsedOptions;
+		$options = $parsed_options;
 
-		$this->buildOptions = $options;
+		$this->build_options = $options;
 
-		//Do not index the actual XML pages, only process them.
-		//This avoids that the XML sitemaps show up in the search results.
-		if(!headers_sent()) header('X-Robots-Tag: noindex', true, 200);
+		// Do not index the actual XML pages, only process them.
+		// This avoids that the XML sitemaps show up in the search results.
+		if ( ! headers_sent() ) {
+			header( 'X-Robots-Tag: noindex', true, 200 );
+		}
 
-		$this->Initate();
+		$this->initate();
 
-		$html = (isset($options["html"]) ? $options["html"] : false) && $this->IsXslEnabled();
-		if($html && !$this->GetOption('b_html')) {
+		$html = ( isset( $options['html'] ) ? $options['html'] : false ) && $this->is_xsl_enabled();
+		if ( $html && ! $this->get_option( 'b_html' ) ) {
 			$GLOBALS['wp_query']->is_404 = true;
 			return;
 		}
 
-		//Don't zip if anything happened before which could break the output or if the client does not support gzip.
-		//If there are already other output filters, there might be some content on another
-		//filter level already, which we can't detect. Zipping then would lead to invalid content.
-		$pack = (isset($options['zip']) ? $options['zip'] : $this->GetOption('b_autozip'));
-		if(
-			empty($_SERVER['HTTP_ACCEPT_ENCODING']) //No encoding support
-			|| strpos($_SERVER['HTTP_ACCEPT_ENCODING'],'gzip') === false //or no gzip
-			|| !$this->IsGzipEnabled() //No PHP gzip support
-			|| headers_sent() //Headers already sent
-			|| ob_get_contents() //there was already some output...
-			|| in_array('ob_gzhandler', ob_list_handlers()) //Some other plugin (or PHP) is already gzipping
-			|| $this->GetPhpIniBoolean(ini_get("zlib.output_compression")) //Zlib compression in php.ini enabled
-			|| ob_get_level() > (!$this->GetPhpIniBoolean(ini_get("output_buffering"))?0:1) //Another output buffer (beside of the default one) is already active
-			|| (isset($_SERVER['HTTP_X_VARNISH']) && is_numeric($_SERVER['HTTP_X_VARNISH'])) //Behind a Varnish proxy
-		) $pack = false;
+		// Don't zip if anything happened before which could break the output or if the client does not support gzip.
+		// If there are already other output filters, there might be some content on another
+		// filter level already, which we can't detect. Zipping then would lead to invalid content.
+		$pack = ( isset( $options['zip'] ) ? $options['zip'] : $this->get_option( 'b_autozip' ) );
+		if (
+			empty( $_SERVER['HTTP_ACCEPT_ENCODING'] ) // No encoding support.
+			|| strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ), 'gzip' ) === false // or no gzip.
+			|| ! $this->is_gzip_enabled() // No PHP gzip support.
+			|| headers_sent() // Headers already sent.
+			|| ob_get_contents() // there was already some output....
+			|| in_array( 'ob_gzhandler', ob_list_handlers(), true ) // Some other plugin (or PHP) is already gzipping.
+			|| $this->get_php_ini_boolean( ini_get( 'zlib.output_compression' ) ) // Zlib compression in php.ini enabled.
+			|| ob_get_level() > ( ! $this->get_php_ini_boolean( ini_get( 'output_buffering' ) ) ? 0 : 1 ) // Another output buffer (beside of the default one) is already active.
+			|| ( isset( $_SERVER['HTTP_X_VARNISH'] ) && is_numeric( $_SERVER['HTTP_X_VARNISH'] ) ) // Behind a Varnish proxy.
+		) {
+			$pack = false;
+		}
 
 		$packed = false;
 
-		if($pack) $packed = @ob_start('ob_gzhandler');
-
-		$builders = array('sitemap-builder.php');
-		foreach($builders AS $b) {
-			$f = trailingslashit(dirname(__FILE__)) . $b;
-			if(file_exists($f)) require_once($f);
+		if ( $pack ) {
+			$packed = ob_start( 'ob_gzhandler' );
 		}
 
-		if($html) {
+		$builders = array( 'class-googlesitemapgeneratorstandardbuilder.php' );
+		foreach ( $builders as $b ) {
+			$f = trailingslashit( dirname( __FILE__ ) ) . $b;
+			if ( file_exists( $f ) ) {
+				require_once $f;
+			}
+		}
+
+		if ( $html ) {
 			ob_start();
 		} else {
-			header('Content-Type: text/xml; charset=utf-8');
+			header( 'Content-Type: text/xml; charset=utf-8' );
 		}
 
+		if ( empty( $options['params'] ) || 'index' === $options['params'] ) {
 
-		if(empty($options["params"]) || $options["params"] == "index") {
+			$this->build_sitemap_header( 'index' );
 
-			$this->BuildSitemapHeader("index");
+			do_action( 'sm_build_index', $this );
 
-			do_action('sm_build_index', $this);
-
-			$this->BuildSitemapFooter("index");
-			$this->AddEndCommend($startTime, $startQueries, $startMemory);
-
-
+			$this->build_sitemap_footer( 'index' );
+			$this->add_end_commend( $start_time, $start_queries, $start_memory );
 		} else {
-			$allParams = $options["params"];
-			$type = $params = null;
-			if(strpos($allParams, "-") !== false) {
-				$type = substr($allParams, 0, strpos($allParams, "-"));
-				$params = substr($allParams, strpos($allParams, "-") + 1);
+			$all_params = $options['params'];
+			$type       = null;
+			$params     = null;
+			if ( strpos( $all_params, '-' ) !== false ) {
+				$type   = substr( $all_params, 0, strpos( $all_params, '-' ) );
+				$params = substr( $all_params, strpos( $all_params, '-' ) + 1 );
 			} else {
-				$type = $allParams;
+				$type = $all_params;
 			}
 
-			$this->BuildSitemapHeader("sitemap");
+			$this->build_sitemap_header( 'sitemap' );
 
-			do_action("sm_build_content", $this, $type, $params);
+			do_action( 'sm_build_content', $this, $type, $params );
 
-			$this->BuildSitemapFooter("sitemap");
+			$this->build_sitemap_footer( 'sitemap' );
 
-			$this->AddEndCommend($startTime, $startQueries, $startMemory);
+			$this->add_end_commend( $start_time, $start_queries, $start_memory );
 		}
 
-		if($html) {
-			$xmlSource = ob_get_clean();
+		if ( $html ) {
+			$xml_source = ob_get_clean();
 
-			// Load the XML source
-			$xml = new DOMDocument;
-			$xml->loadXML($xmlSource);
+			// Load the XML source.
+			$xml = new DOMDocument();
+			$xml->loadXML( $xml_source );
 
-			$xsl = new DOMDocument;
-			$xsl->load($this->GetPluginPath() . "sitemap.xsl");
+			$xsl = new DOMDocument();
+			$xsl->load( $this->get_plugin_path() . 'sitemap.xsl' );
 
-			// Configure the transformer
-			$proc = new XSLTProcessor;
-			$proc->importStyleSheet($xsl); // attach the xsl rules
+			// Configure the transformer.
+			$proc = new XSLTProcessor();
+			$proc->importStyleSheet( $xsl ); // Attach the xsl rules.
 
-			$domTranObj = $proc->transformToDoc($xml);
+			$dom_tran_obj = $proc->transformToDoc( $xml );
 
-			// this will also output doctype and comments at top level
-			foreach($domTranObj->childNodes as $node) echo $domTranObj->saveXML($node) . "\n";
+			// This will also output doctype and comments at top level.
+			// phpcs:disable
+			foreach ( $dom_tran_obj->childNodes as $node ) {
+			// phpcs:enable
+				echo esc_html( $dom_tran_obj->saveXML( $node ) ) . '\\n';
+			}
 		}
 
-		if($packed) ob_end_flush();
-		$this->isActive = false;
+		if ( $packed ) {
+			ob_end_flush();
+		}
+		$this->is_active = false;
 		exit;
 	}
 
@@ -1752,30 +2000,29 @@ final class GoogleSitemapGenerator {
 	 * Generates the header for the sitemap with XML declarations, stylesheet and so on.
 	 *
 	 * @since 4.0
-	 * @param string $format The format, either sitemap for a sitemap or index for the sitemap index
+	 * @param string $format The format, either sitemap for a sitemap or index for the sitemap index .
 	 */
-	private function BuildSitemapHeader($format) {
+	private function build_sitemap_header( $format ) {
 
-		if(!in_array($format, array("sitemap", "index"))) $format = "sitemap";
-
-		$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<?xml version="1.0" encoding="UTF-8"' . '?' . '>'));
-
-		$styleSheet = ($this->GetDefaultStyle() && $this->GetOption('b_style_default') === true
-				? $this->GetDefaultStyle() : $this->GetOption('b_style'));
-
-		if(!empty($styleSheet)) {
-			$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<' . '?xml-stylesheet type="text/xsl" href="' . esc_url( $styleSheet ) . '"?' . '>'));
+		if ( ! in_array( $format, array( 'sitemap', 'index' ), true ) ) {
+			$format = 'sitemap';
 		}
+		$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<?xml version=\'1.0\' encoding=\'UTF-8\'?>' ) );
+		$style_sheet = ( $this->get_default_style() && $this->get_option( 'b_style_default' ) === true
+				? $this->get_default_style() : $this->get_option( 'b_style' ) );
 
-		$this->AddElement(new GoogleSitemapGeneratorDebugEntry("sitemap-generator-url=\"http://www.arnebrachhold.de\" sitemap-generator-version=\"" . $this->GetVersion() . "\""));
-		$this->AddElement(new GoogleSitemapGeneratorDebugEntry("generated-on=\"" . date(get_option("date_format") . " " . get_option("time_format")) . "\""));
+		if ( ! empty( $style_sheet ) ) {
+			$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<' . '?xml-stylesheet type=\'text/xsl\' href=\'' . esc_url( $style_sheet ) . '\'?>' ) );
+		}
+		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'sitemap-generator-url=\'http://www.arnebrachhold.de\' sitemap-generator-version=\'' . $this->get_version() . '\'' ) );
+		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'generated-on=\'' . gmdate( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) . '\'' ) );
 
-		switch($format) {
-			case "sitemap":
-				$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'));
+		switch ( $format ) {
+			case 'sitemap':
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<urlset xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
 				break;
-			case "index":
-				$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<sitemapindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'));
+			case 'index':
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
 				break;
 		}
 	}
@@ -1784,16 +2031,18 @@ final class GoogleSitemapGenerator {
 	 * Generates the footer for the sitemap with XML ending tag
 	 *
 	 * @since 4.0
-	 * @param string $format The format, either sitemap for a sitemap or index for the sitemap index
+	 * @param string $format The format, either sitemap for a sitemap or index for the sitemap index.
 	 */
-	private function BuildSitemapFooter($format) {
-		if(!in_array($format, array("sitemap", "index"))) $format = "sitemap";
-		switch($format) {
-			case "sitemap":
-				$this->AddElement(new GoogleSitemapGeneratorXmlEntry('</urlset>'));
+	private function build_sitemap_footer( $format ) {
+		if ( ! in_array( $format, array( 'sitemap', 'index' ), true ) ) {
+			$format = 'sitemap';
+		}
+		switch ( $format ) {
+			case 'sitemap':
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '</urlset>' ) );
 				break;
-			case "index":
-				$this->AddElement(new GoogleSitemapGeneratorXmlEntry('</sitemapindex>'));
+			case 'index':
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '</sitemapindex>' ) );
 				break;
 		}
 	}
@@ -1802,33 +2051,34 @@ final class GoogleSitemapGenerator {
 	 * Adds information about time and memory usage to the sitemap
 	 *
 	 * @since 4.0
-	 * @param float $startTime The microtime of the start
-	 * @param int $startQueries
-	 * @param int $startMemory
-	 *
+	 * @param float $start_time The microtime of the start .
+	 * @param int   $start_queries .
+	 * @param int   $start_memory .
 	 */
-	private function AddEndCommend($startTime, $startQueries = 0, $startMemory = 0) {
-		if(defined("WP_DEBUG") && WP_DEBUG) {
-			echo "<!-- ";
-			if(defined('SAVEQUERIES') && SAVEQUERIES) {
+	private function add_end_commend( $start_time, $start_queries = 0, $start_memory = 0 ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			echo '<!-- ';
+			if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 				echo '<pre>';
-				var_dump($GLOBALS['wpdb']->queries);
+				// phpcs:disable WordPress.PHP.DevelopmentFunctions
+				var_dump( $GLOBALS['wpdb']->queries );
+				  // phpcs:enable
 				echo '</pre>';
 
 				$total = 0;
-				foreach($GLOBALS['wpdb']->queries as $q) {
+				foreach ( $GLOBALS['wpdb']->queries as $q ) {
 					$total += $q[1];
 				}
 				echo '<h4>Total Query Time</h4>';
-				echo '<pre>' . count($GLOBALS['wpdb']->queries) . ' queries in ' . round($total, 2) . ' seconds.</pre>';
+				echo '<pre>' . count( $GLOBALS['wpdb']->queries ) . ' queries in ' . esc_html( round( $total, 2 ) ) . ' seconds.</pre>';
 			} else {
 				echo '<p>Please edit wp-db.inc.php in wp-includes and set SAVEQUERIES to true if you want to see the queries.</p>';
 			}
-			echo " --> ";
+			echo ' --> ';
 		}
-		$endTime = microtime(true);
-		$endTime = round($endTime - $startTime, 2);
-		$this->AddElement(new GoogleSitemapGeneratorDebugEntry("Request ID: " . md5(microtime()) . "; Queries for sitemap: " . ($GLOBALS["wpdb"]->num_queries - $startQueries) . "; Total queries: " . $GLOBALS["wpdb"]->num_queries . "; Seconds: $endTime; Memory for sitemap: " . ((memory_get_peak_usage(true) - $startMemory) / 1024 / 1024) . "MB" . "; Total memory: " . (memory_get_peak_usage(true) / 1024 / 1024) . "MB"));
+		$end_time = microtime( true );
+		$end_time = round( $end_time - $start_time, 2 );
+		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . '; Seconds: $end_time; Memory for sitemap: ' . ( ( memory_get_peak_usage( true ) - $start_memory ) / 1024 / 1024 ) . 'MB; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
 	}
 
 	/**
@@ -1837,13 +2087,13 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @since 3.1.2
 	 */
-	public function DoRobots() {
-		$this->Initate();
-		if($this->GetOption('b_robots') === true) {
+	public function do_robots() {
+		$this->initate();
+		if ( $this->get_option( 'b_robots' ) === true ) {
 
-			$smUrl = $this->GetXmlUrl();
+			$sm_url = $this->get_xml_url();
 
-			echo "\nSitemap: " . $smUrl . "\n";
+			echo "\nSitemap: " . esc_url( $sm_url ) . "\n";
 		}
 	}
 
@@ -1854,64 +2104,78 @@ final class GoogleSitemapGenerator {
 	 * Outputs an element in the sitemap
 	 *
 	 * @since 3.0
-	 * @param $page GoogleSitemapGeneratorXmlEntry The element
+	 * @param object $page GoogleSitemapGeneratorXmlEntry The element .
 	 */
-	public function AddElement($page) {
+	public function add_element( $page ) {
 
-		if(empty($page)) return;
-		echo $page->Render();
+		if ( empty( $page ) ) {
+			return;
+		}
+		// phpcs:disable
+		echo $page->render();
+		// phpcs:enable
 	}
 
 	/**
-	 * Adds a url to the sitemap. You can use this method or call AddElement directly.
+	 * Adds a url to the sitemap. You can use this method or call add_element directly.
 	 *
 	 * @since 3.0
-	 * @param $loc string The location (url) of the page
-	 * @param $lastMod int The last Modification time as a UNIX timestamp
-	 * @param $changeFreq string The change frequenty of the page, Valid values are "always", "hourly", "daily", "weekly", "monthly", "yearly" and "never".
-	 * @param $priority float The priority of the page, between 0.0 and 1.0
-	 * @param $postID int The post ID in case this is a post or page
-	 * @see AddElement
-	 * @return string The URL node
+	 * @param int    $loc string The location (url) of the page .
+	 * @param int    $last_mod int The last Modification time as a UNIX timestamp .
+	 * @param string $change_freq string The change frequenty of the page, Valid values are 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly' and 'never'. .
+	 * @param float  $priority float The priority of the page, between 0.0 and 1.0 .
+	 * @param int    $post_id int The post ID in case this is a post or page .
+	 * @see add_element
 	 */
-	public function AddUrl($loc, $lastMod = 0, $changeFreq = "monthly", $priority = 0.5, $postID = 0) {
-		//Strip out the last modification time if activated
-		if($this->GetOption('in_lastmod') === false) $lastMod = 0;
-		$page = new GoogleSitemapGeneratorPage($loc, $priority, $changeFreq, $lastMod, $postID);
+	public function add_url( $loc, $last_mod = 0, $change_freq = 'monthly', $priority = 0.5, $post_id = 0 ) {
+		// Strip out the last modification time if activated .
+		if ( $this->get_option( 'in_lastmod' ) === false ) {
+			$last_mod = 0;
+		}
+		$page = new GoogleSitemapGeneratorPage( $loc, $priority, $change_freq, $last_mod, $post_id );
 
-		do_action('sm_addurl', $page);
+		do_action( 'sm_addurl', $page );
 
-		if($this->simMode) {
-			$caller = $this->GetExternalBacktrace(debug_backtrace());
-
-			$this->simData["content"][] = array(
-				"data" => $page,
-				"caller" => $caller
+		if ( $this->sim_mode ) {
+			// phpcs:disable WordPress.PHP.DevelopmentFunctions
+			$caller = $this->get_external_backtrace( debug_backtrace() );
+			// phpcs:enable
+			$this->sim_data['content'][] = array(
+				'data'   => $page,
+				'caller' => $caller,
 			);
 		} else {
-			$this->AddElement($page);
+			$this->add_element( $page );
 		}
 	}
 
 	/**
 	 * Add a sitemap entry to the index file
-	 * @param $type
-	 * @param string $params
-	 * @param int $lastMod
+	 *
+	 * @param string $type .
+	 * @param string $params .
+	 * @param int    $last_mod .
 	 */
-	public function AddSitemap($type, $params = "", $lastMod = 0) {
+	public function add_sitemap( $type, $params = '', $last_mod = 0 ) {
 
-		$url = $this->GetXmlUrl($type, $params);
+		$url = $this->get_xml_url( $type, $params );
 
-		$sitemap = new GoogleSitemapGeneratorSitemapEntry($url, $lastMod);
+		$sitemap = new GoogleSitemapGeneratorSitemapEntry( $url, $last_mod );
 
-		do_action('sm_addsitemap', $sitemap);
+		do_action( 'sm_addsitemap', $sitemap );
 
-		if($this->simMode) {
-			$caller = $this->GetExternalBacktrace(debug_backtrace());
-			$this->simData["sitemaps"][] = array("data" => $sitemap, "type" => $type, "params" => $params, "caller" => $caller);
+		if ( $this->sim_mode ) {
+			  // phpcs:disable WordPress.PHP.DevelopmentFunctions
+			$caller = $this->get_external_backtrace( debug_backtrace() );
+			  // phpcs:enable
+			$this->sim_data['sitemaps'][] = array(
+				'data'   => $sitemap,
+				'type'   => $type,
+				'params' => $params,
+				'caller' => $caller,
+			);
 		} else {
-			$this->AddElement($sitemap);
+			$this->add_element( $sitemap );
 		}
 	}
 
@@ -1923,28 +2187,30 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @return GoogleSitemapGeneratorStatus The status object
 	 */
-	public function SendPing() {
+	public function send_ping() {
 
-		$this->LoadOptions();
+		$this->load_options();
 
-		$pingUrl = $this->GetXmlUrl();
+		$ping_url = $this->get_xml_url();
 
-		$result = $this->ExecutePing($pingUrl, true);
+		$result = $this->execute_ping( $ping_url, true );
 
-		$postID = get_transient('sm_ping_post_id');
+		$post_id = get_transient( 'sm_ping_post_id' );
 
-		if($postID) {
+		if ( $post_id ) {
 
-			require_once(trailingslashit(dirname(__FILE__)) . "sitemap-builder.php");
+			require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
 
 			$urls = array();
 
-			$urls = apply_filters('sm_sitemap_for_post',$urls, $this, $postID);
-			if(is_array($urls) && count($urls)>0) {
-				foreach($urls AS $url) $this->ExecutePing($url, false);
+			$urls = apply_filters( 'sm_sitemap_for_post', $urls, $this, $post_id );
+			if ( is_array( $urls ) && count( $urls ) > 0 ) {
+				foreach ( $urls as $url ) {
+					$this->execute_ping( $url, false );
+				}
 			}
 
-			delete_transient('sm_ping_post_id');
+			delete_transient( 'sm_ping_post_id' );
 		}
 
 		return $result;
@@ -1952,180 +2218,222 @@ final class GoogleSitemapGenerator {
 
 
 	/**
-	 * @param $pingUrl string The Sitemap URL to ping
-	 * @param bool $updateStatus If the global ping status should be updated
+	 * Execute Ping
+	 *
+	 * @param string $ping_url string The Sitemap URL to ping .
+	 * @param bool   $update_status If the global ping status should be updated .
 	 *
 	 * @return \GoogleSitemapGeneratorStatus
 	 */
-	protected function ExecutePing($pingUrl, $updateStatus = true) {
+	protected function execute_ping( $ping_url, $update_status = true ) {
 
-		 $status = new GoogleSitemapGeneratorStatus($updateStatus);
+		$status = new GoogleSitemapGeneratorStatus( $update_status );
 
-		if ($pingUrl) {
+		if ( $ping_url ) {
 			$pings = array();
 
-			if ($this->GetOption("b_ping")) {
-				$pings["google"] = array(
-					"name" => "Google",
-					"url" => "http://www.google.com/webmasters/sitemaps/ping?sitemap=%s",
-					"check" => "successfully"
+			if ( $this->get_option( 'b_ping' ) ) {
+				$pings['google'] = array(
+					'name'  => 'Google',
+					'url'   => 'http://www.google.com/webmasters/sitemaps/ping?sitemap=%s',
+					'check' => 'successfully',
 				);
 			}
 
-			if ($this->GetOption("b_pingmsn")) {
-				$pings["bing"] = array(
-					"name" => "Bing",
-					"url" => "http://www.bing.com/webmaster/ping.aspx?siteMap=%s",
-					"check" => " "
-					// No way to check, response is IP-language-based :-(
+			if ( $this->get_option( 'b_pingmsn' ) ) {
+				$pings['bing'] = array(
+					'name'  => 'Bing',
+					'url'   => 'http://www.bing.com/webmaster/ping.aspx?siteMap=%s',
+					'check' => ' ',
+					// No way to check, response is IP-language-based :-( .
 				);
 			}
 
-			foreach ($pings AS $serviceId => $service) {
-				$url = str_replace("%s", urlencode($pingUrl), $service["url"]);
-				$status->StartPing($serviceId, $url, $service["name"]);
+			foreach ( $pings as $service_id => $service ) {
+				$url = str_replace( '%s', rawurlencode( $ping_url ), $service['url'] );
+				$status->start_ping( $service_id, $url, $service['name'] );
 
-				$pingres = $this->RemoteOpen($url);
+				$pingres = $this->remote_open( $url );
 
-				if ($pingres === null || $pingres === false || strpos($pingres, $service["check"]) === false) {
-					$status->EndPing($serviceId, false);
-					trigger_error("Failed to ping $serviceId: " . htmlspecialchars(strip_tags($pingres)), E_USER_NOTICE);
+				if ( null === $pingres || false === $pingres || false === strpos( $pingres, $service['check'] ) ) {
+					$status->end_ping( $service_id, false );
+					// phpcs:disable WordPress.PHP.DevelopmentFunctions
+					trigger_error( 'Failed to ping $service_id: ' . esc_html( htmlspecialchars( wp_strip_all_tags( $pingres ) ) ), E_USER_NOTICE );
+					// phpcs:enable
 				} else {
-					$status->EndPing($serviceId, true);
+					$status->end_ping( $service_id, true );
 				}
 			}
 
-			$this->SetOption('i_lastping', time());
-			$this->SaveOptions();
+			$this->set_option( 'i_lastping', time() );
+			$this->save_options();
 		}
 
-		$status->End();
+		$status->end();
 
 		return $status;
 	}
 
 	/**
 	 * Tries to ping a specific service showing as much as debug output as possible
+	 *
 	 * @since 4.1
 	 * @return array
 	 */
-	public function SendPingAll() {
+	public function send_ping_all() {
 
-		$this->LoadOptions();
+		$this->load_options();
 
-		$sitemaps = $this->SimulateIndex();
+		$sitemaps = $this->simulate_index();
 
 		$urls = array();
 
-		$urls[] = $this->GetXmlUrl();
+		$urls[] = $this->get_xml_url();
 
-		foreach($sitemaps AS $sitemap) {
+		foreach ( $sitemaps as $sitemap ) {
 
-			/** @var $s GoogleSitemapGeneratorSitemapEntry */
-			$s = $sitemap["data"];
+			// @var $s GoogleSitemapGeneratorSitemapEntry .
+			$s = $sitemap['data'];
 
-			$urls[] = $s->GetUrl();
+			$urls[] = $s->get_url();
 		}
 
 		$results = array();
 
 		$first = true;
 
-		foreach($urls AS $url) {
-			$status = @$this->ExecutePing($url, $first);
-			$results[] = array("sitemap"=> $url, "status" => $status);
-			$first = false;
+		foreach ( $urls as $url ) {
+			$status    = $this->execute_ping( $url, $first );
+			$results[] = array(
+				'sitemap' => $url,
+				'status'  => $status,
+			);
+			$first     = false;
 		}
 		return $results;
-
 	}
 
 	/**
 	 * Tries to ping a specific service showing as much as debug output as possible
+	 *
 	 * @since 3.1.9
 	 * @return null
 	 */
-	public function ShowPingResult() {
+	public function show_ping_result() {
 
-		check_admin_referer('sitemap');
+		check_admin_referer( 'sitemap' );
 
-		if(!current_user_can("administrator")) {
+		if ( ! current_user_can( 'administrator' ) ) {
 			echo '<p>Please log in as admin</p>';
 			return;
 		}
 
-		$service = !empty($_GET["sm_ping_service"]) ? $_GET["sm_ping_service"] : null;
+		$service = ! empty( $_GET['sm_ping_service'] ) ? sanitize_text_field( wp_unslash( $_GET['sm_ping_service'] ) ) : null;
 
-		$status = GoogleSitemapGeneratorStatus::Load();
+		$status = GoogleSitemapGeneratorStatus::load();
 
-		if(!$status) die("No build status yet. Write something first.");
+		if ( ! $status ) {
+			die( 'No build status yet. Write something first.' );
+		}
 
 		$url = null;
 
-		$services = $status->GetUsedPingServices();
+		$services = $status->get_used_ping_services();
 
-		if(!in_array($service, $services)) die("Invalid service");
+		if ( ! in_array( $service, $services, true ) ) {
+			die( 'Invalid service' );
+		}
 
-		$url = $status->GetPingUrl($service);
+		$url = $status->get_ping_url( $service );
 
-		if(empty($url)) die("Invalid ping url");
+		if ( empty( $url ) ) {
+			die( 'Invalid ping url' );
+		}
 
 		echo '<html><head><title>Ping Test</title>';
-		if(function_exists('wp_admin_css')) wp_admin_css('css/global', true);
+		if ( function_exists( 'wp_admin_css' ) ) {
+			wp_admin_css( 'css/global', true );
+		}
 		echo '</head><body><h1>Ping Test</h1>';
 
-		echo '<p>Trying to ping: <a href="' . $url . '">' . $url . '</a>. The sections below should give you an idea whats going on.</p>';
+		echo '<p>Trying to ping: <a href=\'' . esc_url( $url ) . '\'>' . esc_html( $url ) . '</a>. The sections below should give you an idea whats going on.</p>';
 
-		//Try to get as much as debug / error output as possible
-		$errLevel = error_reporting(E_ALL);
-		$errDisplay = ini_set("display_errors", 1);
-		if(!defined('WP_DEBUG')) define('WP_DEBUG', true);
+		// Try to get as much as debug / error output as possible .
+		$err_level = error_reporting( E_ALL );
+		define( 'WP_DEBUG_DISPLAY', true );
+
+		if ( ! defined( 'WP_DEBUG' ) ) {
+			define( 'WP_DEBUG', true );
+		}
 
 		echo '<h2>Errors, Warnings, Notices:</h2>';
 
-		if(WP_DEBUG == false) echo "<i>WP_DEBUG was set to false somewhere before. You might not see all debug information until you remove this declaration!</i><br />";
-		if(ini_get("display_errors") != 1) echo "<i>Your display_errors setting currently prevents the plugin from showing errors here. Please check your webserver logfile instead.</i><br />";
+		if ( WP_DEBUG === false ) {
+			echo '<i>WP_DEBUG was set to false somewhere before. You might not see all debug information until you remove this declaration!</i><br />';
+		}
+		if ( ini_get( 'display_errors' ) !== 1 ) {
+			echo '<i>Your display_errors setting currently prevents the plugin from showing errors here. Please check your webserver logfile instead.</i><br />';
+		}
 
-		$res = $this->RemoteOpen($url);
+		$res = $this->remote_open( $url );
 
 		echo '<h2>Result (text only):</h2>';
 
-		echo wp_kses($res, array('a' => array('href' => array()), 'p' => array(), 'ul' => array(), 'ol' => array(), 'li' => array()));
+		echo wp_kses(
+			$res,
+			array(
+				'a'  => array( 'href' => array() ),
+				'p'  => array(),
+				'ul' => array(),
+				'ol' => array(),
+				'li' => array(),
+			)
+		);
 
 		echo '<h2>Result (HTML):</h2>';
 
-		echo htmlspecialchars($res);
+		esc_html( htmlspecialchars( $res ) );
 
-		//Revert back old values
-		error_reporting($errLevel);
-		ini_set("display_errors", $errDisplay);
+		// Revert back old values .
+		// error_reporting( $err_level ); .
 		echo '</body></html>';
 		exit;
 	}
 
 	/**
 	 * Opens a remote file using the WordPress API
+	 *
 	 * @since 3.0
-	 * @param $url string The URL to open
-	 * @param $method string get or post
-	 * @param $postData array An array with key=>value paris
-	 * @param $timeout int Timeout for the request, by default 10
+	 * @param string $url string The URL to open .
+	 * @param string $method string get or post .
+	 * @param object $post_data array An array with key=>value paris .
+	 * @param int    $timeout int Timeout for the request, by default 10 .
 	 * @return mixed False on error, the body of the response on success
 	 */
-	public static function RemoteOpen($url, $method = 'get', $postData = null, $timeout = 10) {
-		$options = array();
+	public static function remote_open( $url, $method = 'get', $post_data = null, $timeout = 10 ) {
+		$options            = array();
 		$options['timeout'] = $timeout;
 
-		if($method == 'get') {
-			$response = wp_remote_get($url, $options);
+		if ( 'get' === $method ) {
+			$response = wp_remote_get( $url, $options );
 		} else {
-			$response = wp_remote_post($url, array_merge($options, array('body' => $postData)));
+			$response = wp_remote_post(
+				$url,
+				array_merge(
+					$options,
+					array(
+						'body' => $post_data,
+					)
+				)
+			);
 		}
 
-		if(is_wp_error($response)) {
+		if ( is_wp_error( $response ) ) {
 			$errs = $response->get_error_messages();
-			$errs = htmlspecialchars(implode('; ', $errs));
-			trigger_error('WP HTTP API Web Request failed: ' . $errs, E_USER_NOTICE);
+			$errs = htmlspecialchars( implode( '; ', $errs ) );
+			// phpcs:disable WordPress.PHP.DevelopmentFunctions
+			trigger_error( 'WP HTTP API Web Request failed: ' . esc_html( $errs ), E_USER_NOTICE );
+			  // phpcs:enable
 			return false;
 		}
 
@@ -2135,38 +2443,47 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Sends anonymous statistics (disabled by default)
 	 */
-	private function SendStats() {
+	private function send_stats() {
 		global $wp_version, $wpdb;
-		$postCount = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status='publish'");
+		$post_count = $wpdb->get_var( 'SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status=\'publish\'' ); // db call ok; no-cache ok.
 
-		//Send simple post count statistic to get an idea in which direction this plugin should be optimized
-		//Only a rough number is required, so we are rounding things up
-		if($postCount <=5) $postCount = 5;
-		else if($postCount < 25) $postCount = 10;
-		else if($postCount < 35) $postCount = 25;
-		else if($postCount < 75) $postCount = 50;
-		else if($postCount < 125) $postCount = 100;
-		else if($postCount < 2000) $postCount = round($postCount / 200) * 200;
-		else if($postCount < 10000) $postCount = round($postCount / 1000) * 1000;
-		else $postCount = round($postCount / 10000) * 10000;
+		// Send simple post count statistic to get an idea in which direction this plugin should be optimized .
+		// Only a rough number is required, so we are rounding things up .
+		if ( $post_count <= 5 ) {
+			$post_count = 5;
+		} elseif ( $post_count < 25 ) {
+			$post_count = 10;
+		} elseif ( $post_count < 35 ) {
+			$post_count = 25;
+		} elseif ( $post_count < 75 ) {
+			$post_count = 50;
+		} elseif ( $post_count < 125 ) {
+			$post_count = 100;
+		} elseif ( $post_count < 2000 ) {
+			$post_count = round( $post_count / 200 ) * 200;
+		} elseif ( $post_count < 10000 ) {
+			$post_count = round( $post_count / 1000 ) * 1000;
+		} else {
+			$post_count = round( $post_count / 10000 ) * 10000;
+		}
 
-		$postData = array(
-			"v" => 1,
-			"tid" => "UA-65990-26",
-			"cid" => $this->GetOption('i_hash'),
-			"aip" => 1, //Anonymize
-			"t" => "event",
-			"ec" => "ping",
-			"ea" => "auto",
-			"ev" => 1,
-			"cd1" => $wp_version,
-			"cd2" => $this->GetVersion(),
-			"cd3" => PHP_VERSION,
-			"cd4" => $postCount,
-			"ul" => get_bloginfo('language'),
+		$post_data = array(
+			'v'   => 1,
+			'tid' => 'UA-65990-26',
+			'cid' => $this->get_option( 'i_hash' ),
+			'aip' => 1, // Anonymize .
+			't'   => 'event',
+			'ec'  => 'ping',
+			'ea'  => 'auto',
+			'ev'  => 1,
+			'cd1' => $wp_version,
+			'cd2' => $this->get_version(),
+			'cd3' => PHP_VERSION,
+			'cd4' => $post_count,
+			'ul'  => get_bloginfo( 'language' ),
 		);
 
-		$this->RemoteOpen('http://www.google-analytics.com/collect', 'post', $postData);
+		$this->remote_open( 'http://www.google-analytics.com/collect', 'post', $post_data );
 	}
 
 	/**
@@ -2174,7 +2491,7 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @return int The number of seconds
 	 */
-	public static function GetSupportFeedCacheLifetime() {
+	public static function get_support_feed_cache_lifetime() {
 		return 60 * 60 * 24 * 7;
 	}
 
@@ -2184,14 +2501,14 @@ final class GoogleSitemapGenerator {
 	 *
 	 * @return SimplePie|WP_Error
 	 */
-	public function GetSupportFeed() {
+	public function get_support_feed() {
 
-		$callBack = array(__CLASS__,"GetSupportFeedCacheLifetime");
+		$call_back = array( __CLASS__, 'get_support_feed_cache_lifetime' );
 
-		//Extend cache lifetime so we don't request the feed to often
-		add_filter( 'wp_feed_cache_transient_lifetime' , $callBack);
-		$result = fetch_feed(SM_SUPPORTFEED_URL);
-		remove_filter( 'wp_feed_cache_transient_lifetime' , $callBack );
+		// Extend cache lifetime so we don't request the feed to often .
+		add_filter( 'wp_feed_cache_transient_lifetime', $call_back );
+		$result = fetch_feed( SM_SUPPORTFEED_URL );
+		remove_filter( 'wp_feed_cache_transient_lifetime', $call_back );
 
 		return $result;
 	}
@@ -2199,31 +2516,31 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Handles daily ping
 	 */
-	public function SendPingDaily() {
+	public function send_ping_daily() {
 
-		$this->LoadOptions();
+		$this->load_options();
 
-		$blogUpdate = strtotime(get_lastpostdate('blog'));
-		$lastPing = $this->GetOption('i_lastping');
-		$yesterday = time() - (60 * 60 * 24);
+		$blog_update = strtotime( get_lastpostdate( 'blog' ) );
+		$last_ping   = $this->get_option( 'i_lastping' );
+		$yesterday   = time() - ( 60 * 60 * 24 );
 
-		if($blogUpdate >= $yesterday && ($lastPing==0 || $lastPing <= $yesterday)) {
-			$this->SendPing();
+		if ( $blog_update >= $yesterday && ( 0 === $last_ping || $last_ping <= $yesterday ) ) {
+			$this->send_ping();
 		}
 
-		//Send statistics if enabled (disabled by default)
-		if($this->GetOption('b_stats')) {
-			$this->SendStats();
+		// Send statistics if enabled (disabled by default) .
+		if ( $this->get_option( 'b_stats' ) ) {
+			$this->send_stats();
 		}
 
-		//Cache the support feed so there is no delay when loading the user interface
-		if($this->GetOption('i_supportfeed')) {
-			$last = $this->GetOption('i_supportfeed_cache');
-			if($last <= (time() - $this->GetSupportFeedCacheLifetime())) {
-				$supportFeed = $this->GetSupportFeed();
-				if (!is_wp_error($supportFeed) && $supportFeed) {
-					$this->SetOption('i_supportfeed_cache',time());
-					$this->SaveOptions();
+		// Cache the support feed so there is no delay when loading the user interface .
+		if ( $this->get_option( 'i_supportfeed' ) ) {
+			$last = $this->get_option( 'i_supportfeed_cache' );
+			if ( $last <= ( time() - $this->get_support_feed_cache_lifetime() ) ) {
+				$support_feed = $this->get_support_feed();
+				if ( ! is_wp_error( $support_feed ) && $support_feed ) {
+					$this->set_option( 'i_supportfeed_cache', time() );
+					$this->save_options();
 				}
 			}
 		}
@@ -2239,23 +2556,24 @@ final class GoogleSitemapGenerator {
 	 * @see GoogleSitemapGeneratorUI
 	 * @return GoogleSitemapGeneratorUI
 	 */
-	private function GetUI() {
+	private function get_ui() {
 
-		if($this->ui === null) {
+		if ( null === $this->ui ) {
 
-			$className = 'GoogleSitemapGeneratorUI';
-			$fileName = 'sitemap-ui.php';
+			$class_name = 'GoogleSitemapGeneratorUI';
+			$file_name  = 'class-googlesitemapgeneratorui.php';
 
-			if(!class_exists($className)) {
+			if ( ! class_exists( $class_name ) ) {
 
-				$path = trailingslashit(dirname(__FILE__));
+				$path = trailingslashit( dirname( __FILE__ ) );
 
-				if(!file_exists($path . $fileName)) return false;
-				require_once($path . $fileName);
+				if ( ! file_exists( $path . $file_name ) ) {
+					return false;
+				}
+				require_once $path . $file_name;
 			}
 
-			$this->ui = new $className($this);
-
+			$this->ui = new $class_name( $this );
 		}
 
 		return $this->ui;
@@ -2268,11 +2586,11 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return bool
 	 */
-	public function HtmlShowOptionsPage() {
+	public function html_show_options_page() {
 
-		$ui = $this->GetUI();
-		if($ui) {
-			$ui->HtmlShowOptionsPage();
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_options_page();
 			return true;
 		}
 
@@ -2284,24 +2602,24 @@ final class GoogleSitemapGenerator {
 	/**
 	 * Returns if the given value is greater than zero
 	 *
-	 * @param $value int The value to check
+	 * @param int $value int The value to check .
 	 * @since 4.0b10
 	 * @return bool True if greater than zero
 	 */
-	public function IsGreaterZero($value) {
-		return ($value > 0);
+	public function is_greater_zero( $value ) {
+		return ( $value > 0 );
 	}
 
 	/**
 	 * Converts the various possible php.ini values for true and false to boolean
 	 *
-	 * @param $value string The value from ini_get
+	 * @param string $value string The value from ini_get .
 	 *
 	 * @return bool The converted value
 	 */
-	public function GetPhpIniBoolean($value) {
-		if (is_string($value)) {
-			switch (strtolower($value)) {
+	public function get_php_ini_boolean( $value ) {
+		if ( is_string( $value ) ) {
+			switch ( strtolower( $value ) ) {
 				case '+':
 				case '1':
 				case 'y':
@@ -2322,75 +2640,68 @@ final class GoogleSitemapGenerator {
 			}
 		}
 
-		return (boolean) $value;
+		return (bool) $value;
 	}
 
 
-
-	public function ShowSurvey() {
-		$this->LoadOptions();
-
-		return (isset($_REQUEST['sm_survey']) || !$this->GetOption('i_hide_survey'));
+	/**
+	 * Show surevey method .
+	 */
+	public function show_survey() {
+		$this->load_options();
+		if ( isset( $_REQUEST['sm_survey'] ) ) {
+			return ( sanitize_text_field( wp_unslash( $_REQUEST['sm_survey'] ) ) ) || ! $this->get_option( 'i_hide_survey' );
+		}
 	}
 
-	public function HtmlSurvey() {
+	/**
+	 * Html survey method .
+	 */
+	public function html_survey() {
 		?>
-		<div class="updated">
+		<div class='updated'>
 			<strong>
 				<p>
-					<?php echo str_replace('%s', 'https://forms.gle/kx47Rkk2P8GZ257Q8',
-						__('Help us shape the future of sitemaps. <a href="%s" target="_blank"> Share with us how we can improve Google XML Sitemaps for you by taking this short survey.</a>','sitemap'));
-					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
+					<?php
+					esc_html(
+						str_replace(
+							'%s',
+							'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
+							/* translators: %s: search term */
+							__( 'Thank you for using Google XML Sitemaps! <a href=\'%s\' target=\'_blank\'>Please help us improve by taking this short survey!</a>', 'sitemap' )
+						)
+					);
+					?>
+					<a href='<?php esc_url( $this->get_back_link() ) . '&amp;sm_hide_survey=true'; ?>' style='float:right; display:block; border:none;'><small style='font-weight:normal; '><?php esc_html_e( 'Don\'t show this anymore', 'sitemap' ); ?></small></a>
 				</p>
 			</strong>
-			<div style="clear:right;"></div>
+			<div style='clear:right;'></div>
 		</div>
 		<?php
 	}
-	public function getXslUrl($url,$host){
-		if (substr($host, 0, 4) === 'www.'){
-			if(substr(get_bloginfo('url'), 0, 5) != "https"){
-				if(strpos($url,"www.") === false){
-					$url = str_replace("http://","http://www.",$url);
+
+	/**
+	 * Get xsl url method .
+	 *
+	 * @param string $url .
+	 * @param string $host .
+	 */
+	public function get_xsl_url( $url, $host ) {
+		if ( substr( $host, 0, 4 ) === 'www.' ) {
+			if ( substr( get_bloginfo( 'url' ), 0, 5 ) !== 'https' ) {
+				if ( strpos( $url, 'www.' ) === false ) {
+					$url = str_replace( 'http://', 'http://www.', $url );
 				}
-			} else{
-				if(strpos($url,"www.") === false){
-					$url = str_replace("https://","https://www.",$url);
+			} else {
+				if ( strpos( $url, 'www.' ) === false ) {
+					$url = str_replace( 'https://', 'https://www.', $url );
 				}
 			}
-		} else{
-			if(strpos($url,"www.") !== false){
-				$url = str_replace("://www.","://",$url);
+		} else {
+			if ( strpos( $url, 'www.' ) !== false ) {
+				$url = str_replace( '://www.', '://', $url );
 			}
 		}
 		return $url;
-	}
-	public function robots_disallowed()
-	{
-		// parse url to retrieve host and path
-		$parsed = home_url();
-
-		// location of robots.txt file
-		$robotstxt = @file("{$parsed}/robots.txt");
-		// if there isn't a robots, then we're allowed in
-		if(empty($robotstxt)) return true;
-	
-		$rules = array();
-		$ruleApplies = true;
-		foreach($robotstxt as $line) {
-			// skip blank lines
-			if(!$line = trim($line)) continue;
-			
-			if($ruleApplies && preg_match('/^\s*Disallow:(.*)/i', $line, $regs)) {
-				// an empty rule implies full access - no further tests required
-				if(!$regs[1]) continue;
-				// add rules that apply to array for testing
-				$id = url_to_postid(home_url(trim($regs[1])));
-				if($id > 0){
-					$rules[] = $id;
-				}
-			}
-		}
-	  return $rules;
 	}
 }
