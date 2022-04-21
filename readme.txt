@@ -2,8 +2,8 @@
 Contributors: arnee
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
-Tested up to: 5.8.4
-Stable tag: 4.1.2
+Tested up to: 5.9.3
+Stable tag: 4.1.3
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,9 @@ The changelog is maintained [here](http://www.arnebrachhold.de/projects/wordpres
 The WordPress.org repository is just another place to download this plugin. I don't want to maintain too many pages with the same content. Thank you for your understanding!
 
 == Changelog ==
+
+= 4.1.3 (2022-04-21) =
+* Misc. bug fixes and enhancements
 
 = 4.1.2 (2022-04-15) =
 * Code formatiting, Bug fixes and Sanitizing inputs and output as per PHPCS (WordPress sniffer)
