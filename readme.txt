@@ -2,7 +2,7 @@
 Contributors: arnee
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
-Tested up to: 5.8.4
+Tested up to: 5.9.3
 Stable tag: 4.1.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

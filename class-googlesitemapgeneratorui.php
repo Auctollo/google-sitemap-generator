@@ -399,7 +399,7 @@ class GoogleSitemapGeneratorUI {
 						}
 					} elseif ( 'sm_b_exclude' === $k ) {
 						$id_ss = array();
-						$id_s  = explode( ',', array_map( 'sanitize_text_field', wp_unslash( $_POST[ $k ] ) ) );
+						$id_s  = explode( ',', sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 						$len   = count( $id_s );
 						for ( $x = 0; $x < $len; $x++ ) {
 							$id = intval( trim( $id_s[ $x ] ) );
@@ -1198,15 +1198,16 @@ class GoogleSitemapGeneratorUI {
 										<script type='text/javascript'>
 											//<![CDATA[
 											<?php
-											$freq_vals  = '"' . implode( '","', array_keys( $this->sg->get_freq_names() ) ) . '"';
-											$freq_names = '"' . implode( '","', array_values( $this->sg->get_freq_names() ) ) . '"';
-											// phpcs:disable.
+
+											$freq_vals  = implode( ',', array_keys( $this->sg->get_freq_names() ) );
+											$freq_names = implode( ',', array_values( $this->sg->get_freq_names() ) );
 											?>
-											var changeFreqVals  = [<?php echo ( $freq_vals ); ?>];
-											var changeFreqNames = [<?php echo ( $freq_names ); ?>];
+											var changeFreqVals  = '<?php echo esc_html( $freq_vals ); ?>'; 
+											changeFreqVals = changeFreqVals.split(",")
+											var changeFreqNames ='<?php echo esc_html( $freq_names ); ?>'
+											changeFreqNames = changeFreqNames.split(",")
 											var priorities = [0 
 											<?php
-											// phpcs:enable
 											for ( $i = 0.1; $i < 1; $i += 0.1 ) {
 																	echo ',' . number_format( $i, 1, '.', '' );
 											}
@@ -1229,7 +1230,6 @@ class GoogleSitemapGeneratorUI {
 												}
 												?>
 												];
-												console.log(pages);
 											//]]>
 										</script>
 										<?php
