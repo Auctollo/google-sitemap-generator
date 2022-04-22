@@ -1,4 +1,4 @@
-=== Google XML Sitemaps ===
+=== XML Sitemaps ===
 Contributors: arnee
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
@@ -21,9 +21,9 @@ Supported since *over 9 years* and rated as the [best WordPress plugin](http://w
 
 Related Links:
 
-* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/" title="Google XML Sitemaps Plugin for WordPress">Plugin Homepage</a>
-* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/changelog/" title="Changelog of the Google XML Sitemaps Plugin for WordPress">Changelog</a>
-* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/help/" title="Google Sitemaps FAQ">Plugin help and sitemaps FAQ</a>
+* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/" title="XML Sitemaps Plugin for WordPress">Plugin Homepage</a>
+* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/changelog/" title="Changelog of the XML Sitemaps Plugin for WordPress">Changelog</a>
+* <a href="http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/help/" title="Sitemaps FAQ">Plugin help and sitemaps FAQ</a>
 * <a href="http://wordpress.org/support/topic/read-before-opening-a-new-support-topic">Support Forum</a>
 
 == Installation ==
@@ -57,11 +57,11 @@ No, only if you want to. Default values are ok for most sites.
 
 = Does this plugin work with all WordPress versions? =
 
-This version works with WordPress 3.3 and better. If you're using an older version, please check the [Google Sitemaps Plugin Homepage](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/ "Google (XML) Sitemap Generator Plugin Homepage") for the legacy releases. There is a working release for every WordPress version since 1.5, but you really should consider updating your WordPress installation!
+This version works with WordPress 3.3 and better. If you're using an older version, please check the [Sitemaps Plugin Homepage](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/ "XML Sitemap Generator Plugin Homepage") for the legacy releases. There is a working release for every WordPress version since 1.5, but you really should consider updating your WordPress installation!
 
 = My question isn't answered here =
 
-Most of the plugin options are described at the [plugin homepage](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/) as well as the dedicated [Google Sitemaps FAQ](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/help/ "List of common questions / problems regarding Google (XML) Sitemaps").
+Most of the plugin options are described at the [plugin homepage](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/) as well as the dedicated [Sitemaps FAQ](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/help/ "List of common questions / problems regarding XML Sitemaps").
 
 = My question isn't even answered there =
 
@@ -69,7 +69,7 @@ Please post your question at the [WordPress support forum](http://wordpress.org/
 
 = What's new in the latest version? =
 
-The changelog is maintained [here](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/changelog/ "Google (XML) Sitemap Generator Plugin Changelog")
+The changelog is maintained [here](http://www.arnebrachhold.de/projects/wordpress-plugins/google-xml-sitemaps-generator/changelog/ "XML Sitemap Generator Plugin Changelog")
 
 = Why is the changelog on a separate page and not here? =
 
@@ -479,4 +479,4 @@ The plugin comes with various translations, please refer to the [WordPress Codex
 == Upgrade Notice ==
 
 = 4.0.9 =
-Thanks for using Google XML Sitemaps! This release includes an important security fix that has been reported.
+Thanks for using XML Sitemaps! This release includes an important security fix that has been reported.

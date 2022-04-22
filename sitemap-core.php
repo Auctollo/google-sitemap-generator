@@ -970,7 +970,7 @@ final class GoogleSitemapGenerator {
 	 * @return string The full url
 	 */
 	public static function get_redirect_link( $redir ) {
-		return trailingslashit( 'http://www.arnebrachhold.de/redir/' . $redir );
+		return trailingslashit( 'http://url.auctollo.com/' . $redir );
 	}
 
 	/**
