@@ -9,7 +9,6 @@
 			<head>
 				<title>XML Sitemap</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-				<meta name="robots" content="noindex,follow" />
 				<style type="text/css">
 					body {
 						font-family:"Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
@@ -64,7 +63,7 @@
 				<xsl:apply-templates></xsl:apply-templates>
 				<div id="footer">
 					Generated with <a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-home/" title="Google (XML) Sitemap Generator Plugin for WordPress">Google (XML) Sitemaps Generator Plugin for WordPress</a> by <a rel="external nofollow" href="http://www.arnebrachhold.de/">Arne Brachhold</a>. This XSLT template is released under the GPL and free to use.<br />
-					If you have problems with your sitemap please visit the <a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-x-faq/" title="Google (XML) sitemaps FAQ">plugin FAQ</a> or the <a rel="external nofollow" href="https://wordpress.org/support/plugin/google-sitemap-generator">support forum</a>.
+                    If you have problems with your sitemap please visit the <a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-x-faq/" title="Google (XML) sitemaps FAQ">plugin FAQ</a> or the <a rel="external nofollow" href="https://wordpress.org/support/plugin/google-sitemap-generator">support forum</a>.
 				</div>
 			</body>
 		</html>
