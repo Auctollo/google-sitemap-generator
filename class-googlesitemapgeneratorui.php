@@ -707,7 +707,6 @@ class GoogleSitemapGeneratorUI {
 			a.sm_button {
 				padding: 4px;
 				display: block;
-				padding-left: 25px;
 				background-repeat: no-repeat;
 				background-position: 5px 50%;
 				text-decoration: none;
@@ -863,12 +862,12 @@ class GoogleSitemapGeneratorUI {
 
 								<?php if ( ! $snl ) : ?>
 									<?php $this->html_print_box_header( 'sm_pnres', __( 'About this Plugin:', 'sitemap' ), true ); ?>
-									<a class='sm_button sm_pluginHome' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-home' ) ); ?>'><?php esc_html_e( 'Plugin Homepage', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginHome' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Suggest a Feature', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginHelp' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help' ) ); ?>'><?php esc_html_e( 'Help / FAQ', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginList' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-list' ) ); ?>'><?php esc_html_e( 'Notify List', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginSupport' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Support Forum', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginBugs' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-bugs' ) ); ?>'><?php esc_html_e( 'Report a Bug', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-home' ) ); ?>'><?php esc_html_e( 'Plugin Homepage', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Suggest a Feature', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help' ) ); ?>'><?php esc_html_e( 'Help / FAQ', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-list' ) ); ?>'><?php esc_html_e( 'Notify List', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Support Forum', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-bugs' ) ); ?>'><?php esc_html_e( 'Report a Bug', 'sitemap' ); ?></a>
 									<?php
 									if ( __( 'translator_name', 'sitemap' ) !== 'translator_name' ) {
 										?>
@@ -876,15 +875,15 @@ class GoogleSitemapGeneratorUI {
 									<?php $this->html_print_box_footer( true ); ?>
 
 									<?php $this->html_print_box_header( 'sm_smres', __( 'Sitemap Resources:', 'sitemap' ), true ); ?>
-									<a class='sm_button sm_resGoogle' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-gwt' ) ); ?>'><?php esc_html_e( 'Webmaster Tools', 'sitemap' ); ?></a>
-									<a class='sm_button sm_resGoogle' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-gwb' ) ); ?>'><?php esc_html_e( 'Webmaster Blog', 'sitemap' ); ?></a>
-									<a class='sm_button sm_resYahoo' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-ywb' ) ); ?>'><?php esc_html_e( 'Search Blog', 'sitemap' ); ?></a>
-									<a class='sm_button sm_resBing' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-lwt' ) ); ?>'><?php esc_html_e( 'Webmaster Tools', 'sitemap' ); ?></a>
-									<a class='sm_button sm_resBing' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-lswcb' ) ); ?>'><?php esc_html_e( 'Webmaster Center Blog', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-gwt' ) ); ?>'><?php esc_html_e( 'Webmaster Tools', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-gwb' ) ); ?>'><?php esc_html_e( 'Webmaster Blog', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-ywb' ) ); ?>'><?php esc_html_e( 'Search Blog', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-lwt' ) ); ?>'><?php esc_html_e( 'Webmaster Tools', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-lswcb' ) ); ?>'><?php esc_html_e( 'Webmaster Center Blog', 'sitemap' ); ?></a>
 									<br />
-									<a class='sm_button sm_resGoogle' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-prot' ) ); ?>'><?php esc_html_e( 'Sitemaps Protocol', 'sitemap' ); ?></a>
-									<a class='sm_button sm_resGoogle' href='<?php echo esc_url( $this->sg->get_redirect_link( 'projects/wordpress-plugins/google-xml-sitemaps-generator/help' ) ); ?>'><?php esc_html_e( 'Official Sitemaps FAQ', 'sitemap' ); ?></a>
-									<a class='sm_button sm_pluginHome' href='<?php echo esc_url( $this->sg->get_redirect_link( 'projects/wordpress-plugins/google-xml-sitemaps-generator/help' ) ); ?>'><?php esc_html_e( 'My Sitemaps FAQ', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-prot' ) ); ?>'><?php esc_html_e( 'Sitemaps Protocol', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'projects/wordpress-plugins/google-xml-sitemaps-generator/help' ) ); ?>'><?php esc_html_e( 'Official Sitemaps FAQ', 'sitemap' ); ?></a>
+									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'projects/wordpress-plugins/google-xml-sitemaps-generator/help' ) ); ?>'><?php esc_html_e( 'My Sitemaps FAQ', 'sitemap' ); ?></a>
 									<?php $this->html_print_box_footer( true ); ?>
 
 
