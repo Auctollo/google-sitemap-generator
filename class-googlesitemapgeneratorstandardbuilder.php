@@ -601,7 +601,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			foreach ( $terms as $term ) {
 				$term_array[] = $term->name;
 				$url          = get_term_link( $term );
-				$gsg->add_url( $url, $term->_mod_date, $gsg->get_option( 'cf_auth' ), $gsg->get_option( 'pr_auth' ), $term->ID, array(), array(), '' );
+				$gsg->add_url( $url, $term->_mod_date, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $term->ID, array(), array(), '' );
 			}
 		}
 	}
