@@ -1389,7 +1389,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_i_hide_works']        = false; // Hide the 'works?' message which appears after 15 days .
 		$this->options['sm_i_hide_donors']       = false; // Hide the list of donations .
 		$this->options['sm_i_hash']              = substr( sha1( sha1( get_bloginfo( 'url' ) ) ), 0, 20 ); // Partial hash for GA stats, NOT identifiable! .
-		$this->options['sm_i_tid']                 = 'UA-65990-26';
+		$this->options['sm_i_tid']               = '';
 		$this->options['sm_i_lastping']          = 0; // When was the last ping .
 		$this->options['sm_i_supportfeed']       = true; // shows the support feed .
 		$this->options['sm_i_supportfeed_cache'] = 0; // Last refresh of support feed .
