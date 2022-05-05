@@ -75,7 +75,7 @@
         <div id="intro">
             <p>
                 This is a XML Sitemap which is supposed to be processed by search engines which follow the XML Sitemap standard like Ask.com, Bing, Google and Yahoo.<br />
-                It was generated using the <a rel="external nofollow" href="http://wordpress.org/">WordPress</a> content management system and the <strong><a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-home/" title="Google (XML) Sitemaps Generator Plugin for WordPress">Google Sitemap Generator Plugin</a></strong> by <a rel="external nofollow" href="http://www.arnebrachhold.de/">Arne Brachhold</a>.<br />
+                It was generated using the <a rel="external nofollow" href="http://wordpress.org/">WordPress</a> content management system and the <strong><a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-home/" title="Google (XML) Sitemaps Generator Plugin for WordPress">XML Sitemap Generator Plugin</a></strong> by <a rel="external nofollow" href="http://www.arnebrachhold.de/">Arne Brachhold</a>.<br />
                 You can find more information about XML sitemaps on <a rel="external nofollow" href="http://sitemaps.org">sitemaps.org</a> and Google's <a rel="external nofollow" href="http://code.google.com/p/sitemap-generators/wiki/SitemapGenerators">list of sitemap programs</a>.
             </p>
         </div>
@@ -123,7 +123,7 @@
         <div id="intro">
             <p>
                 This is a XML Sitemap which is supposed to be processed by search engines which follow the XML Sitemap standard like Ask.com, Bing, Google and Yahoo.<br />
-                It was generated using the <a rel="external nofollow" href="http://wordpress.org/">WordPress</a> content management system and the <strong><a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-home/" title="Google (XML) Sitemaps Generator Plugin for WordPress">Google Sitemap Generator Plugin</a></strong> by <a rel="external nofollow" href="http://www.arnebrachhold.de/">Arne Brachhold</a>.<br />
+                It was generated using the <a rel="external nofollow" href="http://wordpress.org/">WordPress</a> content management system and the <strong><a rel="external nofollow" href="http://www.arnebrachhold.de/redir/sitemap-home/" title="XML Sitemaps Generator Plugin for WordPress">XML Sitemap Generator Plugin</a></strong> by <a rel="external nofollow" href="http://www.arnebrachhold.de/">Arne Brachhold</a>.<br />
                 You can find more information about XML sitemaps on <a rel="external nofollow" href="http://sitemaps.org">sitemaps.org</a> and Google's <a rel="external nofollow" href="http://code.google.com/p/sitemap-generators/wiki/SitemapGenerators">list of sitemap programs</a>.<br />
                 <br />
                 This file contains links to sub-sitemaps, follow them to see the actual sitemap content.
