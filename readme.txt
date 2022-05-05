@@ -1,9 +1,9 @@
-=== XML Sitemaps ===
+ === XML Sitemaps ===
 Contributors: arnee
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
 Tested up to: 5.9.3
-Stable tag: 4.1.3
+Stable tag: 4.1.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,11 +77,16 @@ The WordPress.org repository is just another place to download this plugin. I do
 
 == Changelog ==
 
-= 4.1.3 (2022-04-21) =
-* Misc. bug fixes and enhancements
-
 = 4.1.2 (2022-04-15) =
-* Code formatiting, Bug fixes and Sanitizing inputs and output as per PHPCS (WordPress sniffer)
+* Fixed security issue related to Cross-Site Scripting attacks on debug page
+* Fixed HTTP error while generating sitemap (because of conflict of www and now www site)
+* Fixed handling WordPress core sitemap entry from robots.txt
+* Added option to flush database rewrite on plugin deactivation
+* Added option to split the custom categories into multiple sitemaps by custom taxonomy
+* Added option to omit the posts specified as disallow in robots.txt
+* Added option to set links per page for tags and categories
+* Added option to set a custom filename for the sitemap
+* Added option to list custom post in the archive sitemap
 
 = 4.1.1 (2022-04-07) =
 * fix security issue related to Cross-Site Scripting attacks on debug page

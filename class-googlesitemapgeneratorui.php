@@ -441,6 +441,9 @@ class GoogleSitemapGeneratorUI {
 						$this->sg->set_option( $k, (bool) $_POST[ $k ] );
 					}
 					// Options of the category 'Includes' are boolean.
+				} elseif ( 'sm_i_tid' === $k ) {
+					// $_POST[ $k ] = trim( self::escape( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) );
+					$this->sg->set_option( $k, trim( self::escape( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) ) );
 				} elseif ( substr( $k, 0, 6 ) === 'sm_in_' ) {
 					if ( 'sm_in_tax' === $k ) {
 
@@ -1139,6 +1142,10 @@ class GoogleSitemapGeneratorUI {
 											<li>
 												<label for='sm_b_sitemap_name'><?php esc_html_e( 'Override the file name of the sitemap:', 'sitemap' ); ?> <input type='text' name='sm_b_sitemap_name' id='sm_b_sitemap_name' value='<?php echo esc_attr( $this->sg->get_option( 'b_sitemap_name' ) ); ?>' /></label><br />
 												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
+											</li>
+											<li>
+												<label for='sm_i_tid'><?php esc_html_e( 'Override the file name of the TID:', 'sitemap' ); ?> <input type='text' name='sm_i_tid' id='sm_i_tid' value='<?php echo esc_attr( $this->sg->get_option( 'i_tid' ) ); ?>' /></label><br />
+												<small><?php esc_html_e( 'Use this if you want to change the TID', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
 												<label for='sm_b_html'>
