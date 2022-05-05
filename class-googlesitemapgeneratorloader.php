@@ -1,6 +1,6 @@
 <?php
 /**
- * Loader class for the Google Sitemap Generator
+ * Loader class for the XML Sitemap Generator
  *
  * This class takes care of the sitemap plugin and tries to load the different parts as late as possible.
  * On normal requests, only this small class is loaded. When the sitemap needs to be rebuild, the generator itself is loaded.

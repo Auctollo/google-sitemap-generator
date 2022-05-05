@@ -31,6 +31,6 @@ if ( file_exists( $gsg_file ) ) {
 	require_once $gsg_file;
 } else {
 	// phpcs:disable
-	esc_html( trigger_error( 'Google Sitemap Generator was loaded via mu-plugins directory, but the plugin was not found under $gsg_file', E_USER_WARNING ) );
+	esc_html( trigger_error( 'XML Sitemap Generator was loaded via mu-plugins directory, but the plugin was not found under $gsg_file', E_USER_WARNING ) );
 	// phpcs:enable
 }
