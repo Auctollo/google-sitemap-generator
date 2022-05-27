@@ -1273,9 +1273,14 @@ class GoogleSitemapGeneratorUI {
 										</li>
 										<?php
 										$provs = $this->sg->get_prio_providers();
-										$len   = count( $provs );
+										array_unshift( $provs, '' );
+										$len = count( $provs );
 										for ( $i = 0; $i < $len; $i++ ) {
-											echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_$i\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_$i\'>' . esc_html( call_user_func( array( $provs[ $i ], 'get_name' ) ) ) . '</label><br />' . esc_html( call_user_func( array( $provs[ $i ], 'get_description' ) ) ) . '</p></li>';
+											if ( 0 === $i ) {
+												echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_' . esc_html( $i ) . '\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_' . esc_html( $i ) . '\'>' . esc_html( 'Do not use automatic priority calculation' ) . '</label><br />' . esc_html( 'All posts will have the same priority which is defined in &quot;Priorities&quot;' ) . '</p></li>';
+											} else {
+												echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_' . esc_html( $i ) . '\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_' . esc_html( $i ) . '\'>' . esc_html( call_user_func( array( $provs[ $i ], 'get_name' ) ) ) . '</label><br />' . esc_html( call_user_func( array( $provs[ $i ], 'get_description' ) ) ) . '</p></li>';
+											}
 										}
 										?>
 									</ul>
