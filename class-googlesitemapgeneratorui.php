@@ -449,7 +449,7 @@ class GoogleSitemapGeneratorUI {
 
 						$enabled_taxonomies = array();
 
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', ( wp_unslash( $_POST[ $k ] ) ) ) ) as $tax_name ) {
+						foreach ( array_keys( (array) array_map( 'sanitize_text_field', ( wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) ) as $tax_name ) {
 							if ( empty( $tax_name ) || ! taxonomy_exists( $tax_name ) ) {
 								continue;
 							}
@@ -462,7 +462,7 @@ class GoogleSitemapGeneratorUI {
 
 						$enabled_post_types = array();
 
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', wp_unslash( $_POST[ $k ] ) ) ) as $post_type_name ) {
+						foreach ( array_keys( (array) array_map( 'sanitize_text_field', wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) as $post_type_name ) {
 							if ( empty( $post_type_name ) || ! post_type_exists( $post_type_name ) ) {
 								continue;
 							}
@@ -1268,9 +1268,6 @@ class GoogleSitemapGeneratorUI {
 
 									<p><?php esc_html_e( 'Please select how the priority of each post should be calculated:', 'sitemap' ); ?></p>
 									<ul>
-										<li>
-											<p><input type='radio' name='sm_b_prio_provider' id='sm_b_prio_provider__0' value='' <?php esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), '' ) ); ?> /> <label for='sm_b_prio_provider__0'><?php esc_html_e( 'Do not use automatic priority calculation', 'sitemap' ); ?></label><br /><?php esc_html_e( 'All posts will have the same priority which is defined in &quot;Priorities&quot;', 'sitemap' ); ?></p>
-										</li>
 										<?php
 										$provs = $this->sg->get_prio_providers();
 										array_unshift( $provs, '' );
