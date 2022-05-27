@@ -448,8 +448,8 @@ class GoogleSitemapGeneratorUI {
 					if ( 'sm_in_tax' === $k ) {
 
 						$enabled_taxonomies = array();
-
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', ( wp_unslash( $_POST[ $k ] ) ) ) ) as $tax_name ) {
+						$sm_in_tax          = isset( $_POST[ $k ] ) ? (array) array_map( 'sanitize_text_field', ( wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) : array();
+						foreach ( array_keys( (array) $sm_in_tax ) as $tax_name ) {
 							if ( empty( $tax_name ) || ! taxonomy_exists( $tax_name ) ) {
 								continue;
 							}
@@ -461,8 +461,8 @@ class GoogleSitemapGeneratorUI {
 					} elseif ( 'sm_in_customtypes' === $k ) {
 
 						$enabled_post_types = array();
-
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', wp_unslash( $_POST[ $k ] ) ) ) as $post_type_name ) {
+						$sm_in_customtype   = isset( $_POST[ $k ] ) ? (array) array_map( 'sanitize_text_field', wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) : array();
+						foreach ( array_keys( (array) $sm_in_customtype ) as $post_type_name ) {
 							if ( empty( $post_type_name ) || ! post_type_exists( $post_type_name ) ) {
 								continue;
 							}
@@ -1250,14 +1250,16 @@ class GoogleSitemapGeneratorUI {
 
 									<p><?php esc_html_e( 'Please select how the priority of each post should be calculated:', 'sitemap' ); ?></p>
 									<ul>
-										<li>
-											<p><input type='radio' name='sm_b_prio_provider' id='sm_b_prio_provider__0' value='' <?php esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), '' ) ); ?> /> <label for='sm_b_prio_provider__0'><?php esc_html_e( 'Do not use automatic priority calculation', 'sitemap' ); ?></label><br /><?php esc_html_e( 'All posts will have the same priority which is defined in &quot;Priorities&quot;', 'sitemap' ); ?></p>
-										</li>
 										<?php
 										$provs = $this->sg->get_prio_providers();
-										$len   = count( $provs );
+										array_unshift( $provs, '' );
+										$len = count( $provs );
 										for ( $i = 0; $i < $len; $i++ ) {
-											echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_$i\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_$i\'>' . esc_html( call_user_func( array( $provs[ $i ], 'get_name' ) ) ) . '</label><br />' . esc_html( call_user_func( array( $provs[ $i ], 'get_description' ) ) ) . '</p></li>';
+											if ( 0 === $i ) {
+												echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_' . esc_html( $i ) . '\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_' . esc_html( $i ) . '\'>' . esc_html( 'Do not use automatic priority calculation' ) . '</label><br />' . esc_html( 'All posts will have the same priority which is defined in &quot;Priorities&quot;' ) . '</p></li>';
+											} else {
+												echo '<li><p><input type=\'radio\' id=\'sm_b_prio_provider_' . esc_html( $i ) . '\' name=\'sm_b_prio_provider\' value=\'' . esc_attr( $provs[ $i ] ) . '\' ' . esc_attr( $this->html_get_checked( $this->sg->get_option( 'b_prio_provider' ), $provs[ $i ] ) ) . ' /> <label for=\'sm_b_prio_provider_' . esc_html( $i ) . '\'>' . esc_html( call_user_func( array( $provs[ $i ], 'get_name' ) ) ) . '</label><br />' . esc_html( call_user_func( array( $provs[ $i ], 'get_description' ) ) ) . '</p></li>';
+											}
 										}
 										?>
 									</ul>
