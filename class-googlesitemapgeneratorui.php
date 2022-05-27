@@ -448,8 +448,8 @@ class GoogleSitemapGeneratorUI {
 					if ( 'sm_in_tax' === $k ) {
 
 						$enabled_taxonomies = array();
-
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', ( wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) ) as $tax_name ) {
+						$sm_in_tax          = isset( $_POST[ $k ] ) ? (array) array_map( 'sanitize_text_field', ( wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) : array();
+						foreach ( array_keys( (array) $sm_in_tax ) as $tax_name ) {
 							if ( empty( $tax_name ) || ! taxonomy_exists( $tax_name ) ) {
 								continue;
 							}
@@ -461,8 +461,8 @@ class GoogleSitemapGeneratorUI {
 					} elseif ( 'sm_in_customtypes' === $k ) {
 
 						$enabled_post_types = array();
-
-						foreach ( array_keys( (array) array_map( 'sanitize_text_field', wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) as $post_type_name ) {
+						$sm_in_customtype   = isset( $_POST[ $k ] ) ? (array) array_map( 'sanitize_text_field', wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) : array();
+						foreach ( array_keys( (array) $sm_in_customtype ) as $post_type_name ) {
 							if ( empty( $post_type_name ) || ! post_type_exists( $post_type_name ) ) {
 								continue;
 							}
