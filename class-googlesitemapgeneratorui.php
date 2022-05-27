@@ -1081,24 +1081,6 @@ class GoogleSitemapGeneratorUI {
 											</small>
 										</li>
 										<li>
-											<input type='checkbox' id='sm_b_pingmsn' name='sm_b_pingmsn' <?php echo ( $this->sg->get_option( 'b_pingmsn' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-											<label for='sm_b_pingmsn'><?php esc_html_e( 'Notify Bing (formerly MSN Live Search) about updates of your site', 'sitemap' ); ?></label><br />
-											<small>
-											<?php
-											$arr = array(
-												'br'     => array(),
-												'p'      => array(),
-												'a'      => array(
-													'href' => array(),
-												),
-												'strong' => array(),
-											);
-											/* translators: %s: search term */
-											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-lwt' ), __( 'No registration required, but you can join the <a href=\'%s\'>Bing Webmaster Tools</a> to check crawling statistics.', 'sitemap' ) ), $arr );
-											?>
-											</small>
-										</li>
-										<li>
 											<label for='sm_b_robots'>
 												<input type='checkbox' id='sm_b_robots' name='sm_b_robots' <?php echo ( $this->sg->get_option( 'b_robots' ) === true ? 'checked=\'checked\'' : '' ); ?> />
 												<?php esc_html_e( 'Add sitemap URL to the virtual robots.txt file.', 'sitemap' ); ?>

@@ -385,18 +385,18 @@ class GoogleSitemapGeneratorPage {
 		}
 
 		$r  = '';
-		$r .= '\\t<url>\\n';
-		$r .= '\\t\\t<loc>' . $this->escape_xml( esc_url_raw( $this->url ) ) . '</loc>\\n';
+		$r .= "\t<url>\n";
+		$r .= "\t\t<loc>" . $this->escape_xml( esc_url_raw( $this->url ) ) . "</loc>\n";
 		if ( $this->last_mod > 0 ) {
-			$r .= '\\t\\t<lastmod>' . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . '</lastmod>\\n';
+			$r .= "\t\t<lastmod>" . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . "</lastmod>\n";
 		}
 		if ( ! empty( $this->change_freq ) ) {
-			$r .= '\\t\\t<changefreq>' . $this->change_freq . '</changefreq>\\n';
+			$r .= "\t\t<changefreq>" . $this->change_freq . "</changefreq>\n";
 		}
 		if ( false !== $this->priority && '' !== $this->priority ) {
-			$r .= '\\t\\t<priority>' . number_format( $this->priority, 1 ) . '</priority>\\n';
+			$r .= "\t\t<priority>" . number_format( $this->priority, 1 ) . "</priority>\n";
 		}
-		$r .= '\\t</url>\\n';
+		$r .= "\t</url>\n";
 		return $r;
 	}
 
@@ -2301,15 +2301,6 @@ final class GoogleSitemapGenerator {
 					'name'  => 'Google',
 					'url'   => 'http://www.google.com/webmasters/sitemaps/ping?sitemap=%s',
 					'check' => 'successfully',
-				);
-			}
-
-			if ( $this->get_option( 'b_pingmsn' ) ) {
-				$pings['bing'] = array(
-					'name'  => 'Bing',
-					'url'   => 'http://www.bing.com/webmaster/ping.aspx?siteMap=%s',
-					'check' => ' ',
-					// No way to check, response is IP-language-based :-( .
 				);
 			}
 
