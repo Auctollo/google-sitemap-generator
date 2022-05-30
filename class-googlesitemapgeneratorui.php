@@ -591,17 +591,34 @@ class GoogleSitemapGeneratorUI {
 			<?php
 				exit;
 		} elseif ( ! empty( $_GET['sm_ping_main'] ) ) {
+			if ( null !== $this->sg->get_option( 'i_tid' ) && '' !== $this->sg->get_option( 'i_tid' ) ) {
+				check_admin_referer( 'sitemap' );
 
-			check_admin_referer( 'sitemap' );
+					// Check again, just for the case that something went wrong before.
+				if ( ! current_user_can( 'administrator' ) ) {
+					echo '<p>Please log in as admin</p>';
+					return;
+				}
 
-				// Check again, just for the case that something went wrong before.
-			if ( ! current_user_can( 'administrator' ) ) {
-				echo '<p>Please log in as admin</p>';
-				return;
+				$this->sg->send_ping();
+				$message = __( 'Ping was executed, please see below for the result.', 'sitemap' );
+			} else {
+				?>
+				<div class='error'>
+						<p>
+						<?php
+						$arr = array(
+							'br'     => array(),
+							'p'      => array(),
+							'strong' => array(),
+						);
+						/* translators: %s: search term */
+						echo wp_kses( __( 'Please add Google analytics tid in order to notify Google bots.', 'sitemap' ), $arr );
+						?>
+						</p>
+					</div>
+				<?php
 			}
-
-			$this->sg->send_ping();
-			$message = __( 'Ping was executed, please see below for the result.', 'sitemap' );
 		}
 
 		// Print out the message to the user, if any.
@@ -830,8 +847,8 @@ class GoogleSitemapGeneratorUI {
 					?>
 				</h2>
 				<?php
-
-				if ( get_option( 'blog_public' ) !== 1 ) {
+				$blog_public = (int) get_option( 'blog_public' );
+				if ( 1 !== $blog_public ) {
 					?>
 				<div class='error'>
 						<p>
@@ -1126,7 +1143,7 @@ class GoogleSitemapGeneratorUI {
 												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
-												<label for='sm_i_tid'><?php esc_html_e( ' Add Google Analytics TID:', 'sitemap' ); ?> <input type='text' name='sm_i_tid' id='sm_i_tid' required value='<?php echo esc_attr( $this->sg->get_option( 'i_tid' ) ); ?>' /></label><br />
+												<label for='sm_i_tid'><?php esc_html_e( ' Add Google Analytics TID:', 'sitemap' ); ?> <input type='text' name='sm_i_tid' id='sm_i_tid' value='<?php echo esc_attr( $this->sg->get_option( 'i_tid' ) ); ?>' /></label><br />
 											</li>
 											<li>
 												<label for='sm_b_html'>
