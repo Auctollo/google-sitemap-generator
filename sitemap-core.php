@@ -1353,7 +1353,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_in_pages']       = true; // Include static pages .
 		$this->options['sm_in_cats']        = false; // Include categories .
 		$this->options['sm_product_tags']   = true; // Hide product tags in sitemap .
-		$this->options['sm_in_product_cat'] = false; // Include product categories .
+		$this->options['sm_in_product_cat'] = true; // Include product categories .
 		$this->options['sm_in_arch']        = false; // Include archives .
 		$this->options['sm_in_auth']        = false; // Include author pages .
 		$this->options['sm_in_tags']        = false; // Include tag pages .
