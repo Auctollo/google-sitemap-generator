@@ -17,7 +17,12 @@ class GoogleSitemapGeneratorUI {
 	 * @var GoogleSitemapGenerator
 	 */
 	private $sg = null;
-
+	/**
+	 * Check if woo commerce is active or not .
+	 *
+	 * @var boolean
+	 */
+	private $has_woo_commerce = false;
 	/**
 	 * Constructor function.
 	 *
@@ -115,7 +120,17 @@ class GoogleSitemapGeneratorUI {
 			return '';
 		}
 	}
-
+	/**
+	 * Active Sitemap listing .
+	 */
+	public function active_plugins() {
+		$plugins = get_plugins();
+		foreach ( $plugins as $key => $val ) {
+			if ( 'WooCommerce' === $val['Name'] && is_plugin_active( $key ) ) {
+				$this->has_woo_commerce = true;
+			}
+		}
+	}
 	/**
 	 * Returns an formatted attribute. If the value is NULL, the name will be used.
 	 *
@@ -218,6 +233,7 @@ class GoogleSitemapGeneratorUI {
 		 * @author Arne Brachhold
 		 */
 	public function html_show_options_page() {
+		$this->active_plugins();
 		global $wp_version;
 		$snl = false; // SNL.
 
@@ -1459,15 +1475,24 @@ class GoogleSitemapGeneratorUI {
 										</ul>
 										<ul>
 											<?php
-											$defaults = array(
-												'descendants_and_self' => 0,
-												'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-												'popular_cats' => false,
-												'walker'   => null,
-												'taxonomy' => 'product_cat',
-												'checked_ontop' => true,
-												'echo'     => true,
-											);
+											$defaults = array();
+											if ( $this->has_woo_commerce ) {
+												$defaults = array(
+													'descendants_and_self' => 0,
+													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+													'popular_cats' => false,
+													'walker' => null,
+													'taxonomy' => 'product_cat',
+													'checked_ontop' => true,
+													'echo' => true,
+												);
+											} else {
+												$defaults = array(
+													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+													'echo' => true,
+												);
+											}
+
 											wp_terms_checklist( 0, $defaults );
 											?>
 										</ul>
@@ -1477,15 +1502,23 @@ class GoogleSitemapGeneratorUI {
 											?>
 											<ul>
 												<?php
-												$defaults = array(
-													'descendants_and_self' => 0,
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'popular_cats' => false,
-													'walker' => null,
-													'taxonomy' => $taxonomy,
-													'checked_ontop' => true,
-													'echo' => true,
-												);
+												$defaults = array();
+												if ( $this->has_woo_commerce ) {
+													$defaults = array(
+														'descendants_and_self' => 0,
+														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+														'popular_cats' => false,
+														'walker' => null,
+														'taxonomy' => $taxonomy,
+														'checked_ontop' => true,
+														'echo' => true,
+													);
+												} else {
+													$defaults = array(
+														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+														'echo'     => true,
+													);
+												}
 												wp_terms_checklist( 0, $defaults );
 												?>
 											</ul>
