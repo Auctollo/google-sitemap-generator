@@ -679,7 +679,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		global $wpdb;
 		$blog_update    = strtotime( get_lastpostmodified( 'gmt' ) );
 		$links_per_page = $gsg->get_option( 'links_page' );
-		if ( 0 === $links_per_page || gettype( $links_per_page ) !== 'integer' ) {
+		if ( 0 === $links_per_page ) {
 			$links_per_page = 10;
 			$gsg->set_option( 'links_page', 10 );
 		}
