@@ -1040,7 +1040,7 @@ class GoogleSitemapGeneratorUI {
 											?>
 											<?php if ( $this->sg->get_option( 'b_ping' ) || $this->sg->get_option( 'b_pingmsn' ) ) : ?>
 												<li>
-													Notify Search Engines about <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a href='#' onclick='window.open('<?php echo esc_html( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_all=true&noheader=true', 'sitemap' ) ); ?>','','width=650, height=500, resizable=yes'); return false;'>your main sitemap and all sub-sitemaps</a> now.
+													Notify Search Engines about <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
 												</li>
 											<?php endif; ?>
 											<?php
