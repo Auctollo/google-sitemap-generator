@@ -497,7 +497,11 @@ class GoogleSitemapGeneratorUI {
 				} elseif ( substr( $k, 0, 6 ) === 'sm_pr_' ) {
 					$this->sg->set_option( $k, (float) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				} elseif ( 'sm_links_page' === $k ) {
-					$this->sg->set_option( $k, (float) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
+					$links_per_page = sanitize_text_field( wp_unslash( $_POST[ $k ] ) );
+					if ( 0 === $links_per_page || gettype( $links_per_page ) !== 'integer' ) {
+						$links_per_page = 10;
+					}
+					$this->sg->set_option( $k, (float) $links_per_page );
 				} elseif ( substr( $k, 0, 3 ) === 'sm_' ) {
 					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				}

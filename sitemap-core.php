@@ -538,12 +538,12 @@ class GoogleSitemapGeneratorSitemapEntry {
 		}
 
 		$r  = '';
-		$r .= '\\t<sitemap>\\n';
-		$r .= '\\t\\t<loc>' . $this->escape_xml( esc_url_raw( $this->url ) ) . '</loc>\\n';
+		$r .= "\t<sitemap>\n";
+		$r .= "\t\t<loc>" . $this->escape_xml( esc_url_raw( $this->url ) ) . "</loc>\n";
 		if ( $this->last_mod > 0 ) {
-			$r .= '\\t\\t<lastmod>' . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . '</lastmod>\\n';
+			$r .= "\t\t<lastmod>" . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . "</lastmod>\n";
 		}
-		$r .= '\\t</sitemap>\\n';
+		$r .= "\t</sitemap>\n";
 		return $r;
 	}
 
@@ -2415,7 +2415,9 @@ final class GoogleSitemapGenerator {
 
 		// Try to get as much as debug / error output as possible .
 		$err_level = error_reporting( E_ALL );
-		define( 'WP_DEBUG_DISPLAY', true );
+		if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
+			define( 'WP_DEBUG_DISPLAY', true );
+		}
 
 		if ( ! defined( 'WP_DEBUG' ) ) {
 			define( 'WP_DEBUG', true );
