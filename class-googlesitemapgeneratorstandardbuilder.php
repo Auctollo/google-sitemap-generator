@@ -654,13 +654,19 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$pages = $gsg->get_pages();
 		if ( $pages && is_array( $pages ) && count( $pages ) > 0 ) {
 			foreach ( $pages as $page ) {
-
+				// Disabled phpcs for backward compatibility .
+				// phpcs:disable
+				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->_url;
+				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->_changeFreq;
+				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->_priority;
+				$last_mod    = ! empty( $page->get_last_mod() ) ? $page->get_last_mod() : $page->_lastMod;
+				// phpcs:enable
 				/**
 				 * Description for $page variable.
 				 *
 				 * @var $page GoogleSitemapGeneratorPage
 				 */
-				$gsg->add_url( $page->get_url(), $page->get_last_mod(), $page->get_change_freq(), $page->get_priority() );
+				$gsg->add_url( $url, $last_mod, $change_freq, $priority );
 			}
 		}
 	}
@@ -750,7 +756,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$pages = $gsg->get_pages();
 		if ( count( $pages ) > 0 ) {
 			foreach ( $pages as $page ) {
-				if ( $page instanceof GoogleSitemapGeneratorPage && $page->get_url() ) {
+				$url = ! empty( $page->get_url() ) ? $page->get_url() : $page->_url;
+				if ( $page instanceof GoogleSitemapGeneratorPage && $url ) {
 					$gsg->add_sitemap( 'externals', null, $blog_update );
 					break;
 				}
