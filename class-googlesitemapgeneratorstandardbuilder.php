@@ -659,7 +659,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->_url;
 				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->_changeFreq;
 				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->_priority;
-				$last_mod    = ! empty( $page->get_last_mod() ) ? $page->get_last_mod() : $page->_lastMod;
+				$last_mod    = ! empty( $page->_lastMod ) ? $page->_lastMod : $page->last_mod;
 				// phpcs:enable
 				/**
 				 * Description for $page variable.

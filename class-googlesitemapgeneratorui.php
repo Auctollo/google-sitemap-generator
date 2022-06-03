@@ -498,7 +498,8 @@ class GoogleSitemapGeneratorUI {
 					$this->sg->set_option( $k, (float) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				} elseif ( 'sm_links_page' === $k ) {
 					$links_per_page = sanitize_text_field( wp_unslash( $_POST[ $k ] ) );
-					if ( 0 === $links_per_page || gettype( $links_per_page ) !== 'integer' ) {
+					$links_per_page = (int) $links_per_page;
+					if ( 0 >= $links_per_page || is_nan( $links_per_page ) ) {
 						$links_per_page = 10;
 					}
 					$this->sg->set_option( $k, (float) $links_per_page );
@@ -1038,7 +1039,7 @@ class GoogleSitemapGeneratorUI {
 											}
 
 											?>
-											<?php if ( $this->sg->get_option( 'b_ping' ) || $this->sg->get_option( 'b_pingmsn' ) ) : ?>
+											<?php if ( $this->sg->get_option( 'b_ping' ) ) : ?>
 												<li>
 													Notify Search Engines about <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
 												</li>
