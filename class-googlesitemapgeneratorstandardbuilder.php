@@ -180,18 +180,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					if ( false === $total_post_count ) {
 						// phpcs:disable
 						$total_post_count = $wpdb->get_var(
-							$wpdb->prepare(
-								"SELECT
-									COUNT(*)
-								FROM
-									{$wpdb->posts} p
-								WHERE
-									p.post_password = ''
-									AND p.post_type = " . $post_type . "
-									AND p.post_status = 'publish'
-									" . $ex_post_s_q_l . ' '
-									. $ex_cat_s_q_l . ''
-							) // phpcs:ignore
+							$wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_password = '' AND p.post_type = '%s' AND p.post_status = 'publish' " . $ex_post_s_q_l . " " . $ex_cat_s_q_l . " ",  $post_type ) // phpcs:ignore
 						); // db call ok.
 						// phpcs:enable
 						wp_cache_add( $cache_key, $total_post_count, 'sitemap', 20 );
@@ -301,14 +290,15 @@ class GoogleSitemapGeneratorStandardBuilder {
 				FROM
 					$wpdb->posts
 				WHERE
-					post_date_gmt < " . $now . "
+					post_date_gmt < %s
 					AND post_status = 'publish'
 					AND post_type = 'post'
 				GROUP BY
 					YEAR(post_date_gmt),
 					MONTH(post_date_gmt)
 				ORDER BY
-				post_date_gmt DESC"
+				post_date_gmt DESC",
+				$now
 			)
 			// phpcs:enable
 		); // db call ok; no-cache ok.
@@ -424,27 +414,23 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( 0 === $enabled_post_types_count ) {
 			$enabled_post_types[] = 'post';
 		}
-		// phpcs:disable
-		$authors = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT DISTINCT
-				u.ID,
-				u.user_nicename,
-				MAX(p.post_modified_gmt) AS last_post
-			FROM
-				{$wpdb->users} u,
-				{$wpdb->posts} p
-			WHERE
-				p.post_author = u.ID
-				AND p.post_status = 'publish'
-				AND p.post_type IN('" . implode( "','", array_map( 'esc_sql', $enabled_post_types ) ) . "' )
-				AND p.post_password = ''
-			GROUP BY
-				u.ID,
-				u.user_nicename"
-			)
-		); // db call ok; no-cache ok.
-		// phpcs:enable
+		$sql     = "SELECT DISTINCT
+						u.ID,
+						u.user_nicename,
+						MAX(p.post_modified_gmt) AS last_post
+					FROM
+						{$wpdb->users} u,
+						{$wpdb->posts} p
+					WHERE
+						p.post_author = u.ID
+						AND p.post_status = 'publish'
+						AND p.post_type IN(" . implode( ', ', array_fill( 0, count( $enabled_post_types ), '%s' ) ) . ")
+						AND p.post_password = ''
+					GROUP BY
+						u.ID,
+						u.user_nicename";
+		$query   = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $enabled_post_types ) );
+		$authors = $wpdb->get_results( $query ); // phpcs:ignore
 		if ( $authors && is_array( $authors ) ) {
 			foreach ( $authors as $author ) {
 				$url = get_author_posts_url( $author->ID, $author->user_nicename );
@@ -799,15 +785,16 @@ class GoogleSitemapGeneratorStandardBuilder {
 						{$wpdb->posts} p
 					WHERE
 						p.post_password = ''
-						AND p.post_type = '" . esc_sql( $post_type_custom ) . "'
+						AND p.post_type = %s
 						AND p.post_status = 'publish'
-						" . $ex_post_s_q_l . ''
+						" . $ex_post_s_q_l . ""
 						. $ex_cat_s_q_l . "
 					GROUP BY
 						YEAR(p.post_date_gmt),
 						MONTH(p.post_date_gmt)
 					ORDER BY
-						p.post_date_gmt DESC"
+						p.post_date_gmt DESC",
+						$post_type_custom
 				);
 				$posts = $wpdb->get_results($prp);
 				if ( $posts ) {
