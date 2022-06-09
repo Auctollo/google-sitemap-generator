@@ -502,7 +502,7 @@ class GoogleSitemapGeneratorUI {
 					if ( 0 >= $links_per_page || is_nan( $links_per_page ) ) {
 						$links_per_page = 10;
 					}
-					$this->sg->set_option( $k, (float) $links_per_page );
+					$this->sg->set_option( $k, (int) $links_per_page );
 				} elseif ( substr( $k, 0, 3 ) === 'sm_' ) {
 					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				}
