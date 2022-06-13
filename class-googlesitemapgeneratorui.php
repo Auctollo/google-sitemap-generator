@@ -502,7 +502,7 @@ class GoogleSitemapGeneratorUI {
 					if ( 0 >= $links_per_page || is_nan( $links_per_page ) ) {
 						$links_per_page = 10;
 					}
-					$this->sg->set_option( $k, (float) $links_per_page );
+					$this->sg->set_option( $k, (int) $links_per_page );
 				} elseif ( substr( $k, 0, 3 ) === 'sm_' ) {
 					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				}
@@ -1008,7 +1008,7 @@ class GoogleSitemapGeneratorUI {
 											);
 											/* translators: %s: search term */
 											echo '<li>' . wp_kses( str_replace( array( '%1$s', '%2$s' ), $this->sg->get_xml_url(), __( 'The URL to your sitemap index file is: <a href=\'%1$s\'>%2$s</a>.', 'sitemap' ) ), $arr ) . '</li>';
-											if ( null === $status ) {
+											if ( null === $status || null === $this->sg->get_option( 'i_tid' ) || '' === $this->sg->get_option( 'i_tid' ) ) {
 												echo '<li>' . esc_html__( 'Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.', 'sitemap' ) . '</li>';
 											} else {
 
