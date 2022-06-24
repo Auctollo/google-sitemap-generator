@@ -290,7 +290,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				FROM
 					$wpdb->posts
 				WHERE
-					post_date_gmt < %s
+					post_date_gmt < '%s'
 					AND post_status = 'publish'
 					AND post_type = 'post'
 				GROUP BY
@@ -786,7 +786,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 						{$wpdb->posts} p
 					WHERE
 						p.post_password = ''
-						AND p.post_type = %s
+						AND p.post_type = '%s'
 						AND p.post_status = 'publish'
 						" . $ex_post_s_q_l . ""
 						. $ex_cat_s_q_l . "
