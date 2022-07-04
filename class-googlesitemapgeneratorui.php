@@ -368,6 +368,7 @@ class GoogleSitemapGeneratorUI {
 				$_POST['sm_b_style']         = '';
 			}
 
+			$old_name = '';
 			foreach ( $this->sg->get_options() as $k => $v ) {
 				// Skip some options if the user is not super admin...
 				if ( ! is_super_admin() && in_array( $k, array( 'sm_b_time', 'sm_b_memory', 'sm_b_style', 'sm_b_style_default' ), true ) ) {
@@ -380,7 +381,7 @@ class GoogleSitemapGeneratorUI {
 				} // Empty string will get false on 2bool and 0 on 2float
 				// Options of the category 'Basic Settings' are boolean, except the filename and the autoprio provider.
 				if ( substr( $k, 0, 5 ) === 'sm_b_' ) {
-					if ( 'sm_b_prio_provider' === $k || 'sm_b_style' === $k || 'sm_b_memory' === $k || 'sm_b_baseurl' === $k || 'sm_b_sitemap_name' === $k ) {
+					if ( 'sm_b_prio_provider' === $k || 'sm_b_style' === $k || 'sm_b_memory' === $k || 'sm_b_baseurl' === $k || 'sm_b_sitemap_name' === $k || 'sm_b_old_sm_name' === $k ) {
 						if ( 'sm_b_filename_manual' === $k && strpos( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ), '\\' ) !== false ) {
 							$_POST[ $k ] = stripslashes( self::escape( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) );
 						} elseif ( 'sm_b_baseurl' === $k ) {
@@ -394,6 +395,7 @@ class GoogleSitemapGeneratorUI {
 								$_POST[ $k ] = untrailingslashit( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 							}
 						} elseif ( 'sm_b_sitemap_name' === $k ) {
+							$old_name = $v;
 							if ( '' === $_POST[ $k ] ) {
 								$_POST[ $k ] = 'sitemap';
 							} else {
@@ -402,6 +404,8 @@ class GoogleSitemapGeneratorUI {
 									$this->sg->delete_old_files();
 								}
 							}
+						} elseif ( 'sm_b_old_sm_name' === $k ) {
+							$_POST[ $k ] = $old_name;
 						}
 						$this->sg->set_option( $k, (string) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 					} elseif ( 'sm_b_time' === $k ) {
