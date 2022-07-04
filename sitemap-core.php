@@ -1360,7 +1360,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_in_customtypes'] = array(); // Include custom post types .
 		$this->options['sm_in_lastmod']     = true; // Include the last modification date .
 		$this->options['sm_b_sitemap_name'] = 'sitemap'; // Name of custom sitemap.
-		$this->options['sm_b_old_sm_name']  = ''; // Name of previously defined sitemap.
+		$this->options['sm_b_old_sm_name']  = 'sitemap'; // Name of previously defined sitemap.
 		$this->options['sm_cf_home']        = 'daily'; // Change frequency of the homepage .
 		$this->options['sm_cf_posts']       = 'monthly'; // Change frequency of posts .
 		$this->options['sm_cf_pages']       = 'weekly'; // Change frequency of static pages .

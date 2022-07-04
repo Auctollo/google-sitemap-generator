@@ -520,7 +520,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$term = $terms[ $tax_count ];
 				switch ( $term->taxonomy ) {
 					case 'category':
-						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
+						if ( $term->name !== '' && $term->slug !== '' ) {
+							$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
+						}
 						break;
 					case 'product_cat':
 						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ) );
