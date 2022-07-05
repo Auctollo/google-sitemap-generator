@@ -520,9 +520,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$term = $terms[ $tax_count ];
 				switch ( $term->taxonomy ) {
 					case 'category':
-						if ( $term->name !== '' && $term->slug !== '' ) {
-							$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
-						}
+						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
 						break;
 					case 'product_cat':
 						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ) );
@@ -689,16 +687,17 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$excludes = $excl_cats;
 		}
 
-		foreach ( $taxonomies as $tax ) {
-			if ( ! in_array( $tax, $taxonomies_to_exclude, true ) ) {
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
 				$step         = 1;
-				$taxs         = get_terms( $tax, array( 'exclude' => $excludes ) );
-				$size_of_taxs = count( $taxs );
-				for ( $tax_count = 0; $tax_count < $size_of_taxs; $tax_count++ ) {
-					if ( 0 === ( $tax_count % $links_per_page ) && '' !== $taxs[ $tax_count ]->taxonomy ) {
-						$gsg->add_sitemap( 'tax-' . $taxs[ $tax_count ]->taxonomy, $step, $blog_update );
+				$taxs         = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
+				$i=0;				
+				foreach ( $taxs as $tax ) {
+					if ( 0 === ( $i % $links_per_page ) && '' !== $tax->taxonomy ) {
+						$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );
 						$step = ++$step;
 					}
+					$i++;
 				}
 			}
 		}
