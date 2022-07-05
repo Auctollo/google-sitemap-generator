@@ -691,7 +691,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
 				$step         = 1;
 				$taxs         = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
-				$i=0;				
+				$i            = 0;	
 				foreach ( $taxs as $tax ) {
 					if ( 0 === ( $i % $links_per_page ) && '' !== $tax->taxonomy ) {
 						$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );
