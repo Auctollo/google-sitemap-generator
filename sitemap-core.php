@@ -1360,6 +1360,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_in_customtypes'] = array(); // Include custom post types .
 		$this->options['sm_in_lastmod']     = true; // Include the last modification date .
 		$this->options['sm_b_sitemap_name'] = 'sitemap'; // Name of custom sitemap.
+		$this->options['sm_b_old_sm_name']  = 'sitemap'; // Name of previously defined sitemap.
 		$this->options['sm_cf_home']        = 'daily'; // Change frequency of the homepage .
 		$this->options['sm_cf_posts']       = 'monthly'; // Change frequency of posts .
 		$this->options['sm_cf_pages']       = 'weekly'; // Change frequency of static pages .
@@ -1458,7 +1459,6 @@ final class GoogleSitemapGenerator {
 		if ( 0 !== strpos( $key, 'sm_' ) ) {
 			$key = 'sm_' . $key;
 		}
-
 		$this->options[ $key ] = $value;
 	}
 
@@ -1702,18 +1702,22 @@ final class GoogleSitemapGenerator {
 		// Manual override for root URL .
 		$base_url_settings = $this->get_option( 'b_baseurl' );
 		$sm_sitemap_name   = $this->get_option( 'b_sitemap_name' );
+		$old_sm_name = $this->get_option( 'b_old_sm_name' );
 		if ( ! empty( $base_url_settings ) ) {
 			$base_url = $base_url_settings;
 		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
 			$base_url = SM_BASE_URL;
 		}
 		global $wp_rewrite;
-		delete_option( 'sm_rewrite_done' );
-		wp_clear_scheduled_hook( 'sm_ping_daily' );
-		self::remove_rewrite_hooks();
-		$wp_rewrite->flush_rules( false );
-		self::setup_rewrite_hooks();
-		GoogleSitemapGeneratorLoader::activate_rewrite();
+		if ( $old_sm_name !== $sm_sitemap_name ) {
+			$this->set_option( 'sm_b_old_sm_name', $sm_sitemap_name );
+			delete_option( 'sm_rewrite_done' );
+			wp_clear_scheduled_hook( 'sm_ping_daily' );
+			self::remove_rewrite_hooks();
+			$wp_rewrite->flush_rules( false );
+			self::setup_rewrite_hooks();
+			GoogleSitemapGeneratorLoader::activate_rewrite();
+		}
 		if ( $pl ) {
 			return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
