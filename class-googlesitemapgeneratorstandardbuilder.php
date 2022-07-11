@@ -810,9 +810,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 					if ( 'post' === $post_type_custom ) {
 						$has_posts = true;
 					}
-					$step = 1;
 					$has_enabled_post_types_posts = true;
 					foreach ( $posts as $post ) {
+						$step = 1;
 						for ( $i = 0; $i < $post->numposts; $i++ ) {
 							if ( 0 === ( $i % $links_per_page ) ) {
 								$gsg->add_sitemap( 'pt', $post_type_custom . '-p' . $step . '-' . sprintf( '%04d-%02d', $post->year, $post->month ), $gsg->get_timestamp_from_my_sql( $post->last_mod ), 'p' . $step );
