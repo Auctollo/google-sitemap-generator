@@ -496,6 +496,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( strpos( $taxonomy, '-' ) !== false ) {
 			$offset   = substr( $taxonomy, strrpos( $taxonomy, '-' ) + 1 );
 			$taxonomy = str_replace( '-' . $offset, '', $taxonomy );
+		} else {
+			$offset = 1;
 		}
 		$offset = ( --$offset ) * $links_per_page;
 
