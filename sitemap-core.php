@@ -2505,7 +2505,7 @@ final class GoogleSitemapGenerator {
 	 */
 	private function send_stats() {
 		global $wp_version, $wpdb;
-		$post_count = $wpdb->get_var( 'SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status=\'publish\'' ); // db call ok; no-cache ok.
+		$post_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status='publish'" ); // db call ok; no-cache ok.
 
 		// Send simple post count statistic to get an idea in which direction this plugin should be optimized .
 		// Only a rough number is required, so we are rounding things up .
