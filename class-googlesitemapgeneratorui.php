@@ -1072,7 +1072,7 @@ class GoogleSitemapGeneratorUI {
 												<?php
 												$rules = GoogleSitemapGeneratorLoader::get_ngin_x_rules();
 												foreach ( $rules as $rule ) {
-													echo esc_html( $rule . '<br />' );
+													echo esc_html( $rule ) . '<br />'; // phpcs:ignore
 												}
 												?>
 											</code>

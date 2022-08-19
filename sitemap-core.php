@@ -1937,7 +1937,7 @@ final class GoogleSitemapGenerator {
 
 		if ( $html ) {
 			ob_start();
-		} else {
+		} else if ( !headers_sent() ) {
 			header( 'Content-Type: text/xml; charset=utf-8' );
 		}
 
