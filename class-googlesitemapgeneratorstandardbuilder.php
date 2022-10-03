@@ -73,15 +73,15 @@ class GoogleSitemapGeneratorStandardBuilder {
 			return;
 		}
 
-			$pts = strrpos( $params, '-', $pts - strlen( $params ) - 1 );
+		$pts = strrpos( $params, '-', $pts - strlen( $params ) - 1 );
 
-			$post_type = substr( $params, 0, $pts );
-		$type = explode( '-', $post_type );
-		$post_type = $type[0];
-		$limit = $type[1];
-		$limits = substr( $limit, 1 );
+		$post_type      = substr( $params, 0, $pts );
+		$type           = explode( '-', $post_type );
+		$post_type      = $type[0];
+		$limit          = $type[1];
+		$limits         = substr( $limit, 1 );
 		$links_per_page = $gsg->get_option( 'links_page' );
-		$limit = ( (int) $limits ) * $links_per_page;
+		$limit          = ( (int) $limits ) * $links_per_page;
 		if ( ! $post_type || ! in_array( $post_type, $gsg->get_active_post_types(), true ) ) {
 			return;
 		}
@@ -161,8 +161,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 			// phpcs:disable
 			$q = $wpdb->prepare( $qs, $post_type, $year, $month );
 			// phpcs:enable
-			$posts = $wpdb->get_results( $q ); // phpcs:ignore
-			$posts = array_slice( $posts, ( $limit - $links_per_page) );
+			$posts      = $wpdb->get_results( $q ); // phpcs:ignore
+			$posts      = array_slice( $posts, ( $limit - $links_per_page ) );
 			$post_count = count( $posts );
 			if ( ( $post_count ) > 0 ) {
 				/**
@@ -699,9 +699,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		foreach ( $taxonomies as $taxonomy ) {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
-				$step         = 1;
-				$taxs         = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
-				$i            = 0;
+				$step = 1;
+				$taxs = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
+				$i    = 0;
 				foreach ( $taxs as $tax ) {
 					if ( 0 === ( $i % $links_per_page ) && '' !== $tax->taxonomy ) {
 						$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );

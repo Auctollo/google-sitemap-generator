@@ -753,7 +753,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements Google_Sitemap_Gene
 	public function get_post_priority( $post_id, $comment_count ) {
 
 		// Do not divide by zero !
-		if ( 0 == $this->average ) {
+		if ( 0 === $this->average ) {
 			if ( $comment_count > 0 ) {
 				$priority = 1;
 			} else {
@@ -1702,7 +1702,7 @@ final class GoogleSitemapGenerator {
 		// Manual override for root URL .
 		$base_url_settings = $this->get_option( 'b_baseurl' );
 		$sm_sitemap_name   = $this->get_option( 'b_sitemap_name' );
-		$old_sm_name = $this->get_option( 'b_old_sm_name' );
+		$old_sm_name       = $this->get_option( 'b_old_sm_name' );
 		if ( ! empty( $base_url_settings ) ) {
 			$base_url = $base_url_settings;
 		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
