@@ -1236,8 +1236,8 @@ class GoogleSitemapGeneratorUI {
 														} else {
 															$fd = true;
 														}
-														$last_mod_date = ! empty( $page->_lastMod ) ? $page->_lastMod : $page->last_mod;
-														echo '{url:"' . esc_url( ! empty( $page->_url ) ? $page->_url : $page->url ) . '", priority:' . esc_html( number_format( ! empty( $page->_priority ) ? $page->_priority : $page->priority, 1, '.', '' ) ) . ', changeFreq:\'' . esc_html( ! empty( $page->_changeFreq ) ? $page->_changeFreq : $page->change_freq ) . '\', lastChanged:"' . esc_html( ( $last_mod_date > 0 ? gmdate( 'Y-m-d', $last_mod_date ) : '' ) ) . '"}';
+														$last_mod_date = ! empty( $page->_lastMod ) ? $page->_lastMod : $page->last_mod; // phpcs:ignore
+														echo '{url:"' . esc_url( ! empty( $page->_url ) ? $page->_url : $page->url ) . '", priority:' . esc_html( number_format( ! empty( $page->_priority ) ? $page->_priority : $page->priority, 1, '.', '' ) ) . ', changeFreq:\'' . esc_html( ! empty( $page->_changeFreq ) ? $page->_changeFreq : $page->change_freq ) . '\', lastChanged:"' . esc_html( ( $last_mod_date > 0 ? gmdate( 'Y-m-d', $last_mod_date ) : '' ) ) . '"}'; // phpcs:ignore
 													}
 												}
 												?>
