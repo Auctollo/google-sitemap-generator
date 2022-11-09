@@ -75,12 +75,22 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$pts = strrpos( $params, '-', $pts - strlen( $params ) - 1 );
 
+		$param_length   = count( explode( '-', $params ) );
+		$post_type = '';
 		$post_type      = substr( $params, 0, $pts );
 		$type           = explode( '-', $post_type );
-		$post_type      = $type[0];
-		$limit          = $type[1];
+		if ( $param_length > 4 ) {
+			$new = array_slice( $type,0,count($type) -1 );
+			$post_type = implode( "-", $new );
+		} else	{
+			$post_type  = $type[0];
+		}
+		$limit          = $type[count($type)-1];
 		$limits         = substr( $limit, 1 );
 		$links_per_page = $gsg->get_option( 'links_page' );
+		if ( gettype( $links_per_page ) !== 'integer' ) {
+			$links_per_page = (int) 10;
+		}
 		$limit          = ( (int) $limits ) * $links_per_page;
 		if ( ! $post_type || ! in_array( $post_type, $gsg->get_active_post_types(), true ) ) {
 			return;
@@ -494,6 +504,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$offset         = $taxonomy;
 		$links_per_page = $gsg->get_option( 'links_page' );
+		if ( gettype( $links_per_page ) !== 'integer' ) {
+			$links_per_page = (int) 10;
+		}
 		if ( strpos( $taxonomy, '-' ) !== false ) {
 			$offset   = substr( $taxonomy, strrpos( $taxonomy, '-' ) + 1 );
 			$taxonomy = str_replace( '-' . $offset, '', $taxonomy );
@@ -580,6 +593,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 */
 	public function build_product_tags( GoogleSitemapGenerator $gsg, $offset ) {
 		$links_per_page = $gsg->get_option( 'links_page' );
+		if ( gettype( $links_per_page ) !== 'integer' ) {
+			$links_per_page = (int) 10;
+		}
 		$offset         = ( --$offset ) * $links_per_page;
 
 		add_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
@@ -611,6 +627,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 */
 	public function build_product_categories( GoogleSitemapGenerator $gsg, $offset ) {
 		$links_per_page = $gsg->get_option( 'links_page' );
+		if ( gettype( $links_per_page ) !== 'integer' ) {
+			$links_per_page = (int) 10;
+		}
 		$offset         = ( --$offset ) * $links_per_page;
 		$excludes       = array();
 		$excl_cats      = $gsg->get_option( 'b_exclude_cats' ); // Excluded cats.
