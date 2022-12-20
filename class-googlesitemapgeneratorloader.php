@@ -185,10 +185,7 @@ class GoogleSitemapGeneratorLoader {
 	 * Remove rewrite hooks method
 	 */
 	public static function remove_rewrite_hooks() {
-		$sg = GoogleSitemapGenerator::get_instance();
-		if ( $sg->get_option( 'b_sitemap_name' ) !== $sg->get_option( 'b_old_sm_name' ) ) {
-			add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
-		}
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
 	}
 
 	/**
