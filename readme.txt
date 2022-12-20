@@ -3,7 +3,7 @@ Contributors: auctollo
 Tags: seo, google, bing, yahoo, msn, ask, live, sitemaps, google sitemaps, xml sitemap, xml
 Requires at least: 3.3
 Tested up to: 6.0
-Stable tag: 4.1.5
+Stable tag: 4.1.7
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,20 @@ The changelog is maintained [here](http://www.arnebrachhold.de/projects/wordpres
 The WordPress.org repository is just another place to download this plugin. I don't want to maintain too many pages with the same content. Thank you for your understanding!
 
 == Changelog ==
+
+= 4.1.7 (2022-11-24) =
+* Fixed custom taxonomy unit generation issue
+* Fixed plugin deactivation notice
+
+= 4.1.6 (2022-11-23) =
+* Fixed mishandling of empty categories
+* Fixed _url undefined notice error
+* Fixed error when build_taxonomies throws a fatal error when accessing sub-sitemap without pagination
+* Improved handling of line breaks e.g. showing <br/> tag without escaping HTML
+* Improved handling of the Google TID field optional to ping Google
+* Improved documentation, given some renaming of the methods
+* Added support for paginated sitemap posts, pages, and product links
+* Added conditional statements to prevent rewrite rules from being checked every time the sitemap loads
 
 = 4.1.5 (2022-06-14) =
 * Fixed code regressions moving from git to svn (preventing recent fixes from being available)

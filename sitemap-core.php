@@ -9,7 +9,7 @@
 
 use function Bhittani\StarRating\functions\sanitize;
 /**
- * $Id: sitemap-core.php 935247 2014-06-19 17:13:03Z arnee $
+ * $Id: sitemap-core.php 2823802 2022-11-24 18:12:38Z auctollo $
  */
 
 // Enable for dev! Good code doesn't generate any notices...
