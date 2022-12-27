@@ -9,6 +9,7 @@
  * @author Arne Brachhold
  * @package sitemap
  */
+require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorui.php';
 
 /**
  * This class is for the sitemap loader
@@ -280,7 +281,151 @@ class GoogleSitemapGeneratorLoader {
 		$sg = GoogleSitemapGenerator::get_instance();
 		$sg->html_survey();
 	}
+	/**
+	 * Hide banner info.
+	 */
+	public function hide_banner() {
+		update_option( 'sm_show_beta_banner', 'false' );
+		add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+		update_option( 'sm_beta_banner_discarded_count', (int) 2 );
+	}
+	/**
+	 * Beta notice.
+	 */
+	public static function beta_notice() {
+		$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+		$parts      = wp_parse_url( $window_url );
+		$current_page = '';
+		$current_url  = $_SERVER['REQUEST_URI'];
+		if ( isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+			if ( isset( $query['page'] ) ) {
+				$current_page = $query['page'];
+			}
+		}
+		$default_value    = 'show_banner';
+		$value            = get_option( 'sm_show_beta_banner', $default_value );
+		$now              = time();
+		$banner_discarded = strtotime( get_option( 'sm_beta_banner_discarded_on' ) );
 
+		$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
+		if ( gettype( $banner_discarded ) === 'boolean' ) {
+			$banner_discarded = time();
+		}
+		$datediff = $now - $banner_discarded;
+		$datediff = round( $datediff / ( 60 * 60 * 24 ) );
+		if ( ! ( strpos( $current_url, 'wp-admin/edit' ) || strpos( $current_url, '/wp-admin/post-new.php' ) || strpos( $current_url, '/wp-admin/post.php' ) ) && ( $value === $default_value || 'true' === $value ) && ( 'true' !== get_option( 'sm_beta_notice_dismissed_from_wp_admin' ) || 'google-sitemap-generator/sitemap.php' === $current_page ) || ( 'google-sitemap-generator/sitemap.php' === $current_page && $datediff >= SM_BANNER_HIDE_DURATION_IN_DAYS && $banner_discarded_count < 2 ) ) {
+			?>
+			<style>
+				.justify-content{
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
+				.discard_button{
+					border-radius: 50%;
+					border: 0px;
+					text-align: center;
+					justify-content: center;
+					align-items: center;
+					margin-left: 40px;
+					margin-right: 5px;
+					cursor: pointer;
+					height: 20px;
+					background-color: #787c82;
+					color: white;
+					font-size: small;
+					font-weight: bold;
+					width: 20px;
+				}
+			</style>
+		<div class="updated notice" style="display: flex;justify-content:space-between; width: 100%;">
+				<?php
+				$arr = array(
+					'br'     => array(),
+					'p'      => array(),
+					'div'    => array(
+						'style' => array(
+							'display'         => 'flex',
+							'justify-content' => 'space-between',
+						),
+						'class' => array(),
+					),
+					'a'      => array(
+						'href' => array(),
+					),
+					'h4'     => array(
+						'style' => array(
+							'width'   => array(),
+							'display' => array(),
+						),
+					),
+					'button' => array(
+						'onClick' => array(),
+						'type'    => array(),
+						'onclick' => array(),
+					),
+					'strong' => array(),
+					'input'  => array(
+						'type'  => array(),
+						'class' => array(),
+						'name'  => array(),
+						'value' => array(),
+						'style' => array(
+							'position'     => array(),
+							'padding'      => array(),
+							'background'   => array(),
+							'right'        => array(),
+							'color'        => array(),
+							'border-color' => array(),
+							'cursor'       => array(),
+						),
+					),
+					'form'   => array(
+						'method' => array(),
+						'action' => array(),
+						'style'  => array(
+							'margin-top'  => array(),
+							'margin-left' => array(),
+							'display'     => array(),
+						),
+					),
+				);
+				/* translators: %s: search term */
+				echo wp_kses(
+					sprintf(
+						__(
+							'
+							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?</h4>
+							<form method="post" style="margin-top: 15px;">
+							<input type="hidden" name="action" value="my_action" >
+							<div class="justify-content">
+							<input type="submit" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
+							<input type="submit" class="discard_button" name="discard_consent" value="X"/>
+							</div>
+							</form>
+							',
+							'sitemap'
+						),
+						function() {
+							update_option( 'sm_show_beta_banner', 'false' );
+							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+							add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+							$count = get_option( 'sm_beta_banner_discarded_count' );
+							if ( gettype( $count ) !== 'boolean' ) {
+								update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+							} else {
+								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+							}
+						}
+					),
+					$arr
+				);
+				?>
+		</div>
+				<?php
+		}
+	}
 	/**
 	 * Returns a nice icon for the Ozh Admin Menu if the {@param $hook} equals to the sitemap plugin
 	 *
@@ -494,6 +639,7 @@ class GoogleSitemapGeneratorLoader {
 // Enable the plugin for the init hook, but only if WP is loaded. Calling this php file directly will do nothing.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) ) {
 	add_action( 'init', array( 'GoogleSitemapGeneratorLoader', 'Enable' ), 15, 0 );
+	add_action( 'admin_notices', array( 'GoogleSitemapGeneratorLoader', 'beta_notice' ), 15, 0 );
 	register_activation_hook( sm_get_init_file(), array( 'GoogleSitemapGeneratorLoader', 'activate_plugin' ) );
 	register_deactivation_hook( sm_get_init_file(), array( 'GoogleSitemapGeneratorLoader', 'deactivate_plugin' ) );
 

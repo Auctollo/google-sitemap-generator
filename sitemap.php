@@ -17,7 +17,7 @@
  * Plugin Name: Google XML Sitemaps
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.7
+ * Version: 4.1.8
  * Author: Auctollo
  * Author URI: https://acutollo.com/
  * Text Domain: sitemap
@@ -46,8 +46,57 @@
  */
 
 define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
+define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazonaws.com/test/user/getBetaInfo' );
+define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
 
+add_action( 'admin_init', 'register_consent', 1 );
+add_action( 'admin_head', 'header_gtm' );
+add_action( 'admin_footer', 'footer_gtm' );
 
+/**
+ * Function to include gtm header script .
+ */
+function header_gtm() {
+	$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+	$parts      = wp_parse_url( $window_url );
+	$current_page = '';
+	if ( isset( $parts['query'] ) ) {
+		parse_str( $parts['query'], $query );
+		if ( isset( $query['page'] ) ) {
+			$current_page = $query['page'];
+			if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
+				echo "
+				<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+					new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+					j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+					'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+					})(window,document,'script','dataLayer','GTM-KPVKJZJ');</script>";
+			}
+		}
+	} else {
+		return;
+	}
+}
+/**
+ * Function to include gtm after body .
+ */
+function footer_gtm() {
+	$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+	$parts      = wp_parse_url( $window_url );
+	$current_page = '';
+	if ( isset( $parts['query'] ) ) {
+		parse_str( $parts['query'], $query );
+		if ( isset( $query['page'] ) ) {
+			$current_page = $query['page'];
+			if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
+				echo '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KPVKJZJ"
+					height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>';
+			}
+		}
+	} else {
+		return;
+	}
+}
 /**
  * Check if the requirements of the sitemap plugin are met and loads the actual loader
  *
@@ -109,6 +158,60 @@ function sm_add_php_version_error() {
  */
 function sm_get_init_file() {
 	return __FILE__;
+}
+
+/**
+ * Register beta user consent function.
+ */
+function register_consent() {
+	if ( isset( $_POST['user_consent'] ) ) {
+		$user      = wp_get_current_user();
+		$user_id   = $user->ID;
+		$mydomain  = $user->user_url ? $user->user_url : 'https://' . $_SERVER['HTTP_HOST'];
+		$user_name = $user->user_nicename;
+		$useremail = $user->user_email;
+		global $wpdb;
+		$result             = $wpdb->get_results( "select user_id,meta_value from wp_usermeta where meta_key='session_tokens' and user_id=" . $user_id ); // phpcs:ignore
+		$user_login_details = unserialize( $result[0]->meta_value );
+		$last_login         = '';
+		foreach ( $user_login_details as $item ) {
+			$last_login = $item['login'];
+		}
+		$data     = array(
+			'domain'    => $mydomain,
+			'userID'    => $user_id,
+			'userEmail' => $useremail,
+			'userName'  => $user_name,
+			'lastLogin' => $last_login,
+		);
+		$args     = array(
+			'headers' => array(
+				'Content-type : application/json',
+			),
+			'method'  => 'POST',
+			'body'    => wp_json_encode( $data ),
+		);
+		$response = wp_remote_post( SM_BETA_USER_INFO_URL, $args );
+		$body     = json_decode( $response['body'] );
+		if ( 200 === $body->status ) {
+			add_option( 'sm_show_beta_banner', 'false' );
+			update_option( 'sm_beta_banner_discarded_count', (int) 2 );
+		}
+	}
+	if ( isset( $_POST['discard_consent'] ) ) {
+		if ( $_SERVER['QUERY_STRING'] ) {
+			update_option( 'sm_show_beta_banner', 'false' );
+			$count = get_option( 'sm_beta_banner_discarded_count' );
+			if ( gettype( $count ) !== 'boolean' ) {
+				update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+			} else {
+				add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+				update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+			}
+		} else {
+			add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+		}
+	}
 }
 
 // Don't do anything if this file was called directly.
