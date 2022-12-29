@@ -369,6 +369,7 @@ class GoogleSitemapGeneratorLoader {
 					'input'  => array(
 						'type'  => array(),
 						'class' => array(),
+						'id'    => array(),
 						'name'  => array(),
 						'value' => array(),
 						'style' => array(
@@ -398,25 +399,25 @@ class GoogleSitemapGeneratorLoader {
 							'
 							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?</h4>
 							<form method="post" style="margin-top: 15px;">
-							<input type="hidden" name="action" value="my_action" >
+							<input type="hidden" id="action" name="action" value="my_action" >
 							<div class="justify-content">
-							<input type="submit" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
-							<input type="submit" class="discard_button" name="discard_consent" value="X"/>
+							<input type="submit" id="user_consent" class="allow_consent" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
+							<input type="button" id="discard_content" class="discard_button" name="discard_consent" value="X"/>
 							</div>
 							</form>
 							',
 							'sitemap'
 						),
 						function() {
-							update_option( 'sm_show_beta_banner', 'false' );
-							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
-							add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
-							$count = get_option( 'sm_beta_banner_discarded_count' );
-							if ( gettype( $count ) !== 'boolean' ) {
-								update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
-							} else {
-								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
-							}
+							// update_option( 'sm_show_beta_banner', 'false' );
+							// add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+							// add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+							// $count = get_option( 'sm_beta_banner_discarded_count' );
+							// if ( gettype( $count ) !== 'boolean' ) {
+							// 	update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+							// } else {
+							// 	update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+							// }
 						}
 					),
 					$arr

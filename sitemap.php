@@ -50,13 +50,14 @@ define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazo
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
 
 add_action( 'admin_init', 'register_consent', 1 );
-add_action( 'admin_head', 'header_gtm' );
-add_action( 'admin_footer', 'footer_gtm' );
+add_action( 'admin_head', 'ga_header' );
+add_action( 'admin_footer', 'ga_footer' );
+
 
 /**
- * Function to include gtm header script .
+ * Google analytics .
  */
-function header_gtm() {
+function ga_header() {
 	$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
 	$parts      = wp_parse_url( $window_url );
 	$current_page = '';
@@ -66,37 +67,135 @@ function header_gtm() {
 			$current_page = $query['page'];
 			if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
 				echo "
-				<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+				<script>
+				const cookies = (document.cookie.split('; '))
+				let consent = cookies.find(element => element.includes('user_consent_allowed'))
+				consent = consent.split('=')
+				console.log(consent)
+				if(consent[1]==='true' || consent[1] === true) {
+					(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 					new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 					j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-					})(window,document,'script','dataLayer','GTM-KPVKJZJ');</script>";
+					})(window,document,'script','dataLayer','GTM-WT5FH38');
+
+					var noscript = document.createElement('noscript')
+					var iframe = document.createElement('iframe')
+					iframe.src = 'https://www.googletagmanager.com/ns.html?id=GTM-WT5FH38'
+					iframe.height = 0
+					iframe.width = 0
+					iframe.style.display = 'none'
+					iframe.style.visiblity = 'hidden'
+					noscript.appendChild(iframe)
+					setTimeout(()=>{
+					document.body.prepend(noscript);
+					},100)
+				}
+
+				</script>";
+
 			}
 		}
 	} else {
 		return;
 	}
 }
+
 /**
- * Function to include gtm after body .
+ * Google analytics .
  */
-function footer_gtm() {
-	$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
-	$parts      = wp_parse_url( $window_url );
-	$current_page = '';
-	if ( isset( $parts['query'] ) ) {
-		parse_str( $parts['query'], $query );
-		if ( isset( $query['page'] ) ) {
-			$current_page = $query['page'];
-			if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
-				echo '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KPVKJZJ"
-					height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>';
-			}
-		}
+function ga_footer() {
+	echo '<script>
+	let cookie = (document.cookie.split("; "))
+	let user_consent = cookie.find(element => element.includes(\'user_consent_allowed\'))
+	if ( user_consent === undefined) {
+		document.querySelector("[id=\'modal-wrapper\']").style.display = "flex"
 	} else {
-		return;
+		document.querySelector("[id=\'modal-wrapper\']").style.display = "none"
 	}
+	document.querySelector("[name=\'user_consent_yes\']").addEventListener("click", 
+    function(event) {
+	  event.preventDefault();
+	  document.cookie = "user_consent_allowed=true"
+		window.location.reload()
+    });
+	document.querySelector("[name=\'user_consent_no\']").addEventListener("click", 
+    function(event) {
+	  event.preventDefault();
+	  document.cookie = "user_consent_allowed=false"
+	  window.location.reload()
+
+    });
+	document.querySelector("[name=\'user_consent\']").addEventListener("click", 
+    function(event) {
+	  event.preventDefault();
+	//   const cookies = (document.cookie.split("; "))
+	// 	for(var i=0;i<cookies.length;i++){
+	// 		if(cookies[i].includes("cookie_consent_user_accepted")){
+	// 			var consent_value = cookies[i].split("=")
+	// 			if(consent_value[1] === "true" || consent_value[1] === true){
+	// 				var wp_version = document.getElementById("wp_version").value
+	// 				var plugin_version = document.getElementById("plugin_version").value
+	// 				var user_email = document.getElementById("user_email").value
+	// 				gtag(
+	// 					"event",
+	// 					"Interested in Beta testing",
+	// 					{
+	// 						"event_category" : "Beta Release",
+	// 						"event_label" : window.location.origin,
+	// 						"value": 1,
+	// 						"domain": window.location.origin,
+	// 						"wordpress_version": wp_version,
+	// 						"plugin_version": plugin_version,
+	// 						"email": user_email
+	// 					}
+	// 				);
+	// 			}
+	// 		}
+	// 	}
+
+	  document.getElementById("action").value = "yes"; 
+	//   document.querySelector("[name=\'user_consent\']").closest("form").submit();
+    });
+
+	document.querySelector("[name=\'discard_consent\']").addEventListener("click", 
+    function(event) {
+		console.log(window.URL)
+		// const cookies = (document.cookie.split("; "))
+		// for(var i=0;i<cookies.length;i++){
+		// 	if(cookies[i].includes("cookie_consent_user_accepted")){
+		// 		var consent_value = cookies[i].split("=")
+		// 		if(consent_value[1] === "true" || consent_value[1] === true){
+		// 			var wp_version = document.getElementById("wp_version").value
+		// 			var plugin_version = document.getElementById("plugin_version").value
+		// 			var user_email = document.getElementById("user_email").value
+		// 			gtag(
+		// 				"event",
+		// 				"Interested in Beta testing",
+		// 				{
+		// 					"event_category" : "Beta Release",
+		// 					"event_label" : window.location.origin,
+		// 					"value": 0,
+		// 					"domain": window.location.origin,
+		// 					"wordpress_version": wp_version,
+		// 					"plugin_version": plugin_version,
+		// 					"email": user_email
+		// 				}
+		// 			);
+		// 		}
+		// 	}
+		// }
+		event.preventDefault();
+		
+		// document.getElementById("action").value = "no"; 
+		// setTimeout(()=>{
+		// 	document.querySelector("[name=\'discard_consent\']").closest("form").submit();
+		// },40)
+    });
+
+	</script>';
 }
+
 /**
  * Check if the requirements of the sitemap plugin are met and loads the actual loader
  *
@@ -164,55 +263,58 @@ function sm_get_init_file() {
  * Register beta user consent function.
  */
 function register_consent() {
-	if ( isset( $_POST['user_consent'] ) ) {
-		$user      = wp_get_current_user();
-		$user_id   = $user->ID;
-		$mydomain  = $user->user_url ? $user->user_url : 'https://' . $_SERVER['HTTP_HOST'];
-		$user_name = $user->user_nicename;
-		$useremail = $user->user_email;
-		global $wpdb;
-		$result             = $wpdb->get_results( "select user_id,meta_value from wp_usermeta where meta_key='session_tokens' and user_id=" . $user_id ); // phpcs:ignore
-		$user_login_details = unserialize( $result[0]->meta_value );
-		$last_login         = '';
-		foreach ( $user_login_details as $item ) {
-			$last_login = $item['login'];
+	if ( isset( $_POST['action'] ) ) {
+		if ( 'yes' === $_POST['action'] ) {
+			// $user      = wp_get_current_user();
+			// $user_id   = $user->ID;
+			// $mydomain  = $user->user_url ? $user->user_url : 'https://' . $_SERVER['HTTP_HOST'];
+			// $user_name = $user->user_nicename;
+			// $useremail = $user->user_email;
+			// global $wpdb;
+			// $result             = $wpdb->get_results( "select user_id,meta_value from wp_usermeta where meta_key='session_tokens' and user_id=" . $user_id ); // phpcs:ignore
+			// $user_login_details = unserialize( $result[0]->meta_value );
+			// $last_login         = '';
+			// foreach ( $user_login_details as $item ) {
+			// 	$last_login = $item['login'];
+			// }
+			// $data     = array(
+			// 	'domain'    => $mydomain,
+			// 	'userID'    => $user_id,
+			// 	'userEmail' => $useremail,
+			// 	'userName'  => $user_name,
+			// 	'lastLogin' => $last_login,
+			// );
+			// $args     = array(
+			// 	'headers' => array(
+			// 		'Content-type : application/json',
+			// 	),
+			// 	'method'  => 'POST',
+			// 	'body'    => wp_json_encode( $data ),
+			// );
+			// $response = wp_remote_post( SM_BETA_USER_INFO_URL, $args );
+			// $body     = json_decode( $response['body'] );
+			// if ( 200 === $body->status ) {
+			// 	add_option( 'sm_show_beta_banner', 'false' );
+			// 	update_option( 'sm_beta_banner_discarded_count', (int) 2 );
+			// }
 		}
-		$data     = array(
-			'domain'    => $mydomain,
-			'userID'    => $user_id,
-			'userEmail' => $useremail,
-			'userName'  => $user_name,
-			'lastLogin' => $last_login,
-		);
-		$args     = array(
-			'headers' => array(
-				'Content-type : application/json',
-			),
-			'method'  => 'POST',
-			'body'    => wp_json_encode( $data ),
-		);
-		$response = wp_remote_post( SM_BETA_USER_INFO_URL, $args );
-		$body     = json_decode( $response['body'] );
-		if ( 200 === $body->status ) {
-			add_option( 'sm_show_beta_banner', 'false' );
-			update_option( 'sm_beta_banner_discarded_count', (int) 2 );
-		}
-	}
-	if ( isset( $_POST['discard_consent'] ) ) {
-		if ( $_SERVER['QUERY_STRING'] ) {
-			update_option( 'sm_show_beta_banner', 'false' );
-			$count = get_option( 'sm_beta_banner_discarded_count' );
-			if ( gettype( $count ) !== 'boolean' ) {
-				update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
-			} else {
-				add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
-				update_option( 'sm_beta_banner_discarded_count', (int) 1 );
-			}
-		} else {
-			add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+		if ( 'no' === $_POST['action'] ) {
+			// if ( $_SERVER['QUERY_STRING'] ) {
+			// 	update_option( 'sm_show_beta_banner', 'false' );
+			// 	$count = get_option( 'sm_beta_banner_discarded_count' );
+			// 	if ( gettype( $count ) !== 'boolean' ) {
+			// 		update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+			// 	} else {
+			// 		add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+			// 		update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+			// 	}
+			// } else {
+			// 	add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+			// }
 		}
 	}
 }
+
 
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {

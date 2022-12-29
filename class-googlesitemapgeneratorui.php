@@ -808,8 +808,62 @@ class GoogleSitemapGeneratorUI {
 				-ms-user-select: auto !important;
 				user-select: auto !important;
 			}
+			.modal-wrapper {
+				position: fixed;
+				display: none;
+				z-index: 100;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				/* opacity: 0; */
+				/* visibility: hidden; */
+				/* transform: scale(1.1); */
+				/* transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s; */
+				opacity: 1;
+				visibility: visible;
+				transform: scale(1.0);
+				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+			}
 
-
+			.modal-container {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 1rem 1.5rem;
+			width: 35rem;
+			border-radius: 0.5rem;
+			z-index: 100;
+			}
+			.allow_consent {
+				color: #ffffff;
+				border-color: #ffffff;
+				background-color: #008078;
+				margin-right: 1em;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
+			.decline_consent {
+				background-color: #fff;
+				border-color:  #ef4056 ;
+				color:  #ef4056 ;
+				text-decoration: none;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
 			<?php
 			if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) .
 				?>
@@ -843,9 +897,22 @@ class GoogleSitemapGeneratorUI {
 
 			<?php endif; ?>
 		</style>
-
-
+		<div class="modal-wrapper" id="modal-wrapper">
+			<div class="modal-container">
+				<h3>Cookie consent</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
+				<button name="user_consent_yes" class="allow_consent">Allow</button>
+				<button name="user_consent_no" class="decline_consent">Decline</button>
+			</div>
+		</div>
 		<div class='wrap' id='sm_div'>
+			<?php
+			$user      = wp_get_current_user();
+			$useremail = $user->user_email;
+			?>
+			<input type="hidden" id="wp_version" name="wp_version" value="<?php echo esc_attr( $wp_version ); ?>" />
+			<input type="hidden" id="plugin_version" name="plugin_version" value="<?php echo esc_attr( $this->sg->get_version() ); ?>" />
+			<input type="hidden" id="user_email" name="user_email" value="<?php echo esc_attr( $useremail ); ?>" />
 			<form method='post' action='<?php echo esc_url( $this->sg->get_back_link() ); ?>'>
 				<h2>
 					<?php

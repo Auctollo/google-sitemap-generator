@@ -2526,20 +2526,24 @@ final class GoogleSitemapGenerator {
 		} else {
 			$post_count = round( $post_count / 10000 ) * 10000;
 		}
+		$user = wp_get_current_user();
 
 		$post_data = array(
 			'v'   => 1,
-			'tid' => $this->get_option( 'i_tid' ),
+			'tid' => 'UA-54321546-1',
 			'cid' => $this->get_option( 'i_hash' ),
 			'aip' => 1, // Anonymize .
 			't'   => 'event',
 			'ec'  => 'ping',
+			'el'  => 'settings_saved',
 			'ea'  => 'auto',
 			'ev'  => 1,
 			'cd1' => $wp_version,
 			'cd2' => $this->get_version(),
 			'cd3' => PHP_VERSION,
 			'cd4' => $post_count,
+			'cd5' => $user->user_email,
+			'cd6' => 'https://' . $_SERVER['HTTP_HOST'],
 			'ul'  => get_bloginfo( 'language' ),
 		);
 
