@@ -322,7 +322,23 @@ class GoogleSitemapGeneratorLoader {
 					justify-content: space-between;
 					align-items: center;
 				}
-				.discard_button{
+				.discard_button, .discard_button_outside_settings{
+					border-radius: 50%;
+					border: 0px;
+					text-align: center;
+					justify-content: center;
+					align-items: center;
+					margin-left: 40px;
+					margin-right: 5px;
+					cursor: pointer;
+					height: 20px;
+					background-color: #787c82;
+					color: white;
+					font-size: small;
+					font-weight: bold;
+					width: 20px;
+				}
+				.reject_consent{
 					border-radius: 50%;
 					border: 0px;
 					text-align: center;
@@ -397,7 +413,9 @@ class GoogleSitemapGeneratorLoader {
 					sprintf(
 						__(
 							'
-							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?</h4>
+							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?
+							<a href="#">Learn more.</a>
+							</h4>
 							<form method="post" style="margin-top: 15px;">
 							<input type="hidden" id="action" name="action" value="my_action" >
 							<div class="justify-content">

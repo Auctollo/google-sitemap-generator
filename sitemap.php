@@ -61,42 +61,66 @@ function ga_header() {
 	$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
 	$parts      = wp_parse_url( $window_url );
 	$current_page = '';
+
+	$default_value = 'not_defined';
+	$consent_value = get_option( 'sm_user_consent', $default_value );
+
+	if ( 'yes' === $consent_value || $default_value === $consent_value ) {
+		echo "
+		<script>
+			(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','GTM-WT5FH38');
+			
+			</script>
+			";
+	}
 	if ( isset( $parts['query'] ) ) {
 		parse_str( $parts['query'], $query );
 		if ( isset( $query['page'] ) ) {
 			$current_page = $query['page'];
 			if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
-				echo "
-				<script>
-				const cookies = (document.cookie.split('; '))
-				let consent = cookies.find(element => element.includes('user_consent_allowed'))
-				consent = consent.split('=')
-				console.log(consent)
-				if(consent[1]==='true' || consent[1] === true) {
-					(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-					new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-					j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-					'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-					})(window,document,'script','dataLayer','GTM-WT5FH38');
-
-					var noscript = document.createElement('noscript')
-					var iframe = document.createElement('iframe')
-					iframe.src = 'https://www.googletagmanager.com/ns.html?id=GTM-WT5FH38'
-					iframe.height = 0
-					iframe.width = 0
-					iframe.style.display = 'none'
-					iframe.style.visiblity = 'hidden'
-					noscript.appendChild(iframe)
+				if ( $default_value !== $consent_value ) {
+					echo "<script>
 					setTimeout(()=>{
-					document.body.prepend(noscript);
-					},100)
+						document.querySelector(\"[id=\'modal-wrapper\']\").style.visibility = 'hidden'
+					},200);
+					</script>";
 				}
+					echo "
+					<script>
+						setTimeout(()=>{
+							document.querySelector(\"[id=\'modal-wrapper\']\").style.display = 'flex'
+						document.getElementById('discard_content').classList.remove('discard_button_outside_settings')
+						document.getElementById('discard_content').classList.add('discard_button')
 
-				</script>";
-
+						},200);
+					</script>";
+			} else {
+				echo '<script>
+				setTimeout(()=>{
+				document.getElementById("discard_content").classList.add("discard_button_outside_settings")
+				document.getElementById("discard_content").classList.remove("discard_button")
+			},200);
+				</script>';
 			}
+		} else {
+			echo '<script>
+			setTimeout(()=>{
+			document.getElementById("discard_content").classList.add("discard_button_outside_settings")
+			document.getElementById("discard_content").classList.remove("discard_button")
+		},200);
+			</script>';
 		}
 	} else {
+		echo '<script>
+		setTimeout(()=>{
+			document.getElementById("discard_content").classList.add("discard_button_outside_settings")
+			document.getElementById("discard_content").classList.remove("discard_button")
+		},200);
+			</script>';
 		return;
 	}
 }
@@ -105,95 +129,20 @@ function ga_header() {
  * Google analytics .
  */
 function ga_footer() {
-	echo '<script>
-	let cookie = (document.cookie.split("; "))
-	let user_consent = cookie.find(element => element.includes(\'user_consent_allowed\'))
-	if ( user_consent === undefined) {
-		document.querySelector("[id=\'modal-wrapper\']").style.display = "flex"
-	} else {
-		document.querySelector("[id=\'modal-wrapper\']").style.display = "none"
+	echo "<script>
+	document.querySelector(\"[name=\'user_consent_yes\']\").addEventListener(\"click\", 
+    function(event) {
+	//   event.preventDefault();
+
+    });
+	</script>";
+	$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
+	if ( 1 === $banner_discarded_count || '1' === $banner_discarded_count ) {
+		echo '<script>
+		document.getElementById("discard_content").classList.add("reject_consent")
+		document.getElementById("discard_content").classList.remove("discard_button")
+		</script>';
 	}
-	document.querySelector("[name=\'user_consent_yes\']").addEventListener("click", 
-    function(event) {
-	  event.preventDefault();
-	  document.cookie = "user_consent_allowed=true"
-		window.location.reload()
-    });
-	document.querySelector("[name=\'user_consent_no\']").addEventListener("click", 
-    function(event) {
-	  event.preventDefault();
-	  document.cookie = "user_consent_allowed=false"
-	  window.location.reload()
-
-    });
-	document.querySelector("[name=\'user_consent\']").addEventListener("click", 
-    function(event) {
-	  event.preventDefault();
-	//   const cookies = (document.cookie.split("; "))
-	// 	for(var i=0;i<cookies.length;i++){
-	// 		if(cookies[i].includes("cookie_consent_user_accepted")){
-	// 			var consent_value = cookies[i].split("=")
-	// 			if(consent_value[1] === "true" || consent_value[1] === true){
-	// 				var wp_version = document.getElementById("wp_version").value
-	// 				var plugin_version = document.getElementById("plugin_version").value
-	// 				var user_email = document.getElementById("user_email").value
-	// 				gtag(
-	// 					"event",
-	// 					"Interested in Beta testing",
-	// 					{
-	// 						"event_category" : "Beta Release",
-	// 						"event_label" : window.location.origin,
-	// 						"value": 1,
-	// 						"domain": window.location.origin,
-	// 						"wordpress_version": wp_version,
-	// 						"plugin_version": plugin_version,
-	// 						"email": user_email
-	// 					}
-	// 				);
-	// 			}
-	// 		}
-	// 	}
-
-	  document.getElementById("action").value = "yes"; 
-	//   document.querySelector("[name=\'user_consent\']").closest("form").submit();
-    });
-
-	document.querySelector("[name=\'discard_consent\']").addEventListener("click", 
-    function(event) {
-		console.log(window.URL)
-		// const cookies = (document.cookie.split("; "))
-		// for(var i=0;i<cookies.length;i++){
-		// 	if(cookies[i].includes("cookie_consent_user_accepted")){
-		// 		var consent_value = cookies[i].split("=")
-		// 		if(consent_value[1] === "true" || consent_value[1] === true){
-		// 			var wp_version = document.getElementById("wp_version").value
-		// 			var plugin_version = document.getElementById("plugin_version").value
-		// 			var user_email = document.getElementById("user_email").value
-		// 			gtag(
-		// 				"event",
-		// 				"Interested in Beta testing",
-		// 				{
-		// 					"event_category" : "Beta Release",
-		// 					"event_label" : window.location.origin,
-		// 					"value": 0,
-		// 					"domain": window.location.origin,
-		// 					"wordpress_version": wp_version,
-		// 					"plugin_version": plugin_version,
-		// 					"email": user_email
-		// 				}
-		// 			);
-		// 		}
-		// 	}
-		// }
-		event.preventDefault();
-		
-		// document.getElementById("action").value = "no"; 
-		// setTimeout(()=>{
-		// 	document.querySelector("[name=\'discard_consent\']").closest("form").submit();
-		// },40)
-    });
-
-	</script>';
 }
 
 /**
@@ -263,6 +212,12 @@ function sm_get_init_file() {
  * Register beta user consent function.
  */
 function register_consent() {
+	if ( isset( $_POST['user_consent_yes'] ) ) {
+		update_option( 'sm_user_consent', 'yes' );
+	}
+	if ( isset( $_POST['user_consent_no'] ) ) {
+		update_option( 'sm_user_consent', 'no' );
+	}
 	if ( isset( $_POST['action'] ) ) {
 		if ( 'yes' === $_POST['action'] ) {
 			// $user      = wp_get_current_user();

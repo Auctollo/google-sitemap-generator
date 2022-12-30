@@ -901,8 +901,10 @@ class GoogleSitemapGeneratorUI {
 			<div class="modal-container">
 				<h3>Cookie consent</h3>
 				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
-				<button name="user_consent_yes" class="allow_consent">Allow</button>
-				<button name="user_consent_no" class="decline_consent">Decline</button>
+				<form method="POST">
+					<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
+					<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
+				</form>
 			</div>
 		</div>
 		<div class='wrap' id='sm_div'>
@@ -1094,7 +1096,7 @@ class GoogleSitemapGeneratorUI {
 											?>
 											<?php if ( $this->sg->get_option( 'b_ping' ) ) : ?>
 												<li>
-													Notify Search Engines about <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
+													Notify Search Engines about <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
 												</li>
 											<?php endif; ?>
 											<?php
@@ -1733,7 +1735,7 @@ class GoogleSitemapGeneratorUI {
 								<div>
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
-										<input type='submit' class='button-primary' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
+										<input type='submit' class='button-primary update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
 										<input type='submit' onclick='return confirm('Do you really want to reset your configuration?');' class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
 									</p>
 								</div>
