@@ -410,7 +410,7 @@ class GoogleSitemapGeneratorLoader {
 				cursor: pointer;
 			}
 			</style>
-		<div class="updated notice" style="display: flex;justify-content:space-between; width: 100%;">
+		<div class="updated notice" style="display: flex;justify-content:space-between; width: 98%;">
 				<?php
 				$arr = array(
 					'br'     => array(),
