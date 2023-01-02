@@ -532,9 +532,14 @@ class GoogleSitemapGeneratorUI {
 			}
 		} elseif ( ! empty( $_POST['sm_reset_config'] ) ) { // Pressed Button: Reset Config.
 			check_admin_referer( 'sitemap' );
+			delete_option( 'sm_show_beta_banner' );
+			delete_option( 'sm_beta_banner_discarded_on' );
+			delete_option( 'sm_beta_banner_discarded_count' );
+			delete_option( 'sm_beta_notice_dismissed_from_wp_admin' );
+			delete_option( 'sm_user_consent' );
 			$this->sg->init_options();
 			$this->sg->save_options();
-
+			// echo '<script>window.location.reload()</script>';
 			$message .= __( 'The default configuration was restored.', 'sitemap' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
 			check_admin_referer( 'sitemap' );
@@ -897,16 +902,16 @@ class GoogleSitemapGeneratorUI {
 
 			<?php endif; ?>
 		</style>
-		<div class="modal-wrapper" id="modal-wrapper">
+		<!-- <div class="modal-wrapper" id="modal-wrapper">
 			<div class="modal-container">
-				<h3>Cookie consent</h3>
+				<h3>XML Sitemaps Cookie consent</h3>
 				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
 				<form method="POST">
 					<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
 					<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
 				</form>
 			</div>
-		</div>
+		</div> -->
 		<div class='wrap' id='sm_div'>
 			<?php
 			$user      = wp_get_current_user();

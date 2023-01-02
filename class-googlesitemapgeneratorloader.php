@@ -354,6 +354,61 @@ class GoogleSitemapGeneratorLoader {
 					font-weight: bold;
 					width: 20px;
 				}
+				.modal-wrapper {
+				position: fixed;
+				z-index: 100;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				/* opacity: 0; */
+				/* visibility: hidden; */
+				/* transform: scale(1.1); */
+				/* transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s; */
+				opacity: 1;
+				visibility: visible;
+				transform: scale(1.0);
+				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+			}
+
+			.modal-container {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 1rem 1.5rem;
+			width: 35rem;
+			border-radius: 0.5rem;
+			z-index: 100;
+			}
+			.allow_consent {
+				color: #ffffff;
+				border-color: #ffffff;
+				background-color: #008078;
+				margin-right: 1em;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
+			.decline_consent {
+				background-color: #fff;
+				border-color:  #ef4056 ;
+				color:  #ef4056 ;
+				text-decoration: none;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
 			</style>
 		<div class="updated notice" style="display: flex;justify-content:space-between; width: 100%;">
 				<?php
@@ -366,9 +421,11 @@ class GoogleSitemapGeneratorLoader {
 							'justify-content' => 'space-between',
 						),
 						'class' => array(),
+						'id'    => array(),
 					),
 					'a'      => array(
-						'href' => array(),
+						'href'   => array(),
+						'target' => array(),
 					),
 					'h4'     => array(
 						'style' => array(
@@ -399,6 +456,7 @@ class GoogleSitemapGeneratorLoader {
 						),
 					),
 					'form'   => array(
+						'id'     => array(),
 						'method' => array(),
 						'action' => array(),
 						'style'  => array(
@@ -414,12 +472,12 @@ class GoogleSitemapGeneratorLoader {
 						__(
 							'
 							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?
-							<a href="#">Learn more.</a>
+							<a href="#" target="blank">Learn more.</a>
 							</h4>
-							<form method="post" style="margin-top: 15px;">
+							<form method="post" style="margin-top: 15px;" id="user-consent-form">
 							<input type="hidden" id="action" name="action" value="my_action" >
 							<div class="justify-content">
-							<input type="submit" id="user_consent" class="allow_consent" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
+							<input type="submit" id="user_consent" class="allow_beta_consent" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
 							<input type="button" id="discard_content" class="discard_button" name="discard_consent" value="X"/>
 							</div>
 							</form>
@@ -442,6 +500,98 @@ class GoogleSitemapGeneratorLoader {
 				);
 				?>
 		</div>
+			<?php
+			$arr = array(
+				'br'     => array(),
+				'p'      => array(),
+				'h3'     => array(),
+				'div'    => array(
+					'style' => array(
+						'display'         => 'flex',
+						'justify-content' => 'space-between',
+					),
+					'class' => array(),
+					'id'    => array(),
+				),
+				'a'      => array(
+					'href' => array(),
+				),
+				'h4'     => array(
+					'style' => array(
+						'width'   => array(),
+						'display' => array(),
+					),
+				),
+				'button' => array(
+					'onClick' => array(),
+					'type'    => array(),
+					'onclick' => array(),
+				),
+				'strong' => array(),
+				'input'  => array(
+					'type'  => array(),
+					'class' => array(),
+					'id'    => array(),
+					'name'  => array(),
+					'value' => array(),
+					'style' => array(
+						'position'     => array(),
+						'padding'      => array(),
+						'background'   => array(),
+						'right'        => array(),
+						'color'        => array(),
+						'border-color' => array(),
+						'cursor'       => array(),
+					),
+				),
+				'form'   => array(
+					'method' => array(),
+					'action' => array(),
+					'style'  => array(
+						'margin-top'  => array(),
+						'margin-left' => array(),
+						'display'     => array(),
+					),
+				),
+			);
+			$default_value = 'defautl';
+			$consent_value = get_option( 'sm_user_consent', $default_value );
+			if ( $default_value === $consent_value ) {
+
+				/* translators: %s: search term */
+				echo wp_kses(
+					sprintf(
+						__(
+							'
+							<div class="modal-wrapper" id="modal-wrapper">
+								<div class="modal-container">
+									<h3>XML Sitemaps Cookie consent</h3>
+									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
+									<form method="POST">
+										<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
+										<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
+									</form>
+								</div>
+							</div>
+							',
+							'sitemap'
+						),
+						function() {
+							// update_option( 'sm_show_beta_banner', 'false' );
+							// add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+							// add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+							// $count = get_option( 'sm_beta_banner_discarded_count' );
+							// if ( gettype( $count ) !== 'boolean' ) {
+							// 	update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+							// } else {
+							// 	update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+							// }
+						}
+					),
+					$arr
+				);
+			}
+			?>
 				<?php
 		}
 	}
