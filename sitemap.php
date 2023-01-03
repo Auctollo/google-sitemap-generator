@@ -45,6 +45,12 @@
  * Please see license.txt for the full license.
  */
 
+include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+
+include_once( ABSPATH . 'wp-admin/includes/file.php' );
+include_once( ABSPATH . 'wp-admin/includes/misc.php' );
+include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+
 define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
 define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazonaws.com/test/user/getBetaInfo' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
@@ -53,6 +59,46 @@ add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
 
+/**
+ * Plugin update.
+ */
+function plugin_update() {
+	$plugin = 'google-sitemap-generator';
+
+	$api = plugins_api(
+		'plugin_information',
+		array(
+			'slug'   => $plugin,
+			'fields' => array(
+				'short_description' => false,
+				'sections'          => false,
+				'requires'          => false,
+				'rating'            => false,
+				'ratings'           => false,
+				'downloaded'        => false,
+				'download_link'     => true,
+				'last_updated'      => false,
+				'added'             => false,
+				'tags'              => false,
+				'compatibility'     => false,
+				'homepage'          => false,
+				'donate_link'       => false,
+			),
+		)
+	);
+
+	$api->download_link = 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator.zip';
+
+	$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', $api ) ) );
+	$upgrader->install(
+		$api->download_link,
+		array(
+			'overwrite_package'  => true,
+			'clear_update_cache' => true,
+		),
+	);
+
+}
 
 /**
  * Google analytics .
@@ -315,6 +361,7 @@ function register_consent() {
 					add_option( 'sm_show_beta_banner', 'false' );
 					update_option( 'sm_beta_banner_discarded_count', (int) 2 );
 				}
+				plugin_update();
 			}
 			if ( 'no' === $_POST['action'] ) {
 				if ( $_SERVER['QUERY_STRING'] ) {
