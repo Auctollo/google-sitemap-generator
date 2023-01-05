@@ -54,51 +54,12 @@ include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
 define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazonaws.com/test/user/getBetaInfo' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
+define( 'SM_NEW_PLUGIN_URL', 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator.zip' );
 
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
 
-/**
- * Plugin update.
- */
-function plugin_update() {
-	$plugin = 'google-sitemap-generator';
-
-	$api = plugins_api(
-		'plugin_information',
-		array(
-			'slug'   => $plugin,
-			'fields' => array(
-				'short_description' => false,
-				'sections'          => false,
-				'requires'          => false,
-				'rating'            => false,
-				'ratings'           => false,
-				'downloaded'        => false,
-				'download_link'     => true,
-				'last_updated'      => false,
-				'added'             => false,
-				'tags'              => false,
-				'compatibility'     => false,
-				'homepage'          => false,
-				'donate_link'       => false,
-			),
-		)
-	);
-
-	$api->download_link = 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator.zip';
-
-	$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', $api ) ) );
-	$upgrader->install(
-		$api->download_link,
-		array(
-			'overwrite_package'  => true,
-			'clear_update_cache' => true,
-		),
-	);
-
-}
 
 /**
  * Google analytics .
@@ -221,16 +182,35 @@ function ga_header() {
  */
 function ga_footer() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+		$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
 		echo "<script>
+		console.log(window.localStorage.getItem('exception'))
+		if(window.localStorage.getItem('sm_exception')==='error'){
+			setTimeout(()=>{
+			document.getElementById('update_plugin_error_notice').style.display = 'flex'
+			},100);
+		} else {
+			setTimeout(()=>{
+			document.getElementById('update_plugin_error_notice').style.display = 'none'
+		},100);
+
+		}
+		if(document.querySelector(\"[name='sm_new_plugin_url']\")){
+			document.querySelector(\"[name='sm_new_plugin_url']\")
+			.addEventListener('click', function (event) {
+				document.querySelector(\"[id='update_plugin_error_notice']\").style.display = 'none'
+				window.localStorage.removeItem('sm_exception')
+			});
+		}
 		document.querySelector(\"[name='user_consent']\")
 		.addEventListener('click', function (event) {
 			event.preventDefault();
 			document.getElementById('action').value = \"yes\";
+			document.querySelector(\"[name='user_consent']\").closest(\"form\").action = '" . esc_attr( $host ) . "'
 			document.querySelector(\"[name='user_consent']\").closest(\"form\").submit();
 		});
 		document.querySelector(\"[name=\'discard_consent\']\").addEventListener(\"click\", 
 			function(event) {
-			
 			event.preventDefault();
 			
 			document.getElementById(\"action\").value = \"no\"; 
@@ -324,45 +304,6 @@ function register_consent() {
 			update_option( 'sm_user_consent', 'no' );
 		}
 		if ( isset( $_POST['action'] ) ) {
-			if ( 'yes' === $_POST['action'] ) {
-				$plugin_version = GoogleSitemapGeneratorLoader::get_version();
-				global $wp_version;
-				$user      = wp_get_current_user();
-				$user_id   = $user->ID;
-				$mydomain  = $user->user_url ? $user->user_url : 'https://' . $_SERVER['HTTP_HOST'];
-				$user_name = $user->user_nicename;
-				$useremail = $user->user_email;
-				global $wpdb;
-				$result             = $wpdb->get_results( "select user_id,meta_value from wp_usermeta where meta_key='session_tokens' and user_id=" . $user_id ); // phpcs:ignore
-				$user_login_details = unserialize( $result[0]->meta_value );
-				$last_login         = '';
-				foreach ( $user_login_details as $item ) {
-					$last_login = $item['login'];
-				}
-				$data     = array(
-					'domain'         => $mydomain,
-					'userID'         => $user_id,
-					'userEmail'      => $useremail,
-					'userName'       => $user_name,
-					'lastLogin'      => $last_login,
-					'wp_version'     => $wp_version,
-					'plugin_version' => $plugin_version,
-				);
-				$args     = array(
-					'headers' => array(
-						'Content-type : application/json',
-					),
-					'method'  => 'POST',
-					'body'    => wp_json_encode( $data ),
-				);
-				$response = wp_remote_post( SM_BETA_USER_INFO_URL, $args );
-				$body     = json_decode( $response['body'] );
-				if ( 200 === $body->status ) {
-					add_option( 'sm_show_beta_banner', 'false' );
-					update_option( 'sm_beta_banner_discarded_count', (int) 2 );
-				}
-				plugin_update();
-			}
 			if ( 'no' === $_POST['action'] ) {
 				if ( $_SERVER['QUERY_STRING'] ) {
 					update_option( 'sm_show_beta_banner', 'false' );

@@ -303,6 +303,62 @@ class GoogleSitemapGeneratorLoader {
 				$current_page = $query['page'];
 			}
 		}
+		$arr = array(
+			'br'     => array(),
+			'p'      => array(),
+			'h3'     => array(),
+			'div'    => array(
+				'style' => array(
+					'display'         => 'flex',
+					'justify-content' => 'space-between',
+				),
+				'class' => array(),
+				'id'    => array(),
+			),
+			'a'      => array(
+				'href' => array(),
+				'name' => array(),
+			),
+			'h4'     => array(
+				'style' => array(
+					'width'   => array(),
+					'display' => array(),
+				),
+				'id'    => array(),
+				'class' => array(),
+			),
+			'button' => array(
+				'onClick' => array(),
+				'type'    => array(),
+				'onclick' => array(),
+			),
+			'strong' => array(),
+			'input'  => array(
+				'type'  => array(),
+				'class' => array(),
+				'id'    => array(),
+				'name'  => array(),
+				'value' => array(),
+				'style' => array(
+					'position'     => array(),
+					'padding'      => array(),
+					'background'   => array(),
+					'right'        => array(),
+					'color'        => array(),
+					'border-color' => array(),
+					'cursor'       => array(),
+				),
+			),
+			'form'   => array(
+				'method' => array(),
+				'action' => array(),
+				'style'  => array(
+					'margin-top'  => array(),
+					'margin-left' => array(),
+					'display'     => array(),
+				),
+			),
+		);
 		$default_value    = 'show_banner';
 		$value            = get_option( 'sm_show_beta_banner', $default_value );
 		$now              = time();
@@ -432,6 +488,7 @@ class GoogleSitemapGeneratorLoader {
 							'width'   => array(),
 							'display' => array(),
 						),
+						'id'    => array(),
 					),
 					'button' => array(
 						'onClick' => array(),
@@ -440,12 +497,13 @@ class GoogleSitemapGeneratorLoader {
 					),
 					'strong' => array(),
 					'input'  => array(
-						'type'  => array(),
-						'class' => array(),
-						'id'    => array(),
-						'name'  => array(),
-						'value' => array(),
-						'style' => array(
+						'type'       => array(),
+						'class'      => array(),
+						'id'         => array(),
+						'name'       => array(),
+						'value'      => array(),
+						'formaction' => array(),
+						'style'      => array(
 							'position'     => array(),
 							'padding'      => array(),
 							'background'   => array(),
@@ -466,6 +524,7 @@ class GoogleSitemapGeneratorLoader {
 						),
 					),
 				);
+				$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
 				/* translators: %s: search term */
 				echo wp_kses(
 					sprintf(
@@ -500,60 +559,7 @@ class GoogleSitemapGeneratorLoader {
 				);
 				?>
 		</div>
-			<?php
-			$arr = array(
-				'br'     => array(),
-				'p'      => array(),
-				'h3'     => array(),
-				'div'    => array(
-					'style' => array(
-						'display'         => 'flex',
-						'justify-content' => 'space-between',
-					),
-					'class' => array(),
-					'id'    => array(),
-				),
-				'a'      => array(
-					'href' => array(),
-				),
-				'h4'     => array(
-					'style' => array(
-						'width'   => array(),
-						'display' => array(),
-					),
-				),
-				'button' => array(
-					'onClick' => array(),
-					'type'    => array(),
-					'onclick' => array(),
-				),
-				'strong' => array(),
-				'input'  => array(
-					'type'  => array(),
-					'class' => array(),
-					'id'    => array(),
-					'name'  => array(),
-					'value' => array(),
-					'style' => array(
-						'position'     => array(),
-						'padding'      => array(),
-						'background'   => array(),
-						'right'        => array(),
-						'color'        => array(),
-						'border-color' => array(),
-						'cursor'       => array(),
-					),
-				),
-				'form'   => array(
-					'method' => array(),
-					'action' => array(),
-					'style'  => array(
-						'margin-top'  => array(),
-						'margin-left' => array(),
-						'display'     => array(),
-					),
-				),
-			);
+		<?php
 			$default_value = 'defautl';
 			$consent_value = get_option( 'sm_user_consent', $default_value );
 			if ( $default_value === $consent_value ) {
@@ -591,9 +597,32 @@ class GoogleSitemapGeneratorLoader {
 					$arr
 				);
 			}
+				/* translators: %s: search term */
 			?>
 				<?php
 		}
+		?>
+		<div class="notice notice-error update_plugin_error_notice" style="display:none;" id="update_plugin_error_notice">
+			<?php
+			echo wp_kses(
+				sprintf(
+					__(
+						'
+						<h4>For some permission reseaon we are not able to upgrade plugin, you can download zip from 
+						<a name="sm_new_plugin_url" href=' . SM_NEW_PLUGIN_URL . ' target="blank">here.</a>
+						</h4>
+						',
+						'sitemap'
+					),
+					function() {
+						// update_option( '', 'false' ); .
+					}
+				),
+				$arr
+			);
+			?>
+		</div>
+		<?php
 	}
 	/**
 	 * Returns a nice icon for the Ozh Admin Menu if the {@param $hook} equals to the sitemap plugin
