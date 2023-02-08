@@ -19,7 +19,7 @@
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
  * Version: 4.1.7
  * Author: Auctollo
- * Author URI: https://acutollo.com/
+ * Author URI: https://auctollo.com/
  * Text Domain: sitemap
  * Domain Path: /lang
 
