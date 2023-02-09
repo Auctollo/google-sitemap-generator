@@ -418,10 +418,6 @@ class GoogleSitemapGeneratorLoader {
 				width: 100%;
 				height: 100%;
 				background-color: rgba(0, 0, 0, 0.5);
-				/* opacity: 0; */
-				/* visibility: hidden; */
-				/* transform: scale(1.1); */
-				/* transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s; */
 				opacity: 1;
 				visibility: visible;
 				transform: scale(1.0);
@@ -544,15 +540,6 @@ class GoogleSitemapGeneratorLoader {
 							'sitemap'
 						),
 						function() {
-							// update_option( 'sm_show_beta_banner', 'false' );
-							// add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
-							// add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
-							// $count = get_option( 'sm_beta_banner_discarded_count' );
-							// if ( gettype( $count ) !== 'boolean' ) {
-							// 	update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
-							// } else {
-							// 	update_option( 'sm_beta_banner_discarded_count', (int) 1 );
-							// }
 						}
 					),
 					$arr
@@ -583,15 +570,6 @@ class GoogleSitemapGeneratorLoader {
 							'sitemap'
 						),
 						function() {
-							// update_option( 'sm_show_beta_banner', 'false' );
-							// add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
-							// add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
-							// $count = get_option( 'sm_beta_banner_discarded_count' );
-							// if ( gettype( $count ) !== 'boolean' ) {
-							// 	update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
-							// } else {
-							// 	update_option( 'sm_beta_banner_discarded_count', (int) 1 );
-							// }
 						}
 					),
 					$arr
@@ -615,7 +593,6 @@ class GoogleSitemapGeneratorLoader {
 						'sitemap'
 					),
 					function() {
-						// update_option( '', 'false' ); .
 					}
 				),
 				$arr

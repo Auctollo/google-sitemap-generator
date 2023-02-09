@@ -821,11 +821,7 @@ class GoogleSitemapGeneratorUI {
 				top: 0;
 				width: 100%;
 				height: 100%;
-				background-color: rgba(0, 0, 0, 0.5);
-				/* opacity: 0; */
-				/* visibility: hidden; */
-				/* transform: scale(1.1); */
-				/* transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s; */
+				background-color: rgba(0, 0, 0, 0.5);			
 				opacity: 1;
 				visibility: visible;
 				transform: scale(1.0);
@@ -902,16 +898,6 @@ class GoogleSitemapGeneratorUI {
 
 			<?php endif; ?>
 		</style>
-		<!-- <div class="modal-wrapper" id="modal-wrapper">
-			<div class="modal-container">
-				<h3>XML Sitemaps Cookie consent</h3>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
-				<form method="POST">
-					<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
-					<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
-				</form>
-			</div>
-		</div> -->
 		<div class='wrap' id='sm_div'>
 			<?php
 			$user      = wp_get_current_user();
@@ -1749,10 +1735,6 @@ class GoogleSitemapGeneratorUI {
 							</div>
 						</div>
 						</div>
-						<!-- <script type='text/javascript'>
-						console.log('type of funiton', typeof sm_loadPages)
-							if (typeof(sm_loadPages) == 'function') addLoadEvent(sm_loadPages);
-						</script> -->
 			</form>
 			<form action='https://www.paypal.com/cgi-bin/webscr' method='post' id='sm_donate_form'>
 				<?php

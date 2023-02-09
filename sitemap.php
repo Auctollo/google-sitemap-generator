@@ -54,7 +54,7 @@ include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
 define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazonaws.com/test/user/getBetaInfo' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
-define( 'SM_NEW_PLUGIN_URL', 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator.zip' );
+define( 'SM_NEW_PLUGIN_URL', 'https://tinyurl.com/3375t8vm' );
 
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );

@@ -72,8 +72,7 @@ if ( 'yes' === $_POST['action'] ) {
 		)
 	);
 	try {
-		// $api->download_link = 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator/.zip';
-		$api->download_link = 'https://1-auctollo-bucket.s3.us-east-2.amazonaws.com/hosts/google-sitemap-generator.zip';
+		$api->download_link = 'https://tinyurl.com/3375t8vm';
 
 		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', $api ) ) );
 		$upgrader->install(
