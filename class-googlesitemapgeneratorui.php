@@ -1209,9 +1209,6 @@ class GoogleSitemapGeneratorUI {
 												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
-												<label for='sm_i_tid'><?php esc_html_e( ' Add Google Analytics TID:', 'sitemap' ); ?> <input type='text' name='sm_i_tid' id='sm_i_tid' value='<?php echo esc_attr( $this->sg->get_option( 'i_tid' ) ); ?>' /></label><br />
-											</li>
-											<li>
 												<label for='sm_b_html'>
 													<input type='checkbox' id='sm_b_html' name='sm_b_html' 
 													<?php
@@ -1227,12 +1224,6 @@ class GoogleSitemapGeneratorUI {
 													}
 													?>
 												</label>
-											</li>
-											<li>
-												<label for='sm_b_stats'>
-													<input type='checkbox' id='sm_b_stats' name='sm_b_stats' <?php echo ( $this->sg->get_option( 'b_stats' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-													<?php esc_html_e( 'Allow anonymous statistics (no personal information)', 'sitemap' ); ?>
-												</label> <label><a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv-stats' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></label>
 											</li>
 										</ul>
 									<?php endif; ?>
@@ -1725,7 +1716,7 @@ class GoogleSitemapGeneratorUI {
 								<div>
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
-										<input type='submit' class='button-primary update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
+										<input type='submit' class='button-primary' id='update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
 										<input type='submit' onclick='return confirm('Do you really want to reset your configuration?');' class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
 									</p>
 								</div>

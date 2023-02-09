@@ -2528,7 +2528,7 @@ final class GoogleSitemapGenerator {
 
 		$post_data = array(
 			'v'   => 1,
-			'tid' => 'UA-54321546-1',
+			'tid' => $this->get_option( 'i_tid' ),
 			'cid' => $this->get_option( 'i_hash' ),
 			'aip' => 1, // Anonymize .
 			't'   => 'event',
