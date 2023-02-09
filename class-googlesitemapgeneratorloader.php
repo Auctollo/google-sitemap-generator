@@ -762,6 +762,8 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function load_plugin() {
 
+		$disable_functions = ini_get( 'disable_functions' );
+
 		if ( ! class_exists( 'GoogleSitemapGenerator' ) ) {
 
 			$mem = abs( intval( ini_get( 'memory_limit' ) ) );
@@ -771,7 +773,9 @@ class GoogleSitemapGeneratorLoader {
 
 			$time = abs( intval( ini_get( 'max_execution_time' ) ) );
 			if ( 0 !== $time && 120 > $time ) {
-				set_time_limit( 120 );
+				if ( ! str_contains( $disable_functions, 'set_time_limit' ) ) {
+					set_time_limit( 120 );
+				}
 			}
 
 			$path = trailingslashit( dirname( __FILE__ ) );
