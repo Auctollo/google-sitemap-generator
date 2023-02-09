@@ -539,7 +539,6 @@ class GoogleSitemapGeneratorUI {
 			delete_option( 'sm_user_consent' );
 			$this->sg->init_options();
 			$this->sg->save_options();
-			// echo '<script>window.location.reload()</script>';
 			$message .= __( 'The default configuration was restored.', 'sitemap' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
 			check_admin_referer( 'sitemap' );
