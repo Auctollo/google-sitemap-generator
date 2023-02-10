@@ -1716,7 +1716,7 @@ class GoogleSitemapGeneratorUI {
 								<div>
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
-										<input type='submit' class='button-primary' id='update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
+										<input type='submit' class='button-primary update_plugin_options' id='update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
 										<input type='submit' onclick='return confirm('Do you really want to reset your configuration?');' class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
 									</p>
 								</div>
