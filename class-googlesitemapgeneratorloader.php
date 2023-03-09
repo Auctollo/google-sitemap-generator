@@ -9,6 +9,7 @@
  * @author Arne Brachhold
  * @package sitemap
  */
+require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorui.php';
 
 /**
  * This class is for the sitemap loader
@@ -280,7 +281,326 @@ class GoogleSitemapGeneratorLoader {
 		$sg = GoogleSitemapGenerator::get_instance();
 		$sg->html_survey();
 	}
+	/**
+	 * Hide banner info.
+	 */
+	public function hide_banner() {
+		update_option( 'sm_show_beta_banner', 'false' );
+		add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+		update_option( 'sm_beta_banner_discarded_count', (int) 2 );
+	}
+	/**
+	 * Beta notice.
+	 */
+	public static function beta_notice() {
+		$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+		$parts      = wp_parse_url( $window_url );
+		$current_page = '';
+		$current_url  = $_SERVER['REQUEST_URI'];
+		if ( isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+			if ( isset( $query['page'] ) ) {
+				$current_page = $query['page'];
+			}
+		}
+		$arr = array(
+			'br'     => array(),
+			'p'      => array(),
+			'h3'     => array(),
+			'div'    => array(
+				'style' => array(
+					'display'         => 'flex',
+					'justify-content' => 'space-between',
+				),
+				'class' => array(),
+				'id'    => array(),
+			),
+			'a'      => array(
+				'href' => array(),
+				'name' => array(),
+			),
+			'h4'     => array(
+				'style' => array(
+					'width'   => array(),
+					'display' => array(),
+				),
+				'id'    => array(),
+				'class' => array(),
+			),
+			'button' => array(
+				'onClick' => array(),
+				'type'    => array(),
+				'onclick' => array(),
+			),
+			'strong' => array(),
+			'input'  => array(
+				'type'  => array(),
+				'class' => array(),
+				'id'    => array(),
+				'name'  => array(),
+				'value' => array(),
+				'style' => array(
+					'position'     => array(),
+					'padding'      => array(),
+					'background'   => array(),
+					'right'        => array(),
+					'color'        => array(),
+					'border-color' => array(),
+					'cursor'       => array(),
+				),
+			),
+			'form'   => array(
+				'method' => array(),
+				'action' => array(),
+				'style'  => array(
+					'margin-top'  => array(),
+					'margin-left' => array(),
+					'display'     => array(),
+				),
+			),
+		);
+		$default_value    = 'show_banner';
+		$value            = get_option( 'sm_show_beta_banner', $default_value );
+		$now              = time();
+		$banner_discarded = strtotime( get_option( 'sm_beta_banner_discarded_on' ) );
 
+		$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
+		if ( gettype( $banner_discarded ) === 'boolean' ) {
+			$banner_discarded = time();
+		}
+		$datediff = $now - $banner_discarded;
+		$datediff = round( $datediff / ( 60 * 60 * 24 ) );
+		if ( ! ( strpos( $current_url, 'wp-admin/edit' ) || strpos( $current_url, '/wp-admin/post-new.php' ) || strpos( $current_url, '/wp-admin/post.php' ) ) && ( $value === $default_value || 'true' === $value ) && ( 'true' !== get_option( 'sm_beta_notice_dismissed_from_wp_admin' ) || 'google-sitemap-generator/sitemap.php' === $current_page ) || ( 'google-sitemap-generator/sitemap.php' === $current_page && $datediff >= SM_BANNER_HIDE_DURATION_IN_DAYS && $banner_discarded_count < 2 ) ) {
+			?>
+			<style>
+				.justify-content{
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
+				.discard_button, .discard_button_outside_settings{
+					border-radius: 50%;
+					border: 0px;
+					text-align: center;
+					justify-content: center;
+					align-items: center;
+					margin-left: 40px;
+					margin-right: 5px;
+					cursor: pointer;
+					height: 20px;
+					background-color: #787c82;
+					color: white;
+					font-size: small;
+					font-weight: bold;
+					width: 20px;
+				}
+				.reject_consent{
+					border-radius: 50%;
+					border: 0px;
+					text-align: center;
+					justify-content: center;
+					align-items: center;
+					margin-left: 40px;
+					margin-right: 5px;
+					cursor: pointer;
+					height: 20px;
+					background-color: #787c82;
+					color: white;
+					font-size: small;
+					font-weight: bold;
+					width: 20px;
+				}
+				.modal-wrapper {
+				position: fixed;
+				z-index: 100;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				opacity: 1;
+				visibility: visible;
+				transform: scale(1.0);
+				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+			}
+
+			.modal-container {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 1rem 1.5rem;
+			width: 35rem;
+			border-radius: 0.5rem;
+			z-index: 100;
+			}
+			.allow_consent {
+				color: #ffffff;
+				border-color: #ffffff;
+				background-color: #008078;
+				margin-right: 1em;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
+			.decline_consent {
+				background-color: #fff;
+				border-color:  #ef4056 ;
+				color:  #ef4056 ;
+				text-decoration: none;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
+			</style>
+		<div class="updated notice" style="display: flex;justify-content:space-between;">
+				<?php
+				$arr = array(
+					'br'     => array(),
+					'p'      => array(),
+					'div'    => array(
+						'style' => array(
+							'display'         => 'flex',
+							'justify-content' => 'space-between',
+						),
+						'class' => array(),
+						'id'    => array(),
+					),
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'h4'     => array(
+						'style' => array(
+							'width'   => array(),
+							'display' => array(),
+						),
+						'id'    => array(),
+					),
+					'button' => array(
+						'onClick' => array(),
+						'type'    => array(),
+						'onclick' => array(),
+					),
+					'strong' => array(),
+					'input'  => array(
+						'type'       => array(),
+						'class'      => array(),
+						'id'         => array(),
+						'name'       => array(),
+						'value'      => array(),
+						'formaction' => array(),
+						'style'      => array(
+							'position'     => array(),
+							'padding'      => array(),
+							'background'   => array(),
+							'right'        => array(),
+							'color'        => array(),
+							'border-color' => array(),
+							'cursor'       => array(),
+						),
+					),
+					'form'   => array(
+						'id'     => array(),
+						'method' => array(),
+						'action' => array(),
+						'style'  => array(
+							'margin-top'  => array(),
+							'margin-left' => array(),
+							'display'     => array(),
+						),
+					),
+				);
+				$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
+				/* translators: %s: search term */
+				echo wp_kses(
+					sprintf(
+						__(
+							'
+							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?
+							<a href="#" target="blank">Learn more.</a>
+							</h4>
+							<form method="post" style="margin-top: 15px;" id="user-consent-form">
+							<input type="hidden" id="action" name="action" value="my_action" >
+							<div class="justify-content">
+							<input type="submit" id="user_consent" class="allow_beta_consent" name="user_consent" value="Yes, I am in" style="background: #2271b1;color: white;border-color: #2271b1;cursor: pointer;padding: 5px; " />
+							<input type="button" id="discard_content" class="discard_button" name="discard_consent" value="X"/>
+							</div>
+							</form>
+							',
+							'sitemap'
+						),
+						function() {
+						}
+					),
+					$arr
+				);
+				?>
+		</div>
+		<?php
+			$default_value = 'defautl';
+			$consent_value = get_option( 'sm_user_consent', $default_value );
+			if ( $default_value === $consent_value ) {
+
+				/* translators: %s: search term */
+				echo wp_kses(
+					sprintf(
+						__(
+							'
+							<div class="modal-wrapper" id="modal-wrapper">
+								<div class="modal-container">
+									<h3>XML Sitemaps Cookie consent</h3>
+									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
+									<form method="POST">
+										<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
+										<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
+									</form>
+								</div>
+							</div>
+							',
+							'sitemap'
+						),
+						function() {
+						}
+					),
+					$arr
+				);
+			}
+				/* translators: %s: search term */
+			?>
+				<?php
+		}
+		?>
+		<div class="notice notice-error update_plugin_error_notice" style="display:none;" id="update_plugin_error_notice">
+			<?php
+			echo wp_kses(
+				sprintf(
+					__(
+						'
+						<h4>For some permission reseaon we are not able to upgrade plugin, you can download zip from 
+						<a name="sm_new_plugin_url" href=' . SM_NEW_PLUGIN_URL . ' target="blank">here.</a>
+						</h4>
+						',
+						'sitemap'
+					),
+					function() {
+					}
+				),
+				$arr
+			);
+			?>
+		</div>
+		<?php
+	}
 	/**
 	 * Returns a nice icon for the Ozh Admin Menu if the {@param $hook} equals to the sitemap plugin
 	 *
@@ -419,6 +739,8 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function load_plugin() {
 
+		$disable_functions = ini_get( 'disable_functions' );
+
 		if ( ! class_exists( 'GoogleSitemapGenerator' ) ) {
 
 			$mem = abs( intval( ini_get( 'memory_limit' ) ) );
@@ -428,7 +750,9 @@ class GoogleSitemapGeneratorLoader {
 
 			$time = abs( intval( ini_get( 'max_execution_time' ) ) );
 			if ( 0 !== $time && 120 > $time ) {
-				set_time_limit( 120 );
+				if ( ! str_contains( $disable_functions, 'set_time_limit' ) ) {
+					set_time_limit( 120 );
+				}
 			}
 
 			$path = trailingslashit( dirname( __FILE__ ) );
@@ -494,6 +818,7 @@ class GoogleSitemapGeneratorLoader {
 // Enable the plugin for the init hook, but only if WP is loaded. Calling this php file directly will do nothing.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) ) {
 	add_action( 'init', array( 'GoogleSitemapGeneratorLoader', 'Enable' ), 15, 0 );
+	add_action( 'admin_notices', array( 'GoogleSitemapGeneratorLoader', 'beta_notice' ), 15, 0 );
 	register_activation_hook( sm_get_init_file(), array( 'GoogleSitemapGeneratorLoader', 'activate_plugin' ) );
 	register_deactivation_hook( sm_get_init_file(), array( 'GoogleSitemapGeneratorLoader', 'deactivate_plugin' ) );
 

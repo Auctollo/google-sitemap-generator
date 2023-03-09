@@ -532,9 +532,13 @@ class GoogleSitemapGeneratorUI {
 			}
 		} elseif ( ! empty( $_POST['sm_reset_config'] ) ) { // Pressed Button: Reset Config.
 			check_admin_referer( 'sitemap' );
+			delete_option( 'sm_show_beta_banner' );
+			delete_option( 'sm_beta_banner_discarded_on' );
+			delete_option( 'sm_beta_banner_discarded_count' );
+			delete_option( 'sm_beta_notice_dismissed_from_wp_admin' );
+			delete_option( 'sm_user_consent' );
 			$this->sg->init_options();
 			$this->sg->save_options();
-
 			$message .= __( 'The default configuration was restored.', 'sitemap' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
 			check_admin_referer( 'sitemap' );
@@ -808,8 +812,58 @@ class GoogleSitemapGeneratorUI {
 				-ms-user-select: auto !important;
 				user-select: auto !important;
 			}
+			.modal-wrapper {
+				position: fixed;
+				display: none;
+				z-index: 100;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);			
+				opacity: 1;
+				visibility: visible;
+				transform: scale(1.0);
+				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+			}
 
-
+			.modal-container {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 1rem 1.5rem;
+			width: 35rem;
+			border-radius: 0.5rem;
+			z-index: 100;
+			}
+			.allow_consent {
+				color: #ffffff;
+				border-color: #ffffff;
+				background-color: #008078;
+				margin-right: 1em;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
+			.decline_consent {
+				background-color: #fff;
+				border-color:  #ef4056 ;
+				color:  #ef4056 ;
+				text-decoration: none;
+				min-width: 100px;
+				height: auto;
+				white-space: normal;
+				word-break: break-word;
+				word-wrap: break-word;
+				padding: 12px 10px;
+				cursor: pointer;
+			}
 			<?php
 			if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) .
 				?>
@@ -843,9 +897,14 @@ class GoogleSitemapGeneratorUI {
 
 			<?php endif; ?>
 		</style>
-
-
 		<div class='wrap' id='sm_div'>
+			<?php
+			$user      = wp_get_current_user();
+			$useremail = $user->user_email;
+			?>
+			<input type="hidden" id="wp_version" name="wp_version" value="<?php echo esc_attr( $wp_version ); ?>" />
+			<input type="hidden" id="plugin_version" name="plugin_version" value="<?php echo esc_attr( $this->sg->get_version() ); ?>" />
+			<input type="hidden" id="user_email" name="user_email" value="<?php echo esc_attr( $useremail ); ?>" />
 			<form method='post' action='<?php echo esc_url( $this->sg->get_back_link() ); ?>'>
 				<h2>
 					<?php
@@ -1027,7 +1086,7 @@ class GoogleSitemapGeneratorUI {
 											?>
 											<?php if ( $this->sg->get_option( 'b_ping' ) ) : ?>
 												<li>
-													Notify Search Engines about <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
+													Notify Search Engines about <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
 												</li>
 											<?php endif; ?>
 											<?php
@@ -1150,9 +1209,6 @@ class GoogleSitemapGeneratorUI {
 												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
-												<label for='sm_i_tid'><?php esc_html_e( ' Add Google Analytics TID:', 'sitemap' ); ?> <input type='text' name='sm_i_tid' id='sm_i_tid' value='<?php echo esc_attr( $this->sg->get_option( 'i_tid' ) ); ?>' /></label><br />
-											</li>
-											<li>
 												<label for='sm_b_html'>
 													<input type='checkbox' id='sm_b_html' name='sm_b_html' 
 													<?php
@@ -1168,12 +1224,6 @@ class GoogleSitemapGeneratorUI {
 													}
 													?>
 												</label>
-											</li>
-											<li>
-												<label for='sm_b_stats'>
-													<input type='checkbox' id='sm_b_stats' name='sm_b_stats' <?php echo ( $this->sg->get_option( 'b_stats' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-													<?php esc_html_e( 'Allow anonymous statistics (no personal information)', 'sitemap' ); ?>
-												</label> <label><a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv-stats' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></label>
 											</li>
 										</ul>
 									<?php endif; ?>
@@ -1666,7 +1716,7 @@ class GoogleSitemapGeneratorUI {
 								<div>
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
-										<input type='submit' class='button-primary' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
+										<input type='submit' class='button-primary update_plugin_options' id='update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
 										<input type='submit' onclick='return confirm('Do you really want to reset your configuration?');' class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
 									</p>
 								</div>
@@ -1675,10 +1725,6 @@ class GoogleSitemapGeneratorUI {
 							</div>
 						</div>
 						</div>
-						<!-- <script type='text/javascript'>
-						console.log('type of funiton', typeof sm_loadPages)
-							if (typeof(sm_loadPages) == 'function') addLoadEvent(sm_loadPages);
-						</script> -->
 			</form>
 			<form action='https://www.paypal.com/cgi-bin/webscr' method='post' id='sm_donate_form'>
 				<?php

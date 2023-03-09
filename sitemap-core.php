@@ -1159,11 +1159,6 @@ final class GoogleSitemapGenerator {
 
 		$excludes = (array) $this->get_option( 'b_exclude' );
 
-		// Exclude front page page if defined .
-		if ( get_option( 'show_on_front' ) === 'page' && get_option( 'page_on_front' ) ) {
-			$excludes[] = get_option( 'page_on_front' );
-			return $excludes;
-		}
 		return array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
 	}
 
@@ -1862,6 +1857,7 @@ final class GoogleSitemapGenerator {
 		$start_time    = microtime( true );
 		$start_queries = $GLOBALS['wpdb']->num_queries;
 		$start_memory  = memory_get_peak_usage( true );
+		$disable_functions = ini_get( 'disable_functions' );
 
 		// Raise memory and time limits .
 		if ( $this->get_option( 'b_memory' ) !== '' ) {
@@ -1870,7 +1866,9 @@ final class GoogleSitemapGenerator {
 		}
 
 		if ( $this->get_option( 'b_time' ) !== -1 ) {
-			set_time_limit( $this->get_option( 'b_time' ) );
+			if ( ! str_contains( $disable_functions, 'set_time_limit' ) ) {
+				set_time_limit( $this->get_option( 'b_time' ) );
+			}
 		}
 
 		do_action( 'sm_init', $this );
@@ -2526,6 +2524,7 @@ final class GoogleSitemapGenerator {
 		} else {
 			$post_count = round( $post_count / 10000 ) * 10000;
 		}
+		$user = wp_get_current_user();
 
 		$post_data = array(
 			'v'   => 1,
@@ -2534,12 +2533,15 @@ final class GoogleSitemapGenerator {
 			'aip' => 1, // Anonymize .
 			't'   => 'event',
 			'ec'  => 'ping',
+			'el'  => 'settings_saved',
 			'ea'  => 'auto',
 			'ev'  => 1,
 			'cd1' => $wp_version,
 			'cd2' => $this->get_version(),
 			'cd3' => PHP_VERSION,
 			'cd4' => $post_count,
+			'cd5' => $user->user_email,
+			'cd6' => 'https://' . $_SERVER['HTTP_HOST'],
 			'ul'  => get_bloginfo( 'language' ),
 		);
 

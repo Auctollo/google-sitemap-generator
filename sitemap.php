@@ -17,7 +17,7 @@
  * Plugin Name: Google XML Sitemaps
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.7
+ * Version: 4.1.8
  * Author: Auctollo
  * Author URI: https://acutollo.com/
  * Text Domain: sitemap
@@ -45,8 +45,189 @@
  * Please see license.txt for the full license.
  */
 
-define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
+include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
 
+include_once( ABSPATH . 'wp-admin/includes/file.php' );
+include_once( ABSPATH . 'wp-admin/includes/misc.php' );
+include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+
+define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
+define( 'SM_BETA_USER_INFO_URL', 'https://rmh2kgz0oi.execute-api.us-east-2.amazonaws.com/test/user/getBetaInfo' );
+define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
+define( 'SM_NEW_PLUGIN_URL', 'https://tinyurl.com/3375t8vm' );
+
+add_action( 'admin_init', 'register_consent', 1 );
+add_action( 'admin_head', 'ga_header' );
+add_action( 'admin_footer', 'ga_footer' );
+
+
+/**
+ * Google analytics .
+ */
+function ga_header() {
+	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+		global $wp_version;
+		$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+		$parts      = wp_parse_url( $window_url );
+		$current_page = '';
+
+		$plugin_version = GoogleSitemapGeneratorLoader::get_version();
+
+		$default_value = 'not_defined';
+		$consent_value = get_option( 'sm_user_consent', $default_value );
+
+		if ( 'yes' === $consent_value || $default_value === $consent_value ) {
+			echo "
+			<script>
+				(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','dataLayer','GTM-WT5FH38');
+				
+				</script>
+				";
+		}
+		if ( $default_value !== $consent_value ) {
+			echo "<script>
+			setTimeout(()=>{
+				document.querySelector(\"[id=\'modal-wrapper\']\").style.display = 'none'
+			},200);
+			</script>";
+		}
+		if ( isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+			if ( isset( $query['page'] ) ) {
+				$current_page = $query['page'];
+				if ( strpos( $current_page, 'google-sitemap-generator' ) !== false ) {
+					if ( $default_value !== $consent_value ) {
+						echo "<script>
+						setTimeout(()=>{
+							document.querySelector(\"[id=\'modal-wrapper\']\").style.visibility = 'hidden'
+						},200);
+						</script>";
+					}
+						echo "
+						<script>
+							setTimeout(()=>{
+								document.querySelector(\"[id=\'modal-wrapper\']\").style.display = 'flex'
+							document.getElementById('discard_content').classList.remove('discard_button_outside_settings')
+							document.getElementById('discard_content').classList.add('discard_button')
+							if( document.getElementById(\"user-consent-form\") ){
+								const form = document.getElementById(\"user-consent-form\")
+								var plugin_version = document.createElement(\"input\")
+								plugin_version.name = \"plugin_version\"
+								plugin_version.id = \"plugin_version\"
+								plugin_version.value = \"<?php echo $wp_version;?>\"
+								plugin_version.type = \"hidden\"
+								form.appendChild(plugin_version)
+								var wordpress_version = document.createElement(\"input\")
+								wordpress_version.name = \"wordpress_version\"
+								wordpress_version.id = \"wordpress_version\"
+								wordpress_version.value = '$wp_version'
+								wordpress_version.type = \"hidden\"
+								form.appendChild(wordpress_version)
+							}
+
+							},200);
+						</script>";
+				} else {
+					echo '<script>
+					setTimeout(()=>{
+						
+					document.getElementById("discard_content").classList.add("discard_button_outside_settings")
+					document.getElementById("discard_content").classList.remove("discard_button")
+				},200);
+					</script>';
+				}
+			} else {
+				echo '<script>
+				setTimeout(()=>{
+					
+				document.getElementById("discard_content").classList.add("discard_button_outside_settings")
+				document.getElementById("discard_content").classList.remove("discard_button")
+			},200);
+				</script>';
+			}
+		} else {
+			echo "<script>
+			setTimeout(()=>{
+				document.getElementById(\"discard_content\").classList.add(\"discard_button_outside_settings\")
+				document.getElementById(\"discard_content\").classList.remove(\"discard_button\")
+				if( document.getElementById(\"user-consent-form\") ){
+					const form = document.getElementById(\"user-consent-form\")
+					var plugin_version = document.createElement(\"input\")
+					plugin_version.name = \"plugin_version\"
+					plugin_version.id = \"plugin_version\"
+					plugin_version.value = '$plugin_version'
+					plugin_version.type = \"hidden\"
+					form.appendChild(plugin_version)
+
+					var wordpress_version = document.createElement(\"input\")
+					wordpress_version.name = \"wp_version\"
+					wordpress_version.id = \"wp_version\"
+					wordpress_version.value = '$wp_version'
+					wordpress_version.type = \"hidden\"
+					form.appendChild(wordpress_version)
+				}
+			},200);
+				</script>";
+			return;
+		}
+	}
+}
+
+/**
+ * Google analytics .
+ */
+function ga_footer() {
+	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+		$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
+		echo "<script>
+		console.log(window.localStorage.getItem('exception'))
+		if(window.localStorage.getItem('sm_exception')==='error'){
+			setTimeout(()=>{
+			document.getElementById('update_plugin_error_notice').style.display = 'flex'
+			},100);
+		} else {
+			setTimeout(()=>{
+			document.getElementById('update_plugin_error_notice').style.display = 'none'
+		},100);
+
+		}
+		if(document.querySelector(\"[name='sm_new_plugin_url']\")){
+			document.querySelector(\"[name='sm_new_plugin_url']\")
+			.addEventListener('click', function (event) {
+				document.querySelector(\"[id='update_plugin_error_notice']\").style.display = 'none'
+				window.localStorage.removeItem('sm_exception')
+			});
+		}
+		document.querySelector(\"[name='user_consent']\")
+		.addEventListener('click', function (event) {
+			event.preventDefault();
+			document.getElementById('action').value = \"yes\";
+			document.querySelector(\"[name='user_consent']\").closest(\"form\").action = '" . esc_attr( $host ) . "'
+			document.querySelector(\"[name='user_consent']\").closest(\"form\").submit();
+		});
+		document.querySelector(\"[name=\'discard_consent\']\").addEventListener(\"click\", 
+			function(event) {
+			event.preventDefault();
+			
+			document.getElementById(\"action\").value = \"no\"; 
+			setTimeout(()=>{
+				document.querySelector(\"[name=\'discard_consent\']\").closest(\"form\").submit();
+			},40)
+		});
+		</script>";
+		$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
+		if ( 1 === $banner_discarded_count || '1' === $banner_discarded_count ) {
+			echo '<script>
+			document.getElementById("discard_content").classList.add("reject_consent")
+			document.getElementById("discard_content").classList.remove("discard_button")
+			</script>';
+		}
+	}
+}
 
 /**
  * Check if the requirements of the sitemap plugin are met and loads the actual loader
@@ -110,6 +291,37 @@ function sm_add_php_version_error() {
 function sm_get_init_file() {
 	return __FILE__;
 }
+
+/**
+ * Register beta user consent function.
+ */
+function register_consent() {
+	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+		if ( isset( $_POST['user_consent_yes'] ) ) {
+			update_option( 'sm_user_consent', 'yes' );
+		}
+		if ( isset( $_POST['user_consent_no'] ) ) {
+			update_option( 'sm_user_consent', 'no' );
+		}
+		if ( isset( $_POST['action'] ) ) {
+			if ( 'no' === $_POST['action'] ) {
+				if ( $_SERVER['QUERY_STRING'] ) {
+					update_option( 'sm_show_beta_banner', 'false' );
+					$count = get_option( 'sm_beta_banner_discarded_count' );
+					if ( gettype( $count ) !== 'boolean' ) {
+						update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+					} else {
+						add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+						update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+					}
+				} else {
+					add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
+				}
+			}
+		}
+	}
+}
+
 
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
