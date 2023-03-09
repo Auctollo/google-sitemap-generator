@@ -750,7 +750,7 @@ class GoogleSitemapGeneratorLoader {
 
 			$time = abs( intval( ini_get( 'max_execution_time' ) ) );
 			if ( 0 !== $time && 120 > $time ) {
-				if ( ! str_contains( $disable_functions, 'set_time_limit' ) ) {
+				if ( strpos( $disable_functions, 'set_time_limit' ) === false ) {
 					set_time_limit( 120 );
 				}
 			}
