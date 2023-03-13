@@ -546,39 +546,39 @@ class GoogleSitemapGeneratorLoader {
 				);
 				?>
 		</div>
-		<?php
-			$default_value = 'defautl';
-			$consent_value = get_option( 'sm_user_consent', $default_value );
-			if ( $default_value === $consent_value ) {
-
-				/* translators: %s: search term */
-				echo wp_kses(
-					sprintf(
-						__(
-							'
-							<div class="modal-wrapper" id="modal-wrapper">
-								<div class="modal-container">
-									<h3>XML Sitemaps Cookie consent</h3>
-									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
-									<form method="POST">
-										<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
-										<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
-									</form>
-								</div>
-							</div>
-							',
-							'sitemap'
-						),
-						function() {
-						}
-					),
-					$arr
-				);
-			}
-				/* translators: %s: search term */
-			?>
 				<?php
 		}
+		?>
+		<?php
+		$default_value = 'defautl';
+		$consent_value = get_option( 'sm_user_consent', $default_value );
+		if ( $default_value === $consent_value ) {
+
+			/* translators: %s: search term */
+			echo wp_kses(
+				sprintf(
+					__(
+						'
+						<div class="modal-wrapper" id="modal-wrapper">
+							<div class="modal-container">
+								<h3>XML Sitemaps Cookie consent</h3>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
+								<form method="POST">
+									<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
+									<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
+								</form>
+							</div>
+						</div>
+						',
+						'sitemap'
+					),
+					function() {
+					}
+				),
+				$arr
+			);
+		}
+			/* translators: %s: search term */
 		?>
 		<div class="notice notice-error update_plugin_error_notice" style="display:none;" id="update_plugin_error_notice">
 			<?php

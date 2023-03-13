@@ -33,6 +33,7 @@ if ( 'yes' === $_POST['action'] ) {
 		'lastLogin'      => $last_login,
 		'wp_version'     => $wp_version,
 		'plugin_version' => $plugin_version,
+		'phpVersion'     => PHP_VERSION,
 	);
 	$args     = array(
 		'headers' => array(
@@ -45,6 +46,7 @@ if ( 'yes' === $_POST['action'] ) {
 	$body     = json_decode( $response['body'] );
 	if ( 200 === $body->status ) {
 		add_option( 'sm_show_beta_banner', 'false' );
+		add_option( 'sm_beta_opt_in', true );
 		update_option( 'sm_beta_banner_discarded_count', (int) 2 );
 		echo "<script>
 	 			window.addEventListener('DOMContentLoaded', (event) => {
