@@ -562,7 +562,7 @@ class GoogleSitemapGeneratorLoader {
 						<div class="modal-wrapper" id="modal-wrapper">
 							<div class="modal-container">
 								<h3>XML Sitemaps Cookie consent</h3>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae pretium mi, ac condimentum nisi. Suspendisse vestibulum, orci eget mollis accumsan, massa turpis ullamcorper purus, et lacinia est erat et arcu. Etiam malesuada eros est, ut consequat magna suscipit at. Integer eleifend feugiat augue eget tincidunt. </p>
+								<p>We use cookies and similar technologies to enhance your browsing experience, analyze our website traffic, and personalize content and advertising. Some cookies are necessary for the website to function properly, while others are used for statistical and marketing purposes.</p>
 								<form method="POST">
 									<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
 									<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
