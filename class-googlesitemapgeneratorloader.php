@@ -527,7 +527,7 @@ class GoogleSitemapGeneratorLoader {
 						__(
 							'
 							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?
-							<a href="#" target="blank">Learn more.</a>
+							<a href="' . SM_LEARN_MORE_API_URL . '?slug=learn-more" target="blank">Learn more.</a>
 							</h4>
 							<form method="post" style="margin-top: 15px;" id="user-consent-form">
 							<input type="hidden" id="action" name="action" value="my_action" >
