@@ -53,6 +53,7 @@ include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitemap-generator/feed/' );
 define( 'SM_BETA_USER_INFO_URL', 'https://api.auctollo.com/beta/consent' );
+define( 'SM_LEARN_MORE_API_URL', 'https://api.auctollo.com/lp' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
 define( 'SM_NEW_PLUGIN_URL', 'https://tinyurl.com/3375t8vm' );
 
@@ -77,15 +78,12 @@ function ga_header() {
 		$consent_value = get_option( 'sm_user_consent', $default_value );
 
 		if ( 'yes' === $consent_value || $default_value === $consent_value ) {
-			echo "
-			<script>
-				(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-				})(window,document,'script','dataLayer','GTM-WT5FH38');
-				
-				</script>
+			echo "			
+			<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','GTM-N8CQCXB');</script>
 				";
 		}
 		if ( $default_value !== $consent_value ) {
