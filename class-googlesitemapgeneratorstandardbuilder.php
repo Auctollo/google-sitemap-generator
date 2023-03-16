@@ -513,6 +513,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 		} else {
 			$offset = 1;
 		}
+		if ( gettype( $offset ) !== 'integer' ) {
+			$offset = (int) 1;
+		}
 		$offset = ( --$offset ) * $links_per_page;
 
 		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );
