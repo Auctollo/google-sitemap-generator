@@ -517,6 +517,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$offset = intval( $offset );
 		if ( 0 === $offset ) {
 			$taxonomy = $taxonomy . '-' . $temp_offset;
+			$links_per_page = 10;
 		} else {
 			$offset = ( --$offset ) * $links_per_page;
 		}
