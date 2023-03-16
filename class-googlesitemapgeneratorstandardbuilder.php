@@ -513,11 +513,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 		} else {
 			$offset = 1;
 		}
-		if ( gettype( $offset ) !== 'integer' ) {
-			$offset = (int) 1;
+		$temp_offset = $offset;
+		$offset = intval( $offset );
+		if ( 0 === $offset ) {
+			$taxonomy = $taxonomy . '-' . $temp_offset;
+		} else {
+			$offset = ( --$offset ) * $links_per_page;
 		}
-		$offset = ( --$offset ) * $links_per_page;
-
 		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );
 		if ( in_array( $taxonomy, $enabled_taxonomies, true ) ) {
 
