@@ -293,8 +293,8 @@ class GoogleSitemapGeneratorLoader {
 	 * Beta notice.
 	 */
 	public static function beta_notice() {
-		$window_url = 'http://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
-		$parts      = wp_parse_url( $window_url );
+		$window_url   = home_url() . $_SERVER[ 'REQUEST_URI' ];
+		$parts        = wp_parse_url( $window_url );
 		$current_page = '';
 		$current_url  = $_SERVER['REQUEST_URI'];
 		if ( isset( $parts['query'] ) ) {
@@ -411,57 +411,57 @@ class GoogleSitemapGeneratorLoader {
 					width: 20px;
 				}
 				.modal-wrapper {
-				position: fixed;
-				z-index: 100;
-				left: 0;
-				top: 0;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0, 0, 0, 0.5);
-				opacity: 1;
-				visibility: visible;
-				transform: scale(1.0);
-				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
-			}
+					position: fixed;
+					z-index: 100;
+					left: 0;
+					top: 0;
+					width: 100%;
+					height: 100%;
+					background-color: rgba(0, 0, 0, 0.5);
+					opacity: 1;
+					visibility: visible;
+					transform: scale(1.0);
+					transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+				}
 
-			.modal-container {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: white;
-			padding: 1rem 1.5rem;
-			width: 35rem;
-			border-radius: 0.5rem;
-			z-index: 100;
-			}
-			.allow_consent {
-				color: #ffffff;
-				border-color: #ffffff;
-				background-color: #008078;
-				margin-right: 1em;
-				min-width: 100px;
-				height: auto;
-				white-space: normal;
-				word-break: break-word;
-				word-wrap: break-word;
-				padding: 12px 10px;
-				cursor: pointer;
-			}
-			.decline_consent {
-				background-color: #fff;
-				border-color:  #ef4056 ;
-				color:  #ef4056 ;
-				text-decoration: none;
-				min-width: 100px;
-				height: auto;
-				white-space: normal;
-				word-break: break-word;
-				word-wrap: break-word;
-				padding: 12px 10px;
-				cursor: pointer;
-			}
-			</style>
+				.modal-container {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: white;
+				padding: 1rem 1.5rem;
+				width: 35rem;
+				border-radius: 0.5rem;
+				z-index: 100;
+				}
+				.allow_consent {
+					color: #ffffff;
+					border-color: #ffffff;
+					background-color: #008078;
+					margin-right: 1em;
+					min-width: 100px;
+					height: auto;
+					white-space: normal;
+					word-break: break-word;
+					word-wrap: break-word;
+					padding: 12px 10px;
+					cursor: pointer;
+				}
+				.decline_consent {
+					background-color: #fff;
+					border-color:  #ef4056 ;
+					color:  #ef4056 ;
+					text-decoration: none;
+					min-width: 100px;
+					height: auto;
+					white-space: normal;
+					word-break: break-word;
+					word-wrap: break-word;
+					padding: 12px 10px;
+					cursor: pointer;
+				}
+		</style>
 		<div class="updated notice" style="display: flex;justify-content:space-between;">
 				<?php
 				$arr = array(
@@ -520,13 +520,13 @@ class GoogleSitemapGeneratorLoader {
 						),
 					),
 				);
-				$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
+				$host = home_url() . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
 				/* translators: %s: search term */
 				echo wp_kses(
 					sprintf(
 						__(
 							'
-							<h4>Are you interested in Beta version testing program of XML Sitemaps plugin?
+							<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!
 							<a href="' . SM_LEARN_MORE_API_URL . '?slug=learn-more" target="blank">Learn more.</a>
 							</h4>
 							<form method="post" style="margin-top: 15px;" id="user-consent-form">
@@ -552,7 +552,7 @@ class GoogleSitemapGeneratorLoader {
 		<?php
 		$default_value = 'defautl';
 		$consent_value = get_option( 'sm_user_consent', $default_value );
-		if ( $default_value === $consent_value ) {
+		if ( $default_value === $consent_value && ! ( strpos( $current_url, 'wp-admin/edit' ) || strpos( $current_url, '/wp-admin/post-new.php' ) || strpos( $current_url, '/wp-admin/post.php' ) || strpos( $current_url, 'wp-admin/upload.php' ) ) ) {
 
 			/* translators: %s: search term */
 			echo wp_kses(

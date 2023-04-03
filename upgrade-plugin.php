@@ -15,7 +15,7 @@ if ( 'yes' === $_POST['action'] ) {
 	global $wp_version;
 	$user      = wp_get_current_user();
 	$user_id   = $user->ID;
-	$mydomain  = $user->user_url ? $user->user_url : 'https://' . $_SERVER['HTTP_HOST'];
+	$mydomain  = $user->user_url ? $user->user_url : home_url();
 	$user_name = $user->user_nicename;
 	$useremail = $user->user_email;
 	global $wpdb;

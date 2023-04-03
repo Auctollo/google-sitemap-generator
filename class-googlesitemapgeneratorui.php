@@ -532,7 +532,7 @@ class GoogleSitemapGeneratorUI {
 			}
 		} elseif ( ! empty( $_POST['sm_reset_config'] ) ) { // Pressed Button: Reset Config.
 			check_admin_referer( 'sitemap' );
-			// delete_option( 'sm_show_beta_banner' );
+			delete_option( 'sm_show_beta_banner' );
 			delete_option( 'sm_beta_banner_discarded_on' );
 			delete_option( 'sm_beta_banner_discarded_count' );
 			delete_option( 'sm_beta_notice_dismissed_from_wp_admin' );
@@ -632,7 +632,7 @@ class GoogleSitemapGeneratorUI {
 			$message = __( 'Ping was executed, please see below for the result.', 'sitemap' );
 		} elseif ( get_option( 'sm_beta_opt_in' ) ) {
 			delete_option( 'sm_beta_opt_in' );
-			$message = __( 'Thanks for showing interest.', 'sitemap' );
+			$message = __( 'Thanks for for supporting the project. We will reach out by email shortly.', 'sitemap' );
 		}
 
 		// Print out the message to the user, if any.
