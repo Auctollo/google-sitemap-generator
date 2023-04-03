@@ -180,7 +180,7 @@ function ga_header() {
  */
 function ga_footer() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		$host = "https://" . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
+		$host = home_url() . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
 		echo "<script>
 		console.log(window.localStorage.getItem('exception'))
 		if(window.localStorage.getItem('sm_exception')==='error'){
