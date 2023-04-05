@@ -464,6 +464,14 @@ class GoogleSitemapGeneratorUI {
 				} elseif ( 'sm_i_tid' === $k ) {
 					// $_POST[ $k ] = trim( self::escape( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) );
 					$this->sg->set_option( $k, trim( self::escape( sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) ) );
+				} elseif ( 'sm_user_consent' === $k ) {
+
+					$allow_cookies = (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) );
+					if ( $allow_cookies ) {
+						update_option( 'sm_user_consent', 'yes' );
+					} else {
+						update_option( 'sm_user_consent', 'no' );
+					}
 				} elseif ( substr( $k, 0, 6 ) === 'sm_in_' ) {
 					if ( 'sm_in_tax' === $k ) {
 
@@ -746,7 +754,14 @@ class GoogleSitemapGeneratorUI {
 				text-decoration: none;
 				border: none;
 			}
-
+			input#sm_user_consent{
+				margin-top: 0px;
+			}
+			label#sm_user_consent_label{
+				display: flex;
+				align-items: center;
+				text-align: center;
+			}
 			a.sm_button:hover {
 				border-bottom-width: 1px;
 			}
@@ -829,6 +844,21 @@ class GoogleSitemapGeneratorUI {
 				transform: scale(1.0);
 				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 			}
+			#close_popup {
+				border: none;
+				height: 20px;
+				width: 25px;
+				padding: 0px;
+				position: absolute;
+				right: 15px;
+				top: 0;
+				margin-top: 25px;
+				cursor: pointer;
+			}
+			.close_cookie_information{
+				height: 20px;
+				width: 25px;
+			}
 
 			.modal-container {
 			position: absolute;
@@ -866,6 +896,17 @@ class GoogleSitemapGeneratorUI {
 				word-wrap: break-word;
 				padding: 12px 10px;
 				cursor: pointer;
+			}
+			.more_info_button {
+				border: none;
+				height: 25px;
+				width: 25px;
+				padding: 0px;
+				cursor: pointer;
+			}
+			.more_info {
+				height: 20px;
+				width: 20px;
 			}
 			<?php
 			if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) .
@@ -1715,6 +1756,13 @@ class GoogleSitemapGeneratorUI {
 
 									<?php $this->html_print_box_footer(); ?>
 
+								</div>
+								<div>
+									<label for='sm_user_consent' id="sm_user_consent_label">
+										<input type='checkbox' id='sm_user_consent' name='sm_user_consent' <?php echo ( get_option( 'sm_user_consent' ) === 'yes' ? 'checked=\'checked\'' : '' ); ?> />
+										<?php esc_html_e( 'Opt in for XML Sitemaps analytics events tracking and provide you better experience.', 'sitemap' ); ?>
+										<button class="more_info_button" id="more_info_button" type="button" ><img class='more_info' src='<?php echo esc_attr( $this->sg->get_plugin_url() . 'img/help.png' ); ?>' /></button>
+									</label>
 								</div>
 								<div>
 									<p class='submit'>

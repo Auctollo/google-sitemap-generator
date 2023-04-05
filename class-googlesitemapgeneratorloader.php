@@ -327,10 +327,24 @@ class GoogleSitemapGeneratorLoader {
 				'id'    => array(),
 				'class' => array(),
 			),
+			'h3'     => array(
+				'style' => array(
+					'width'   => array(),
+					'display' => array(),
+				),
+				'id'    => array(),
+			),
+			'img'    => array(
+				'src'   => array(),
+				'class' => array(),
+				'id'    => array(),
+			),
 			'button' => array(
 				'onClick' => array(),
 				'type'    => array(),
 				'onclick' => array(),
+				'class'   => array(),
+				'id'      => array(),
 			),
 			'strong' => array(),
 			'input'  => array(
@@ -363,6 +377,7 @@ class GoogleSitemapGeneratorLoader {
 		$value            = get_option( 'sm_show_beta_banner', $default_value );
 		$now              = time();
 		$banner_discarded = strtotime( get_option( 'sm_beta_banner_discarded_on' ) );
+		$image_url        = trailingslashit( plugins_url( '', __FILE__ ) ) . 'img/close.jpg';
 
 		$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
 		if ( gettype( $banner_discarded ) === 'boolean' ) {
@@ -419,7 +434,7 @@ class GoogleSitemapGeneratorLoader {
 					height: 100%;
 					background-color: rgba(0, 0, 0, 0.5);
 					opacity: 1;
-					visibility: visible;
+					visibility: hidden;
 					transform: scale(1.0);
 					transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 				}
@@ -461,6 +476,19 @@ class GoogleSitemapGeneratorLoader {
 					padding: 12px 10px;
 					cursor: pointer;
 				}
+				#close_popup {
+					border: none;
+					height: 20px;
+					width: 25px;
+					padding: 0px;
+					position: absolute;
+					right: 10px;
+					background-image: url( <?php echo $image_url; ?> );
+				}
+				.close_cookie_information{
+					height: 20px;
+					width: 25px;
+				}
 		</style>
 		<div class="updated notice" style="display: flex;justify-content:space-between;">
 				<?php
@@ -475,6 +503,11 @@ class GoogleSitemapGeneratorLoader {
 						'class' => array(),
 						'id'    => array(),
 					),
+					'img'    => array(
+						'src'   => array(),
+						'id'    => array(),
+						'class' => array(),
+					),
 					'a'      => array(
 						'href'   => array(),
 						'target' => array(),
@@ -486,10 +519,19 @@ class GoogleSitemapGeneratorLoader {
 						),
 						'id'    => array(),
 					),
+					'h3'     => array(
+						'style' => array(
+							'width'   => array(),
+							'display' => array(),
+						),
+						'id'    => array(),
+					),
 					'button' => array(
 						'onClick' => array(),
 						'type'    => array(),
 						'onclick' => array(),
+						'class'   => array(),
+						'id'      => array(),
 					),
 					'strong' => array(),
 					'input'  => array(
@@ -550,10 +592,7 @@ class GoogleSitemapGeneratorLoader {
 		}
 		?>
 		<?php
-		$default_value = 'defautl';
-		$consent_value = get_option( 'sm_user_consent', $default_value );
-		if ( $default_value === $consent_value && ! ( strpos( $current_url, 'wp-admin/edit' ) || strpos( $current_url, '/wp-admin/post-new.php' ) || strpos( $current_url, '/wp-admin/post.php' ) || strpos( $current_url, 'wp-admin/upload.php' ) ) ) {
-
+		if ( 'google-sitemap-generator/sitemap.php' === $current_page ) {
 			/* translators: %s: search term */
 			echo wp_kses(
 				sprintf(
@@ -562,11 +601,10 @@ class GoogleSitemapGeneratorLoader {
 						<div class="modal-wrapper" id="modal-wrapper">
 							<div class="modal-container">
 								<h3>Help Us Improve!</h3>
+								<button class="close_popup" id="close_popup">
+								<img class="close_cookie_information" src="' . $image_url . '" />
+								</button>
 								<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data? We intend to understand feature usage and use cases better so that we can provide you with the best indexation and indexing performance.</p>
-								<form method="POST">
-									<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
-									<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
-								</form>
 							</div>
 						</div>
 						',
