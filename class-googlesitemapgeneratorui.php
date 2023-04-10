@@ -832,7 +832,7 @@ class GoogleSitemapGeneratorUI {
 			}
 			.modal-wrapper {
 				position: fixed;
-				display: none;
+				display: flex;
 				z-index: 100;
 				left: 0;
 				top: 0;
@@ -883,6 +883,19 @@ class GoogleSitemapGeneratorUI {
 				word-wrap: break-word;
 				padding: 12px 10px;
 				cursor: pointer;
+			}
+			.cookie-info-banner-wrapper {
+				position: fixed;
+				z-index: 100;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				opacity: 1;
+				display: none;
+				transform: scale(1.0);
+				transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 			}
 			.decline_consent {
 				background-color: #fff;
@@ -1757,13 +1770,19 @@ class GoogleSitemapGeneratorUI {
 									<?php $this->html_print_box_footer(); ?>
 
 								</div>
+								<?php
+								if ( get_option( 'sm_user_consent' ) === 'yes' ) {
+									?>
 								<div>
 									<label for='sm_user_consent' id="sm_user_consent_label">
 										<input type='checkbox' id='sm_user_consent' name='sm_user_consent' <?php echo ( get_option( 'sm_user_consent' ) === 'yes' ? 'checked=\'checked\'' : '' ); ?> />
 										<?php esc_html_e( 'Opt in for XML Sitemaps analytics events tracking and provide you better experience.', 'sitemap' ); ?>
 										<button class="more_info_button" id="more_info_button" type="button" ><img class='more_info' src='<?php echo esc_attr( $this->sg->get_plugin_url() . 'img/help.png' ); ?>' /></button>
-									</label>
-								</div>
+										</label>
+										</div>
+										<?php
+								}
+								?>
 								<div>
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
