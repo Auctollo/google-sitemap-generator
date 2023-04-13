@@ -12,6 +12,7 @@ include_once( ABSPATH . 'wp-content/plugins/google-sitemap-generator/class-googl
 
 if ( isset( $_GET['action'] ) ) {
 	if ( 'yes' === $_GET['action'] ) {
+		update_option( 'sm_user_consent', 'yes' );
 		$plugin_version = GoogleSitemapGeneratorLoader::get_version();
 		global $wp_version;
 		$user      = wp_get_current_user();
@@ -51,8 +52,11 @@ if ( isset( $_GET['action'] ) ) {
 			update_option( 'sm_beta_banner_discarded_count', (int) 2 );
 			echo "<script>
 					window.addEventListener('DOMContentLoaded', (event) => {
-							var url = '" . esc_attr( SM_LEARN_MORE_API_URL ) . "'
-							window.location.href = url
+							var url = '" . SM_LEARN_MORE_API_URL . "/?utm_source=wordpress&utm_medium=notification&utm_campaign=beta&utm_id=v4'
+							var link = document.createElement('a');
+							link.href = url;
+							document.body.appendChild(link);
+							link.click();
 					});
 			</script>";
 		}

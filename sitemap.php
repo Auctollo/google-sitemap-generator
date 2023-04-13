@@ -89,6 +89,22 @@ function ga_header() {
 		echo "<script>
 		setTimeout(()=>{
 
+			var user_consent = document.getElementById('user_consent')
+			if(user_consent){
+				user_consent.addEventListener('click',function(){
+					setTimeout(()=>{
+						window.location.reload()
+					},1000)
+				})
+			}
+			var enable_updates = document.querySelector(\"[name='enable_auto_update']\")
+			if(enable_updates){
+				enable_updates.addEventListener('click', function (event) {
+					event.preventDefault();
+					document.getElementById('enable_updates').value = \"true\";
+					document.querySelector(\"[name='enable_auto_update']\").closest(\"form\").submit();
+				});
+			}
 			var more_info_button = document.getElementById('more_info_button')
 			if(more_info_button){
 				more_info_button.addEventListener('click',function(){
@@ -300,6 +316,16 @@ function register_consent() {
 				} else {
 					add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 				}
+			}
+		}
+		if ( isset( $_POST['enable_updates'] ) ) {
+			if ( 'true' === $_POST['enable_updates'] ) {
+				$auto_update_plugins = get_option( 'auto_update_plugins' );
+				if ( ! is_array( $auto_update_plugins ) ) {
+					$auto_update_plugins = array();
+				}
+				array_push( $auto_update_plugins, 'google-sitemap-generator/sitemap.php' );
+				update_option( 'auto_update_plugins', $auto_update_plugins );
 			}
 		}
 	}

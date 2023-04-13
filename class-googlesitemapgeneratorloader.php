@@ -509,13 +509,17 @@ class GoogleSitemapGeneratorLoader {
 					height: 20px;
 					width: 25px;
 				}
-				.allow_beta_consent{
+				a.allow_beta_consent {
 					background: #2271b1;
 					color: white;
 					border-color: #2271b1;
 					cursor: pointer;
 					padding: 5px;
 					text-decoration: none;
+				}
+				.allow_beta_consent:hover{
+					color: white;
+					outline: 1px solid #2271b1;
 				}
 				button.allow_beta_consent{
 					border: none;
@@ -609,7 +613,7 @@ class GoogleSitemapGeneratorLoader {
 						</h4>
 						<input type="hidden" id="action" name="action" value="my_action" >
 						<div class="justify-content">
-						<a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" name="user_consent" >Yes, I am in</a>
+						<a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" target="blank" name="user_consent" >Yes, I am in</a>
 						<a href="' . $decline_consent_url . $qs . '" id="discard_content" class="discard_button" name="discard_consent">X</a>
 						</div>
 						',
@@ -667,6 +671,37 @@ class GoogleSitemapGeneratorLoader {
 								</button>
 								<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data? We intend to understand feature usage and use cases better so that we can provide you with the best indexation and indexing performance.</p>
 							</div>
+						</div>
+						',
+						'sitemap'
+					),
+					function() {
+					}
+				),
+				$arr
+			);
+		}
+			/* translators: %s: search term */
+		?>
+		<?php
+		$default_value = 'default';
+		$auto_update_plugins = get_option( 'auto_update_plugins', $default_value );
+		if ( ! is_array( $auto_update_plugins ) ) {
+			$auto_update_plugins = array();
+		}
+		if ( ! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && 'google-sitemap-generator/sitemap.php' === $current_page ) {
+			/* translators: %s: search term */
+			echo wp_kses(
+				sprintf(
+					__(
+						'
+						<div class="updated notice" style="display: flex;justify-content:space-between;">
+						<form method="post" id="enable-updates-form">
+							<input type="hidden" id="enable_updates" name="enable_updates" value="false" >
+							<h4>Do you want to enable auto update for our plugin?
+								<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >enable auto-update</a>
+							</h4>
+						</form>
 						</div>
 						',
 						'sitemap'
