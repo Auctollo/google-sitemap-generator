@@ -545,6 +545,7 @@ class GoogleSitemapGeneratorUI {
 			delete_option( 'sm_beta_banner_discarded_count' );
 			delete_option( 'sm_beta_notice_dismissed_from_wp_admin' );
 			delete_option( 'sm_user_consent' );
+			delete_option( 'sm_hide_auto_update_banner' );
 			$this->sg->init_options();
 			$this->sg->save_options();
 			$message .= __( 'The default configuration was restored.', 'sitemap' );
