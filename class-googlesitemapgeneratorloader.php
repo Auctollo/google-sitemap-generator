@@ -608,9 +608,7 @@ class GoogleSitemapGeneratorLoader {
 				echo wp_kses(
 					__(
 						'
-						<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!
-						<a href="' . SM_LEARN_MORE_API_URL . '?slug=learn-more" target="blank">Learn more.</a>
-						</h4>
+						<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!</h4>
 						<input type="hidden" id="action" name="action" value="my_action" >
 						<div class="justify-content">
 						<a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" target="blank" name="user_consent" >Yes, I am in</a>
@@ -638,10 +636,13 @@ class GoogleSitemapGeneratorLoader {
 						<div class="modal-wrapper" id="modal-wrapper">
 							<div class="modal-container">
 							<h3>Help Us Improve!</h3>
-							<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data? We intend to understand feature usage and use cases better so that we can provide you with the best indexation and indexing performance.</p>
+							<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data?</p>
+							<p>Understanding feature usage and use cases better means we can provide you with the best indexation and indexing performance.</p>
+							<p><a href="https://auctollo.com/policies/privacy/" target="_blank">We respect your privacy!</a></p>
+							<p>&nbsp;</p>
 							<form method="POST">
-								<input type="submit" name="user_consent_yes" class="allow_consent" value="Allow" />
-								<input type="submit" name="user_consent_no" class="decline_consent" value="Decline" />
+								<input type="submit" name="user_consent_yes" class="allow_consent" value="I want the best!" />
+								<input type="submit" name="user_consent_no" class="decline_consent" value="I don\'t know what I want" />
 							</form>
 							</div>
 						</div>
@@ -684,12 +685,13 @@ class GoogleSitemapGeneratorLoader {
 			/* translators: %s: search term */
 		?>
 		<?php
-		$default_value = 'default';
-		$auto_update_plugins = get_option( 'auto_update_plugins', $default_value );
+		$default_value           = 'default';
+		$auto_update_plugins     = get_option( 'auto_update_plugins', $default_value );
+		$hide_auto_update_banner = get_option( 'sm_hide_auto_update_banner' );
 		if ( ! is_array( $auto_update_plugins ) ) {
 			$auto_update_plugins = array();
 		}
-		if ( ! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && 'google-sitemap-generator/sitemap.php' === $current_page ) {
+		if ( ! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && 'google-sitemap-generator/sitemap.php' === $current_page && 'yes' !== $hide_auto_update_banner ) {
 			/* translators: %s: search term */
 			echo wp_kses(
 				sprintf(
@@ -699,7 +701,8 @@ class GoogleSitemapGeneratorLoader {
 						<form method="post" id="enable-updates-form">
 							<input type="hidden" id="enable_updates" name="enable_updates" value="false" >
 							<h4>Do you want to enable auto update for our plugin?
-								<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >enable auto-update</a>
+								<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >enable auto-update</a> | 
+								<a href="" id="do_not_enable_auto_update" class="enable_auto_update" name="do_not_enable_auto_update"> No thanks</a>
 							</h4>
 						</form>
 						</div>

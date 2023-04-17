@@ -14,10 +14,10 @@
 
  * Info for WordPress:
  * ==============================================================================
- * Plugin Name: Google XML Sitemaps
+ * Plugin Name: Sitemap Generator
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.8
+ * Version: 4.1.9
  * Author: Auctollo
  * Author URI: https://acutollo.com/
  * Text Domain: sitemap
@@ -103,6 +103,14 @@ function ga_header() {
 					event.preventDefault();
 					document.getElementById('enable_updates').value = \"true\";
 					document.querySelector(\"[name='enable_auto_update']\").closest(\"form\").submit();
+				});
+			}
+			var do_not_enable_updates = document.querySelector(\"[name='do_not_enable_auto_update']\")
+			if(do_not_enable_updates){
+				do_not_enable_updates.addEventListener('click', function (event) {
+					event.preventDefault();
+					document.getElementById('enable_updates').value = \"false\";
+					document.querySelector(\"[name='do_not_enable_auto_update']\").closest(\"form\").submit();
 				});
 			}
 			var more_info_button = document.getElementById('more_info_button')
@@ -326,6 +334,8 @@ function register_consent() {
 				}
 				array_push( $auto_update_plugins, 'google-sitemap-generator/sitemap.php' );
 				update_option( 'auto_update_plugins', $auto_update_plugins );
+			} elseif ( 'false' === $_POST['enable_updates'] ) {
+				update_option( 'sm_hide_auto_update_banner', 'yes' );
 			}
 		}
 	}
