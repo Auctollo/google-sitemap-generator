@@ -234,6 +234,14 @@ class GoogleSitemapGeneratorLoader {
 		wp_clear_scheduled_hook( 'sm_ping_daily' );
 		self::remove_rewrite_hooks();
 		$wp_rewrite->flush_rules( false );
+		$other_sm_plugin = get_option( 'aioseo_options' );
+		if ( $other_sm_plugin ) {
+			$other_sm_plugin = json_decode( $other_sm_plugin );
+			if ( $other_sm_plugin->sitemap->general ) {
+				$other_sm_plugin->sitemap->general->enable = true;
+				update_option( 'aiseo_options', $other_sm_plugin );
+			}
+		}
 	}
 
 
@@ -514,7 +522,7 @@ class GoogleSitemapGeneratorLoader {
 					color: white;
 					border-color: #2271b1;
 					cursor: pointer;
-					padding: 5px;
+					padding: 8px;
 					text-decoration: none;
 				}
 				.allow_beta_consent:hover{
@@ -683,8 +691,6 @@ class GoogleSitemapGeneratorLoader {
 			);
 		}
 			/* translators: %s: search term */
-		?>
-		<?php
 		$default_value           = 'default';
 		$auto_update_plugins     = get_option( 'auto_update_plugins', $default_value );
 		$hide_auto_update_banner = get_option( 'sm_hide_auto_update_banner' );
@@ -692,19 +698,60 @@ class GoogleSitemapGeneratorLoader {
 			$auto_update_plugins = array();
 		}
 		if ( ! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && 'google-sitemap-generator/sitemap.php' === $current_page && 'yes' !== $hide_auto_update_banner ) {
+			?>
+			<style>
+				.justify-content{
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
+				a.do_not_enable_auto_update{
+					border-radius: 50%;
+					border: 0px;
+					text-align: center;
+					justify-content: center;
+					align-items: center;
+					margin-left: 40px;
+					margin-right: 5px;
+					cursor: pointer;
+					height: 20px;
+					background-color: #787c82;
+					color: white;
+					font-size: small;
+					font-weight: bold;
+					width: 20px;
+					padding-bottom: 0px;
+					text-decoration: none;
+				}
+				a.enable_auto_update {
+					background: #2271b1;
+					color: white;
+					border-color: #2271b1;
+					cursor: pointer;
+					padding: 8px;
+					text-decoration: none;
+				}
+				.enable_auto_update:hover{
+					color: white;
+					outline: 1px solid #2271b1;
+				}
+		</style>
+		<div class="updated notice" style="display: flex;justify-content:space-between;">
+			<?php
 			/* translators: %s: search term */
 			echo wp_kses(
 				sprintf(
 					__(
 						'
-						<div class="updated notice" style="display: flex;justify-content:space-between;">
+						<h4>Auto-updates aren not enabled for Sitemap Generator. Would you like to enable auto-updates to always have the best indexation features?
+						</h4>
 						<form method="post" id="enable-updates-form">
-							<input type="hidden" id="enable_updates" name="enable_updates" value="false" >
-							<h4>Do you want to enable auto update for our plugin?
-								<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >enable auto-update</a> | 
-								<a href="" id="do_not_enable_auto_update" class="enable_auto_update" name="do_not_enable_auto_update"> No thanks</a>
-							</h4>
+						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />
 						</form>
+						<div class="justify-content">
+						<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >Enable Auto-Updates!</a>
+						<a href="" id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
+
 						</div>
 						',
 						'sitemap'
@@ -714,10 +761,11 @@ class GoogleSitemapGeneratorLoader {
 				),
 				$arr
 			);
-		}
 			/* translators: %s: search term */
-		?>
-		<?php
+			?>
+		</div>
+			<?php
+		}
 	}
 	/**
 	 * Returns a nice icon for the Ozh Admin Menu if the {@param $hook} equals to the sitemap plugin

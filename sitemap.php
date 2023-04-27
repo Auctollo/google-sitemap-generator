@@ -102,7 +102,7 @@ function ga_header() {
 				enable_updates.addEventListener('click', function (event) {
 					event.preventDefault();
 					document.getElementById('enable_updates').value = \"true\";
-					document.querySelector(\"[name='enable_auto_update']\").closest(\"form\").submit();
+					document.querySelector(\"[id='enable-updates-form']\").submit();
 				});
 			}
 			var do_not_enable_updates = document.querySelector(\"[name='do_not_enable_auto_update']\")
@@ -110,7 +110,7 @@ function ga_header() {
 				do_not_enable_updates.addEventListener('click', function (event) {
 					event.preventDefault();
 					document.getElementById('enable_updates').value = \"false\";
-					document.querySelector(\"[name='do_not_enable_auto_update']\").closest(\"form\").submit();
+					document.querySelector(\"[id='enable-updates-form']\").submit();
 				});
 			}
 			var more_info_button = document.getElementById('more_info_button')
@@ -212,6 +212,13 @@ function ga_header() {
 				</script>";
 			return;
 		}
+	}
+	$default_value   = 'default';
+	$other_sm_plugin = get_option( 'aioseo_options', $default_value );
+	if ( $other_sm_plugin !== $default_value ) {
+		$other_sm_plugin                           = json_decode( $other_sm_plugin );
+		$other_sm_plugin->sitemap->general->enable = false;
+		update_option( 'aiseo_options', $other_sm_plugin );
 	}
 }
 
