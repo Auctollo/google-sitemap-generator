@@ -1,9 +1,9 @@
-=== Sitemap Generator for Google ===
+=== XML Sitemap Generator for Google ===
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woo commerce, robots.txt, site kit, schema, bing, baidu, yandex
 Requires at least: 3.3
 Tested up to: 6.2
-Stable tag: 4.1.9
+Stable tag: 4.1.10
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,9 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.1.10 (2023-04-24) =
+* Added support for automatic updates
 
 = 4.1.9 (2023-04-12) =
 * Improved beta program notifications and workflow to comply with guidelines

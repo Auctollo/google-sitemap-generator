@@ -2,7 +2,7 @@
 /**
  * $Id: sitemap.php 2823802 2022-11-24 18:12:38Z auctollo $
 
- *  Google XML Sitemaps Generator for WordPress
+ *  XML Sitemap Generator for Google
  * ==============================================================================
 
  * This generator will create a sitemaps.org compliant sitemap of your WordPress site.
@@ -10,21 +10,21 @@
  * For additional details like installation instructions, please check the readme.txt and documentation.txt files.
 
  * Have fun!
- * Arne
 
  * Info for WordPress:
  * ==============================================================================
- * Plugin Name: Sitemap Generator
+ * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.9
+ * Version: 4.1.10
  * Author: Auctollo
- * Author URI: https://acutollo.com/
+ * Author URI: https://auctollo.com/
  * Text Domain: sitemap
  * Domain Path: /lang
 
 
- * Copyright 2005 - 2018 ARNE BRACHHOLD  (email : himself - arnebrachhold - de)
+ * Copyright 2005 - 2018 ARNE BRACHHOLD
+ * Copyright 2019 - 2023 AUCTOLLO
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * @author Arne Brachhold
+ * @author AUCTOLLO
  * @package sitemap
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -212,13 +212,6 @@ function ga_header() {
 				</script>";
 			return;
 		}
-	}
-	$default_value   = 'default';
-	$other_sm_plugin = get_option( 'aioseo_options', $default_value );
-	if ( $other_sm_plugin !== $default_value ) {
-		$other_sm_plugin                           = json_decode( $other_sm_plugin );
-		$other_sm_plugin->sitemap->general->enable = false;
-		update_option( 'aiseo_options', $other_sm_plugin );
 	}
 }
 

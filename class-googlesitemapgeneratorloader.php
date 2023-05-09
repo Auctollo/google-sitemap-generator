@@ -234,14 +234,6 @@ class GoogleSitemapGeneratorLoader {
 		wp_clear_scheduled_hook( 'sm_ping_daily' );
 		self::remove_rewrite_hooks();
 		$wp_rewrite->flush_rules( false );
-		$other_sm_plugin = get_option( 'aioseo_options' );
-		if ( $other_sm_plugin ) {
-			$other_sm_plugin = json_decode( $other_sm_plugin );
-			if ( $other_sm_plugin->sitemap->general ) {
-				$other_sm_plugin->sitemap->general->enable = true;
-				update_option( 'aiseo_options', $other_sm_plugin );
-			}
-		}
 	}
 
 

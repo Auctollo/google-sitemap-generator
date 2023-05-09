@@ -1199,7 +1199,7 @@ class GoogleSitemapGeneratorUI {
 									<!-- Basic Options -->
 									<?php $this->html_print_box_header( 'sm_basic_options', __( 'Basic Options', 'sitemap' ) ); ?>
 
-									<b><?php esc_html_e( 'Update notification:', 'sitemap' ); ?></b> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-ping' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a>
+									<b><?php esc_html_e( 'Update notification:', 'sitemap' ); ?></b> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-ping' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a>
 									<ul>
 										<li>
 											<input type='checkbox' id='sm_b_ping' name='sm_b_ping' <?php echo ( $this->sg->get_option( 'b_ping' ) === true ? 'checked=\'checked\'' : '' ); ?> />
@@ -1215,7 +1215,7 @@ class GoogleSitemapGeneratorUI {
 												'strong' => array(),
 											);
 											/* translators: %s: search term */
-											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-gwt' ), __( 'No registration required, but you can join the <a href=\'%s\'>Google Webmaster Tools</a> to check crawling statistics.', 'sitemap' ) ), $arr );
+											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-gwt' ), __( 'No registration required, but you can join the <a href=\'%s\' target=\'_blank\'>Google Webmaster Tools</a> to check crawling statistics.', 'sitemap' ) ), $arr );
 											?>
 											</small>
 										</li>
@@ -1232,7 +1232,7 @@ class GoogleSitemapGeneratorUI {
 
 									<?php if ( is_super_admin() ) : ?>
 
-										<b><?php esc_html_e( 'Advanced options:', 'sitemap' ); ?></b> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a>
+										<b><?php esc_html_e( 'Advanced options:', 'sitemap' ); ?></b> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a>
 										<ul>
 											<li>
 											<label for="sm_b_memory"><?php esc_html_e( 'Try to increase the memory limit to:', 'sitemap' ); ?> <input type="text" name="sm_b_memory" id="sm_b_memory" style="width:40px;" value="<?php echo esc_attr( $this->sg->get_option( 'b_memory' ) ); ?>" /></label> ( <?php echo esc_html( htmlspecialchars( esc_html__( 'e.g. \'4M\', \'16M\'', 'sitemap' ) ) ); ?>)
@@ -1258,11 +1258,11 @@ class GoogleSitemapGeneratorUI {
 											</li>
 											<li>
 												<label for='sm_b_baseurl'><?php esc_html_e( 'Override the base URL of the sitemap:', 'sitemap' ); ?> <input type='text' name='sm_b_baseurl' id='sm_b_baseurl' value='<?php echo esc_attr( $this->sg->get_option( 'b_baseurl' ) ); ?>' /></label><br />
-												<small><?php esc_html_e( 'Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
+												<small><?php esc_html_e( 'Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv-baseurl' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
 												<label for='sm_b_sitemap_name'><?php esc_html_e( 'Override the file name of the sitemap:', 'sitemap' ); ?> <input type='text' name='sm_b_sitemap_name' id='sm_b_sitemap_name' value='<?php echo esc_attr( $this->sg->get_option( 'b_sitemap_name' ) ); ?>' /></label><br />
-												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
+												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'sitemap' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'sitemap' ); ?></a></small>
 											</li>
 											<li>
 												<label for='sm_b_html'>
