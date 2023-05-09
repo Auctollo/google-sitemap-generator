@@ -2,7 +2,7 @@
 /**
  * $Id: sitemap.php 2823802 2022-11-24 18:12:38Z auctollo $
 
- *  Google XML Sitemaps Generator for WordPress
+ *  XML Sitemap Generator for Google
  * ==============================================================================
 
  * This generator will create a sitemaps.org compliant sitemap of your WordPress site.
@@ -10,21 +10,21 @@
  * For additional details like installation instructions, please check the readme.txt and documentation.txt files.
 
  * Have fun!
- * Arne
 
  * Info for WordPress:
  * ==============================================================================
- * Plugin Name: Google XML Sitemaps
+ * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.8
+ * Version: 4.1.10
  * Author: Auctollo
- * Author URI: https://acutollo.com/
+ * Author URI: https://auctollo.com/
  * Text Domain: sitemap
  * Domain Path: /lang
 
 
- * Copyright 2005 - 2018 ARNE BRACHHOLD  (email : himself - arnebrachhold - de)
+ * Copyright 2005 - 2018 ARNE BRACHHOLD
+ * Copyright 2019 - 2023 AUCTOLLO
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * @author Arne Brachhold
+ * @author AUCTOLLO
  * @package sitemap
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -56,7 +56,6 @@ define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitem
 define( 'SM_BETA_USER_INFO_URL', 'https://api.auctollo.com/beta/consent' );
 define( 'SM_LEARN_MORE_API_URL', 'https://api.auctollo.com/lp' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
-define( 'SM_NEW_PLUGIN_URL', 'https://tinyurl.com/3375t8vm' );
 
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
@@ -90,16 +89,40 @@ function ga_header() {
 		echo "<script>
 		setTimeout(()=>{
 
+			var user_consent = document.getElementById('user_consent')
+			if(user_consent){
+				user_consent.addEventListener('click',function(){
+					setTimeout(()=>{
+						window.location.reload()
+					},1000)
+				})
+			}
+			var enable_updates = document.querySelector(\"[name='enable_auto_update']\")
+			if(enable_updates){
+				enable_updates.addEventListener('click', function (event) {
+					event.preventDefault();
+					document.getElementById('enable_updates').value = \"true\";
+					document.querySelector(\"[id='enable-updates-form']\").submit();
+				});
+			}
+			var do_not_enable_updates = document.querySelector(\"[name='do_not_enable_auto_update']\")
+			if(do_not_enable_updates){
+				do_not_enable_updates.addEventListener('click', function (event) {
+					event.preventDefault();
+					document.getElementById('enable_updates').value = \"false\";
+					document.querySelector(\"[id='enable-updates-form']\").submit();
+				});
+			}
 			var more_info_button = document.getElementById('more_info_button')
-			more_info_button.addEventListener('click',function(){
-				// document.querySelector(\"[id=\'modal-wrapper\']\").style.display = 'flex'
-				document.getElementById('modal-wrapper').style.display = 'flex'
-			})
+			if(more_info_button){
+				more_info_button.addEventListener('click',function(){
+					document.getElementById('cookie-info-banner-wrapper').style.display = 'flex'
+				})
+			}
 			var close_cookie_info = document.getElementById('close_popup')
 			if(close_cookie_info){
 				close_cookie_info.addEventListener('click',function(){
-					// document.querySelector(\"[id=\'modal-wrapper\']\").style.display = 'none'
-				document.getElementById('modal-wrapper').style.display = 'none'
+				document.getElementById('cookie-info-banner-wrapper').style.display = 'none'
 
 				})
 			}
@@ -197,46 +220,6 @@ function ga_header() {
  */
 function ga_footer() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		$host = home_url() . '/wp-content/plugins/google-sitemap-generator/upgrade-plugin.php';
-		echo "<script>
-		if(window.localStorage.getItem('sm_exception')==='error'){
-			setTimeout(()=>{
-			document.getElementById('update_plugin_error_notice').style.display = 'flex'
-			},100);
-		} else {
-			setTimeout(()=>{
-			document.getElementById('update_plugin_error_notice').style.display = 'none'
-		},100);
-
-		}
-		if(document.querySelector(\"[name='sm_new_plugin_url']\")){
-			document.querySelector(\"[name='sm_new_plugin_url']\")
-			.addEventListener('click', function (event) {
-				document.querySelector(\"[id='update_plugin_error_notice']\").style.display = 'none'
-				window.localStorage.removeItem('sm_exception')
-			});
-		}
-		if(document.querySelector(\"[name='user_consent']\")){
-			document.querySelector(\"[name='user_consent']\")
-			.addEventListener('click', function (event) {
-				event.preventDefault();
-				document.getElementById('action').value = \"yes\";
-				document.querySelector(\"[name='user_consent']\").closest(\"form\").action = '" . esc_attr( $host ) . "'
-				document.querySelector(\"[name='user_consent']\").closest(\"form\").submit();
-			});
-		}
-		if(document.querySelector(\"[name=\'discard_consent\']\")){
-			document.querySelector(\"[name=\'discard_consent\']\").addEventListener(\"click\", 
-				function(event) {
-				event.preventDefault();
-				
-				document.getElementById(\"action\").value = \"no\"; 
-				setTimeout(()=>{
-					document.querySelector(\"[name=\'discard_consent\']\").closest(\"form\").submit();
-				},40)
-			});
-		}
-		</script>";
 		$banner_discarded_count = get_option( 'sm_beta_banner_discarded_count' );
 		if ( 1 === $banner_discarded_count || '1' === $banner_discarded_count ) {
 			echo '<script>
@@ -317,8 +300,14 @@ function sm_get_init_file() {
  */
 function register_consent() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		if ( isset( $_POST['action'] ) ) {
-			if ( 'no' === $_POST['action'] ) {
+		if ( isset( $_POST['user_consent_yes'] ) ) {
+			update_option( 'sm_user_consent', 'yes' );
+		}
+		if ( isset( $_POST['user_consent_no'] ) ) {
+			update_option( 'sm_user_consent', 'no' );
+		}
+		if ( isset( $_GET['action'] ) ) {
+			if ( 'no' === $_GET['action'] ) {
 				if ( $_SERVER['QUERY_STRING'] ) {
 					if( strpos( $_SERVER['QUERY_STRING'], 'google-sitemap-generator' ) ) {
 						update_option( 'sm_show_beta_banner', 'false' );
@@ -335,6 +324,18 @@ function register_consent() {
 				} else {
 					add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 				}
+			}
+		}
+		if ( isset( $_POST['enable_updates'] ) ) {
+			if ( 'true' === $_POST['enable_updates'] ) {
+				$auto_update_plugins = get_option( 'auto_update_plugins' );
+				if ( ! is_array( $auto_update_plugins ) ) {
+					$auto_update_plugins = array();
+				}
+				array_push( $auto_update_plugins, 'google-sitemap-generator/sitemap.php' );
+				update_option( 'auto_update_plugins', $auto_update_plugins );
+			} elseif ( 'false' === $_POST['enable_updates'] ) {
+				update_option( 'sm_hide_auto_update_banner', 'yes' );
 			}
 		}
 	}
