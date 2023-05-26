@@ -1,9 +1,9 @@
 === XML Sitemap Generator for Google ===
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woo commerce, robots.txt, site kit, schema, bing, baidu, yandex
-Requires at least: 3.3
-Tested up to: 6.2
-Stable tag: 4.1.10
+Requires at least: 4.4
+Tested up to: 6.2.1
+Stable tag: 4.1.11
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,7 +26,7 @@ Related Links:
 
 == Installation ==
 
-1. Deactivate or disable other sitemap plugins.
+1. Deactivate or disable other sitemap generators.
 2. Install the plugin like you always install plugins, either by uploading it via FTP or by using the "Add Plugin" function of WordPress.
 3. Activate the plugin on the plugin administration page
 4. If you want: Open the plugin configuration page, which is located under Settings -> XML-Sitemap and customize settings like priorities and change frequencies.
@@ -100,6 +100,11 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.1.11 (2023-05-19) =
+* Fixed version compatibility thresholds
+* Improved user interface
+
 
 = 4.1.10 (2023-04-24) =
 * Added support for automatic updates

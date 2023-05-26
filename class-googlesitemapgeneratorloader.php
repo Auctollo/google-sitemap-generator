@@ -670,7 +670,7 @@ class GoogleSitemapGeneratorLoader {
 								<button class="close_popup" id="close_popup">
 								<img class="close_cookie_information" src="' . $image_url . '" />
 								</button>
-								<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data? We intend to understand feature usage and use cases better so that we can provide you with the best indexation and indexing performance.</p>
+								<p>Would you help us improve our indexation technology by sharing usage data anonymously?</p>
 							</div>
 						</div>
 						',

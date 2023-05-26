@@ -254,7 +254,7 @@ class GoogleSitemapGeneratorUI {
 				}
 
 				echo "<div class='wrap'>";
-				echo '<h2>' . esc_html( __( 'XML Sitemap Generator for WordPress', 'sitemap' ) ) . ' ' . esc_html( $this->sg->get_version() ) . '</h2>';
+				echo '<h2>' . esc_html( __( 'XML Sitemap Generator for Google', 'sitemap' ) ) . ' ' . esc_html( $this->sg->get_version() ) . '</h2>';
 				echo '<p>This is the debug mode of the XML Sitemap Generator. It will show all PHP notices and warnings as well as the internal logs, messages and configuration.</p>';
 				echo "<p style='font-weight:bold; color:red; padding:5px; border:1px red solid; text-align:center;'>DO NOT POST THIS INFORMATION ON PUBLIC PAGES LIKE SUPPORT FORUMS AS IT MAY CONTAIN PASSWORDS OR SECRET SERVER INFORMATION!</p>";
 				echo '<h3>WordPress and PHP Information</h3>';
@@ -705,8 +705,23 @@ class GoogleSitemapGeneratorUI {
 				?>
 				<!--
 				<div class="updated">
-					<strong><p><?php echo esc_html( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-donate-note' ), __( 'Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>', 'sitemap' ) ) ); ?> <a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_donated=true'; ?>" style="float:right; display:block; border:none; margin-left:10px;"><small style="font-weight:normal; "><?php esc_html_e( 'Sure, but I already did!', 'sitemap' ); ?></small></a> <a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_hide_note=true'; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php esc_html_e( 'No thanks, please don\'t bug me anymore!', 'sitemap' ); ?></small></a></p></strong>
+					<strong><p>
+						<?php
+						$arr = array(
+							'br'     => array(),
+							'p'      => array(),
+							'a'      => array(
+								'href' => array(),
+							),
+							'strong' => array(),
+						);
+						/* translators: %s: search term */
+						echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-donate-note' ), __( 'Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>', 'sitemap' ) ) );
+						?>
+						-->
+						<a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_donated=true'; ?>" style="float:right; display:block; border:none; margin-left:10px;"><small style="font-weight:normal; "><?php esc_html_e( 'Sure, but I already did!', 'sitemap' ); ?></small></a> <a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_hide_note=true'; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php esc_html_e( 'No thanks, please don\'t bug me anymore!', 'sitemap' ); ?></small></a></p></strong>
 					<div style="clear:right;"></div>
+					<!--
 				</div>
 				-->
 				<?php
@@ -715,7 +730,24 @@ class GoogleSitemapGeneratorUI {
 				<div class='updated'>
 					<strong>
 					<?php /* translators: %s: search term */ ?>
-					<p><?php echo esc_html( str_replace( '%s', esc_html( $this->sg->get_redirect_link( 'redir/sitemap-works-note' ) ), esc_html( 'Thanks for using this plugin! You\'ve installed this plugin some time ago. If it works and your are satisfied, why not ' . esc_html( '<a href=\'%s\'>rate it</a>' ) . ' and <a href=\'%s\'>recommend it</a> to others? :-)' ) ) ); ?> <a href='<?php esc_url( $this->sg->get_back_link() ) . '&amp;sm_hide_works=true'; ?>' style='float:right; display:block; border:none;'><small style='font-weight:normal; '><?php esc_html_e( 'Don\'t show this me anymore', 'sitemap' ); ?></small></a></p>
+					<p>
+						<?php
+						$arr = array(
+							'br'     => array(),
+							'p'      => array(),
+							'a'      => array(
+								'href' => array(),
+							),
+							'strong' => array(),
+						);
+						/* translators: %s: search term */
+						echo wp_kses( str_replace( array( '%1$s', '%2$s' ), $this->sg->get_redirect_link( 'redir/sitemap-works-note' ), __( 'Thanks for using this plugin! You\'ve installed this plugin some time ago. If it works and your are satisfied, why not <a href=\'%1$s\'>rate it</a>. and <a href=\'%2$s\'>recommend it</a> to others? :-)', 'sitemap' ) ), $arr );
+						?>
+						<a href='<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_hide_works=true'; ?>' style='float:right; display:block; border:none;'><small style='font-weight:normal; '>
+						<?php
+						esc_html_e( 'Don\'t show this me anymore', 'sitemap' );
+						?>
+					</small></a></p>
 					</strong>
 					<div style='clear:right;'></div>
 				</div>
@@ -966,7 +998,7 @@ class GoogleSitemapGeneratorUI {
 			<form method='post' action='<?php echo esc_url( $this->sg->get_back_link() ); ?>'>
 				<h2>
 					<?php
-					esc_html_e( 'XML Sitemap Generator for WordPress', 'sitemap' );
+					esc_html_e( 'XML Sitemap Generator for Google', 'sitemap' );
 					echo ' ' . esc_html( $this->sg->get_version() );
 					?>
 				</h2>
@@ -986,7 +1018,7 @@ class GoogleSitemapGeneratorUI {
 							'strong' => array(),
 						);
 						/* translators: %s: search term */
-						echo wp_kses( str_replace( '%s', 'options-reading.php#blog_public', __( 'Your site is currently blocking search engines! Visit the <a href=\'%s\'>Reading Settings</a> to change this.', 'sitemap' ) ), $arr );
+						echo wp_kses( str_replace( '%s', 'options-reading.php#blog_public', __( 'Your <a href=\'%s\'>Reading Settings</a> signal to search engines not to index your website. While your sitemap will still be generated, the "Search engine visibility" setting should de-selected for optimal indexation.', 'sitemap' ) ), $arr );
 						?>
 						</p>
 					</div>
@@ -1215,7 +1247,7 @@ class GoogleSitemapGeneratorUI {
 												'strong' => array(),
 											);
 											/* translators: %s: search term */
-											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-gwt' ), __( 'No registration required, but you can join the <a href=\'%s\' target=\'_blank\'>Google Webmaster Tools</a> to check crawling statistics.', 'sitemap' ) ), $arr );
+											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-gwt' ), __( 'No registration required, but you can join the <a href=\'%s\' target=\'_blank\'>Google Search Console</a> to check crawling statistics.', 'sitemap' ) ), $arr );
 											?>
 											</small>
 										</li>
@@ -1775,7 +1807,7 @@ class GoogleSitemapGeneratorUI {
 								<div>
 									<label for='sm_user_consent' id="sm_user_consent_label">
 										<input type='checkbox' id='sm_user_consent' name='sm_user_consent' <?php echo ( get_option( 'sm_user_consent' ) === 'yes' ? 'checked=\'checked\'' : '' ); ?> />
-										<?php esc_html_e( 'Opt in for XML Sitemaps analytics events tracking and provide you better experience.', 'sitemap' ); ?>
+										<?php esc_html_e( 'Help improve the software by sharing anonymous usage data with the developers.', 'sitemap' ); ?>
 										<button class="more_info_button" id="more_info_button" type="button" ><img class='more_info' src='<?php echo esc_attr( $this->sg->get_plugin_url() . 'img/help.png' ); ?>' /></button>
 										</label>
 										</div>
