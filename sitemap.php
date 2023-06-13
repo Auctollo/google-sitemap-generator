@@ -172,26 +172,35 @@ function ga_header() {
 				} else {
 					echo '<script>
 					setTimeout(()=>{
+						let discardContent = document.getElementById("discard_content");
 						
-					document.getElementById("discard_content").classList.add("discard_button_outside_settings")
-					document.getElementById("discard_content").classList.remove("discard_button")
-				},200);
+						if (discardContent) {
+							discardContent.classList.add("discard_button_outside_settings");
+							discardContent.classList.remove("discard_button");
+						}
+					}, 200);
 					</script>';
 				}
 			} else {
 				echo '<script>
 				setTimeout(()=>{
+					let discardContent = document.getElementById("discard_content");
 					
-				document.getElementById("discard_content").classList.add("discard_button_outside_settings")
-				document.getElementById("discard_content").classList.remove("discard_button")
-			},200);
+					if (discardContent) {
+						discardContent.classList.add("discard_button_outside_settings");
+						discardContent.classList.remove("discard_button");
+					}
+				}, 200);
 				</script>';
 			}
 		} else {
 			echo "<script>
 			setTimeout(()=>{
-				document.getElementById(\"discard_content\").classList.add(\"discard_button_outside_settings\")
-				document.getElementById(\"discard_content\").classList.remove(\"discard_button\")
+				let discardContent = document.getElementById(\"discard_content\");
+				if (discardContent) {
+					document.getElementById(\"discard_content\").classList.add(\"discard_button_outside_settings\")
+					document.getElementById(\"discard_content\").classList.remove(\"discard_button\")
+				}
 				if( document.getElementById(\"user-consent-form\") ){
 					const form = document.getElementById(\"user-consent-form\")
 					var plugin_version = document.createElement(\"input\")
