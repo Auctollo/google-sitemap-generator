@@ -338,9 +338,11 @@ class GoogleSitemapGeneratorLoader {
 				'id'    => array(),
 			),
 			'img'    => array(
-				'src'   => array(),
-				'class' => array(),
-				'id'    => array(),
+				'src'    => array(),
+				'class'  => array(),
+				'id'     => array(),
+				'height' => array(),
+				'width'  => array(),
 			),
 			'button' => array(
 				'onClick' => array(),
@@ -539,9 +541,11 @@ class GoogleSitemapGeneratorLoader {
 						'id'    => array(),
 					),
 					'img'    => array(
-						'src'   => array(),
-						'id'    => array(),
-						'class' => array(),
+						'src'    => array(),
+						'id'     => array(),
+						'class'  => array(),
+						'height' => array(),
+						'width'  => array(),
 					),
 					'a'      => array(
 						'href'   => array(),
@@ -668,7 +672,7 @@ class GoogleSitemapGeneratorLoader {
 							<div class="modal-container">
 							<h3>Help Us Improve!</h3>
 								<button class="close_popup" id="close_popup">
-								<img class="close_cookie_information" src="' . $image_url . '" />
+								<img height="25" width="20" class="close_cookie_information" src="' . $image_url . '" />
 								</button>
 								<p>Would you help us improve our indexation technology by sharing usage data anonymously?</p>
 							</div>
