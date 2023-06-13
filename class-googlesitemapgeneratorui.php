@@ -716,7 +716,17 @@ class GoogleSitemapGeneratorUI {
 							'strong' => array(),
 						);
 						/* translators: %s: search term */
-						echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-donate-note' ), __( 'Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>', 'sitemap' ) ) );
+						echo wp_kses(
+							str_replace(
+								'%s',
+								$this->sg->get_redirect_link( 'redir/sitemap-donate-note' ),
+								__(
+									'Thanks for using this plugin! You\'ve installed this plugin over a month ago. If it works and you are satisfied with the results, isn\'t it worth at least a few dollar? <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Donations</a> help me to continue support and development of this <i>free</i> software! <a href="https://8rkh4sskhh.execute-api.us-east-1.amazonaws.com/gsg/v1/sitemap-donate-note">Sure, no problem!</a>',
+									'sitemap'
+								)
+							),
+							$arr
+						);
 						?>
 						-->
 						<a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_donated=true'; ?>" style="float:right; display:block; border:none; margin-left:10px;"><small style="font-weight:normal; "><?php esc_html_e( 'Sure, but I already did!', 'sitemap' ); ?></small></a> <a href="<?php echo esc_url( $this->sg->get_back_link() ) . '&amp;sm_hide_note=true'; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php esc_html_e( 'No thanks, please don\'t bug me anymore!', 'sitemap' ); ?></small></a></p></strong>
@@ -1818,7 +1828,7 @@ class GoogleSitemapGeneratorUI {
 									<p class='submit'>
 										<?php wp_nonce_field( 'sitemap' ); ?>
 										<input type='submit' class='button-primary update_plugin_options' id='update_plugin_options' name='sm_update' value='<?php esc_html_e( 'Update options', 'sitemap' ); ?>' />
-										<input type='submit' onclick='return confirm('Do you really want to reset your configuration?');' class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
+										<input type='submit' onclick="return confirm('Do you really want to reset your configuration?');" class='sm_warning' name='sm_reset_config' value='<?php esc_html_e( 'Reset options', 'sitemap' ); ?>' />
 									</p>
 								</div>
 
