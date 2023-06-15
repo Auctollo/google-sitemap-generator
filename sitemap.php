@@ -45,7 +45,11 @@
  * Please see license.txt for the full license.
  */
 
-include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+global $wp_version;
+if ( (int) $wp_version > 4 ) {
+	include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+}
+
 require_once trailingslashit( dirname( __FILE__ ) ) . 'sitemap-core.php';
 
 include_once( ABSPATH . 'wp-admin/includes/file.php' );
@@ -359,7 +363,7 @@ function register_consent() {
 			}
 		}
 		if ( isset( $_POST['disable_plugin'] ) ) {
-			if ( str_contains( $_POST['disable_plugin'], 'all_in_one' ) ) {
+			if ( strpos( $_POST['disable_plugin'], 'all_in_one' ) !== false  ) {
 				$default_value   = 'default';
 				$aio_seo_options = get_option( 'aioseo_options', $default_value );
 				if ( $aio_seo_options !== $default_value ) {
@@ -367,7 +371,7 @@ function register_consent() {
 					$aio_seo_options->sitemap->general->enable = 0;
 					update_option( 'aioseo_options', json_encode( $aio_seo_options ) );
 				}
-			} elseif ( str_contains( $_POST['disable_plugin'], 'wp-seo' ) ) {
+			} elseif( strpos( $_POST['disable_plugin'], 'wp-seo' ) !== false ) { 
 				$yoast_options = get_option( 'wpseo' );
 				$yoast_options['enable_xml_sitemap'] = false;
 				update_option( 'wpseo', $yoast_options );

@@ -1,7 +1,10 @@
 <?php
 
 require_once '../../../wp-load.php';
-include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+global $wp_version;
+if ( (int) $wp_version > 4 ) {
+	include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+}
 include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 include_once( ABSPATH . 'wp-admin/includes/file.php' );
 include_once( ABSPATH . 'wp-admin/includes/misc.php' );
