@@ -1865,8 +1865,7 @@ final class GoogleSitemapGenerator {
 			wp_raise_memory_limit( $this->get_option( 'b_memory' ) );
 
 		}
-
-		if ( $this->get_option( 'b_time' ) !== -1 ) {
+		if ( $this->get_option( 'b_time' ) !== -1 && $this->get_option( 'b_time' ) !== null ) {
 			if ( strpos( $disable_functions, 'set_time_limit' ) === false ) {
 				set_time_limit( $this->get_option( 'b_time' ) );
 			}
