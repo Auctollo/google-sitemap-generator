@@ -806,7 +806,7 @@ class GoogleSitemapGeneratorLoader {
 				array_push( $plugin_title, $sitemap_plugins[ $i ][0] );
 			}
 		}
-		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && 'yes' !== $disable_other_plugins && ( 0 !== $yoast_sm_enabled && 0 !== $aio_seo_sm_enabled ) ) {
+		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && 'yes' !== $disable_other_plugins && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) ) {
 			?>
 			<style>
 				.plugin_list{
@@ -869,8 +869,8 @@ class GoogleSitemapGeneratorLoader {
 					
 					for( var i=0; i < plugin_name_list.length; i++ ) {
 						if ( 
-								plugin_title_list[i].includes('all_in_one') && all_in_one_enabled !== 0 
-								|| plugin_title_list[i].includes('yoast') && yoast_enabled !== 0 
+								(plugin_title_list[i].includes('all_in_one') && all_in_one_enabled !== 0 )
+								||( plugin_title_list[i].includes('wp-seo') && yoast_enabled !== 0 )
 							){
 							var anchor_element_plugin = document.createElement('a')
 							anchor_element_plugin.classList.add('conflict_plugin')

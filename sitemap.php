@@ -123,7 +123,7 @@ function ga_header() {
 					document.querySelector(\"[id='disable-plugins-form']\").submit();
 				});
 			})
-			
+
 			var more_info_button = document.getElementById('more_info_button')
 			if(more_info_button){
 				more_info_button.addEventListener('click',function(){
@@ -367,8 +367,7 @@ function register_consent() {
 					$aio_seo_options->sitemap->general->enable = 0;
 					update_option( 'aioseo_options', json_encode( $aio_seo_options ) );
 				}
-				update_option( 'sm_disabe_other_plugin', 'yes' );
-			} elseif ( str_contains( $_POST['disable_plugin'], 'all_in_one' ) ) {
+			} elseif ( str_contains( $_POST['disable_plugin'], 'wp-seo' ) ) {
 				$yoast_options = get_option( 'wpseo' );
 				$yoast_options['enable_xml_sitemap'] = false;
 				update_option( 'wpseo', $yoast_options );
