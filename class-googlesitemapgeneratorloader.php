@@ -383,7 +383,7 @@ class GoogleSitemapGeneratorLoader {
 		$value            = get_option( 'sm_show_beta_banner', $default_value );
 		$now              = time();
 		$banner_discarded = strtotime( get_option( 'sm_beta_banner_discarded_on' ) );
-		$image_url        = trailingslashit( plugins_url( '', __FILE__ ) ) . 'img/close.jpg';
+		$image_url        = trailingslashit( plugins_url( '', __FILE__ ) ) . 'img/close.png';
 
 		$page_to_show_notice    = array( 'settings_page_google-sitemap-generator/sitemap', 'dashboard', 'plugins' );
 		$current_screen         = get_current_screen()->base;
@@ -842,7 +842,7 @@ class GoogleSitemapGeneratorLoader {
 				echo wp_kses(
 					__(
 						'
-						<h4>Following plugins might cause issue in generation of sitemap with our plugin.
+						<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:
 						</h4>
 						<p class="plugin_list">' . implode( ', ', $plugin_name ) . '</p>
 						<form method="post" id="disable-plugins-form">
