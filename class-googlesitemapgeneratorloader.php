@@ -379,8 +379,7 @@ class GoogleSitemapGeneratorLoader {
 				),
 			),
 		);
-		$default_value         = 'default';
-		$disable_other_plugins = get_option( 'sm_disabe_other_plugin', $default_value );
+		$default_value = 'default';
 
 		$yoast_options    = get_option( 'wpseo', $default_value );
 		$yoast_sm_enabled = 0;
@@ -422,18 +421,19 @@ class GoogleSitemapGeneratorLoader {
 				array_push( $plugin_title, $sitemap_plugins[ $i ][0] );
 			}
 		}
-		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && 'yes' !== $disable_other_plugins && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) ) {
+		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) ) {
 			?>
 			<style>
 				.plugin_lists{
 					font-style: italic;
 				}
 				.other_plugin_notice{
-					margin-top:10px;
-					margin-bottom: 15px;
+					margin-bottom: 10px;
 				}
 				.content_div{
+					margin-top:0px;
 					padding:10px;
+					padding-top:0px;
 					box-shadow: 0 1px 2px #0003;
 					border-left: 4px solid #dc3232;
 					margin-bottom:10px;
@@ -468,7 +468,6 @@ class GoogleSitemapGeneratorLoader {
 						<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:
 						</h4>
 						<div >
-						<p class="plugin_lists">' . implode( ', ', $plugin_name ) . '</p>
 						<form method="post" id="disable-plugins-form">
 						<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
 						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />
