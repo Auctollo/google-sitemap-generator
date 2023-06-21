@@ -431,9 +431,8 @@ class GoogleSitemapGeneratorLoader {
 					margin-bottom: 10px;
 				}
 				.content_div{
-					margin-top:0px;
-					padding:10px;
-					padding-top:0px;
+					margin-top:0;
+					padding:0 10px 10px 10px;
 					box-shadow: 0 1px 2px #0003;
 					border-left: 4px solid #dc3232;
 					margin-bottom:10px;
@@ -531,7 +530,7 @@ class GoogleSitemapGeneratorLoader {
 				}
 				a.discard_button, a.discard_button_outside_settings{
 					border-radius: 50%;
-					border: 0px;
+					border: 0;
 					text-align: center;
 					justify-content: center;
 					align-items: center;
@@ -544,12 +543,12 @@ class GoogleSitemapGeneratorLoader {
 					font-size: small;
 					font-weight: bold;
 					width: 20px;
-					padding-bottom: 0px;
+					padding-bottom: 0;
 					text-decoration: none;
 				}
 				.reject_consent{
 					border-radius: 50%;
-					border: 0px;
+					border: 0;
 					text-align: center;
 					justify-content: center;
 					align-items: center;
@@ -631,7 +630,7 @@ class GoogleSitemapGeneratorLoader {
 					border: none;
 					height: 20px;
 					width: 25px;
-					padding: 0px;
+					padding: 0;
 					position: absolute;
 					right: 10px;
 					background-image: url( <?php echo $image_url; ?> );
@@ -832,7 +831,7 @@ class GoogleSitemapGeneratorLoader {
 				}
 				a.do_not_enable_auto_update{
 					border-radius: 50%;
-					border: 0px;
+					border: 0;
 					text-align: center;
 					justify-content: center;
 					align-items: center;
@@ -845,7 +844,7 @@ class GoogleSitemapGeneratorLoader {
 					font-size: small;
 					font-weight: bold;
 					width: 20px;
-					padding-bottom: 0px;
+					padding-bottom: 0;
 					text-decoration: none;
 				}
 				a.enable_auto_update {
