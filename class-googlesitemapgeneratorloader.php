@@ -488,9 +488,8 @@ class GoogleSitemapGeneratorLoader {
 					plugin_name_list = plugin_name_list.split(',')
 					var plugin_title_list = '<?php echo implode( ',', $plugin_title ); ?>'
 					plugin_title_list = plugin_title_list.split(',')
-					var all_in_one_enabled = <?php echo $aio_seo_sm_enabled; ?>;
-					var yoast_enabled = <?php echo $yoast_sm_enabled; ?>;
-	
+					var all_in_one_enabled = Number('<?php echo $aio_seo_sm_enabled; ?>');
+					var yoast_enabled = Number('<?php echo $yoast_sm_enabled; ?>');
 					for( var i=0; i < plugin_name_list.length; i++ ) {
 						if ( 
 								(plugin_title_list[i].includes('all_in_one') && all_in_one_enabled !== 0 )
