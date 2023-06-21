@@ -873,8 +873,8 @@ class GoogleSitemapGeneratorLoader {
 						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />
 						</form>
 						<div class="justify-content">
-						<a href="" id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >Enable Auto-Updates!</a>
-						<a href="" id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
+						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >Enable Auto-Updates!</a>
+						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
 
 						</div>
 						',
