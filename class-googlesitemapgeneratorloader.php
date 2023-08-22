@@ -258,7 +258,7 @@ class GoogleSitemapGeneratorLoader {
 	 * @uses add_options_page()
 	 */
 	public static function register_admin_page() {
-		add_options_page( __( 'XML-Sitemap Generator', 'sitemap' ), __( 'XML-Sitemap', 'sitemap' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
+		add_options_page( __( 'XML-Sitemap Generator', 'google-sitemap-generator' ), __( 'XML-Sitemap', 'google-sitemap-generator' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
 	}
 
 	/**
@@ -383,7 +383,7 @@ class GoogleSitemapGeneratorLoader {
 
 		$yoast_options    = get_option( 'wpseo', $default_value );
 		$yoast_sm_enabled = 0;
-		if ( $yoast_options !== $default_value ) {
+		if ( $yoast_options !== $default_value && isset( $yoast_options['enable_xml_sitemap'] ) ) {
 			$yoast_sm_enabled = $yoast_options['enable_xml_sitemap'] ? $yoast_options['enable_xml_sitemap'] : 0;
 		}
 
@@ -462,22 +462,12 @@ class GoogleSitemapGeneratorLoader {
 				<?php
 				/* translators: %s: search term */
 				echo wp_kses(
-					__(
+					sprintf(__(
 						'
-						<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:
-						</h4>
-						<div >
-						<form method="post" id="disable-plugins-form">
-						<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
-						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />
-						</form>
-						<div class="other_plugin_notice" id="other_plugin_notice">
-							
-						</div>
-						</div>
-						',
-						'sitemap'
-					),
+						%1$sThe following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:$2$s
+						%3$s',
+						'google-sitemap-generator'
+					),'<h4>','</h4>','<div><div><form method="post" id="disable-plugins-form"><input type="hidden" id="disable_plugin" name="disable_plugin" value="false" /><input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" /></form><div class="other_plugin_notice" id="other_plugin_notice"></div></div>'),
 					$arr
 				);
 				?>
@@ -738,17 +728,13 @@ class GoogleSitemapGeneratorLoader {
 				$qs = 'settings_page_google-sitemap-generator/sitemap' === $current_screen ? '&action=no' : '?action=no';
 				/* translators: %s: search term */
 				echo wp_kses(
-					__(
+					sprintf(__(
 						'
-						<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!</h4>
-						<input type="hidden" id="action" name="action" value="my_action" >
-						<div class="justify-content">
-						<a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" target="blank" name="user_consent" >Yes, I am in</a>
-						<a href="' . $decline_consent_url . $qs . '" id="discard_content" class="discard_button" name="discard_consent">X</a>
-						</div>
+						%1$sDo you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!%2$s
+						%3$sYes, I am in%4$s
 						',
-						'sitemap'
-					),
+						'google-sitemap-generator'
+					),'<h4>','</h4>','<input type="hidden" id="action" name="action" value="my_action" ><div class="justify-content"><a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" target="blank" name="user_consent" >','</a><a href="' . $decline_consent_url . $qs . '" id="discard_content" class="discard_button" name="discard_consent">X</a></div>'),
 					$arr
 				);
 				?>
@@ -779,7 +765,7 @@ class GoogleSitemapGeneratorLoader {
 							</div>
 						</div>
 						',
-						'sitemap'
+						'google-sitemap-generator'
 					),
 					function() {
 					}
@@ -806,7 +792,7 @@ class GoogleSitemapGeneratorLoader {
 							</div>
 						</div>
 						',
-						'sitemap'
+						'google-sitemap-generator'
 					),
 					function() {
 					}
@@ -878,7 +864,7 @@ class GoogleSitemapGeneratorLoader {
 
 						</div>
 						',
-						'sitemap'
+						'google-sitemap-generator'
 					),
 					function() {
 					}
@@ -917,9 +903,9 @@ class GoogleSitemapGeneratorLoader {
 	public static function register_plugin_links( $links, $file ) {
 		$base = self::get_base_name();
 		if ( $file === $base ) {
-			$links[] = '<a href="options-general.php?page=' . self::get_base_name() . '">' . __( 'Settings', 'sitemap' ) . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __( 'FAQ', 'sitemap' ) . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __( 'Support', 'sitemap' ) . '</a>';
+			$links[] = '<a href="options-general.php?page=' . self::get_base_name() . '">' . __( 'Settings', 'google-sitemap-generator' ) . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __( 'FAQ', 'google-sitemap-generator' ) . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __( 'Support', 'google-sitemap-generator' ) . '</a>';
 		}
 		return $links;
 	}
