@@ -231,6 +231,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 					}
 				}
 
+				if (file_exists(trailingslashit( dirname( __FILE__ ) ) . 'custom-settings.php'))
+					require_once trailingslashit( dirname( __FILE__ ) ) . 'custom-settings.php';
+
 				foreach ( $posts as $post ) {
 
 					// Fill the cache with our DB result. Since it's incomplete (no text-content for example), we will clean it later.
@@ -261,11 +264,17 @@ class GoogleSitemapGeneratorStandardBuilder {
 							$priority = $minimum_priority;
 						}
 
+						$last_mod = $gsg->get_timestamp_from_my_sql( $post->post_modified_gmt && '0000-00-00 00:00:00' !== $post->post_modified_gmt ? $post->post_modified_gmt : $post->post_date_gmt );
+						$change_freq = ( 'page' === $post_type ? $change_frequency_for_pages : $change_frequency_for_posts );
+
+						if (function_exists('GoogleSitemapGenerator_CustomPostSettings'))
+							GoogleSitemapGenerator_CustomPostSettings($post->ID, $permalink, $last_mod, $change_freq, $priority);
+
 						// Add the URL to the sitemap.
 						$gsg->add_url(
 							$permalink,
-							$gsg->get_timestamp_from_my_sql( $post->post_modified_gmt && '0000-00-00 00:00:00' !== $post->post_modified_gmt ? $post->post_modified_gmt : $post->post_date_gmt ),
-							( 'page' === $post_type ? $change_frequency_for_pages : $change_frequency_for_posts ),
+							$last_mod,
+							$change_freq,
 							$priority,
 							$post->ID
 						);
