@@ -233,14 +233,53 @@ class GoogleSitemapGeneratorStandardBuilder {
 					}
 				}
 
+				$siteLanguages = [];
+				$defaultLanguageCode = '';
+
+				if (function_exists('icl_get_languages')) {
+					if (function_exists('icl_get_default_language')) $defaultLanguageCode = icl_get_default_language();
+					$languages = icl_get_languages('skip_missing=0');
+					if($languages){
+						foreach ($languages as $language) {
+							if($defaultLanguageCode !== $language['language_code']) $siteLanguages[] = $language['language_code'];
+						}
+					}
+				} else if (function_exists('pll_the_languages')) {
+					if (function_exists('pll_default_language')) $defaultLanguageCode = pll_default_language();
+					$languages = pll_the_languages(array('raw' => 1));
+					if ($languages) {
+						foreach ($languages as $language) {
+							if($defaultLanguageCode !== $language['slug']) $siteLanguages[] = $language['slug'];
+						}
+					}
+				}
+
 				foreach ( $posts as $post ) {
 
-					// Fill the cache with our DB result. Since it's incomplete (no text-content for example), we will clean it later.
-					// This is required since the permalink function will do a query for every post otherwise.
-					// wp_cache_add($post->ID, $post, 'posts');.
-
-					// Full URL to the post.
 					$permalink = get_permalink( $post );
+
+					if(count($siteLanguages) > 0){
+
+						$structurekArr = explode('/', get_option('permalink_structure'));
+						$postLinkArr = explode('/', $permalink);
+
+						$index = null;
+						if(is_array($structurekArr) && is_array($postLinkArr)){
+							foreach ($siteLanguages as $lang){
+								if (in_array($lang, $postLinkArr)) {
+									$index = array_search($lang, $postLinkArr);
+								}
+							}
+						}
+
+						if($index){
+							if($postLinkArr[$index] !== $defaultLanguageCode){
+								$key = array_search('%postname%', $structurekArr);
+								if($structurekArr[$key] === '%postname%') $postLinkArr[$index + $key] = $post->post_name;
+								$permalink = implode('/', $postLinkArr);
+							}
+						}
+					}
 
 					// Exclude the home page and placeholder items by some plugins. Also include only internal links.
 					if (
