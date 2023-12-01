@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: sitemap.php 2823802 2022-11-24 18:12:38Z auctollo $
+ * $Id: sitemap.php 2947864 2023-08-04 18:02:26Z auctollo $
 
  *  XML Sitemap Generator for Google
  * ==============================================================================
@@ -16,7 +16,7 @@
  * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.11
+ * Version: 4.1.13
  * Author: Auctollo
  * Author URI: https://auctollo.com/
  * Text Domain: sitemap

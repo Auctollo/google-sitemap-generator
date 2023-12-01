@@ -2,8 +2,8 @@
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woo commerce, robots.txt, site kit, schema, bing, baidu, yandex
 Requires at least: 4.4
-Tested up to: 6.2.1
-Stable tag: 4.1.11
+Tested up to: 6.3
+Stable tag: 4.1.13
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -101,10 +101,17 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 == Changelog ==
 
+= 4.1.13 (2023-08-04) =
+* Fixed warning error displayed when Yoast SEO is not installed/active
+
+= 4.1.12 (2023-08-02) =
+* Improved various UI elements and notifications
+* Fixed browser console errors
+* Fixed null value in set_time_limit
+
 = 4.1.11 (2023-05-19) =
 * Fixed version compatibility thresholds
 * Improved user interface
-
 
 = 4.1.10 (2023-04-24) =
 * Added support for automatic updates
