@@ -1867,7 +1867,7 @@ final class GoogleSitemapGenerator {
 		}
 		if ( $this->get_option( 'b_time' ) !== -1 && $this->get_option( 'b_time' ) !== null ) {
 			if ( strpos( $disable_functions, 'set_time_limit' ) === false ) {
-				set_time_limit( $this->get_option( 'b_time' ) );
+				set_time_limit( intval($this->get_option( 'b_time' )) );
 			}
 		}
 
