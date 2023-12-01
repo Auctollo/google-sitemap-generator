@@ -466,19 +466,17 @@ class GoogleSitemapGeneratorLoader {
 						'
 						<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:
 						</h4>
-						<div >
+						<div>
 						<form method="post" id="disable-plugins-form">
 						<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
-						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />
-						</form>
-						<div class="other_plugin_notice" id="other_plugin_notice">
-							
-						</div>
-						</div>
-						',
-						'sitemap'
-					),
-					$arr
+						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />'
+					) . wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
+					</form>
+					<div class="other_plugin_notice" id="other_plugin_notice">
+						
+					</div>
+					</div>',
+					'sitemap'
 				);
 				?>
 				</div>
@@ -774,15 +772,12 @@ class GoogleSitemapGeneratorLoader {
 							<p>&nbsp;</p>
 							<form method="POST">
 								<input type="submit" name="user_consent_yes" class="allow_consent" value="I want the best!" />
-								<input type="submit" name="user_consent_no" class="decline_consent" value="I don\'t know what I want" />
-							</form>
-							</div>
-						</div>
-						',
-						'sitemap'
-					),
-					function() {
-					}
+								<input type="submit" name="user_consent_no" class "decline_consent" value="I don\'t know what I want" />'
+					) . wp_nonce_field("user_consent_yesno_nonce", "user_consent_yesno_nonce_token") . '
+					</form>
+					</div>
+					</div>',
+					'sitemap'
 				),
 				$arr
 			);
@@ -870,18 +865,14 @@ class GoogleSitemapGeneratorLoader {
 						<h4>Auto-updates aren not enabled for Sitemap Generator. Would you like to enable auto-updates to always have the best indexation features?
 						</h4>
 						<form method="post" id="enable-updates-form">
-						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />
-						</form>
-						<div class="justify-content">
-						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update" >Enable Auto-Updates!</a>
-						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
-
-						</div>
-						',
-						'sitemap'
-					),
-					function() {
-					}
+						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />'
+					) . wp_nonce_field("enable_updates_nonce", "enable_updates_nonce_token") . '
+					</form>
+					<div class="justify-content">
+					<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
+					<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
+					</div>',
+					'sitemap',
 				),
 				$arr
 			);
