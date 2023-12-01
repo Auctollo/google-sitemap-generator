@@ -23,6 +23,10 @@ class GoogleSitemapGeneratorUI {
 	 * @var boolean
 	 */
 	private $has_woo_commerce = false;
+
+	/** min and max post data **/
+	private $minLinksPerPage = 1000;
+	private $maxLinksPerPage = 50000;
 	/**
 	 * Constructor function.
 	 *
@@ -512,7 +516,7 @@ class GoogleSitemapGeneratorUI {
 					$links_per_page = sanitize_text_field( wp_unslash( $_POST[ $k ] ) );
 					$links_per_page = (int) $links_per_page;
 					if ( 0 >= $links_per_page || is_nan( $links_per_page ) ) {
-						$links_per_page = 10;
+						$links_per_page = 1000;
 					}
 					$this->sg->set_option( $k, (int) $links_per_page );
 				} elseif ( substr( $k, 0, 3 ) === 'sm_' ) {
@@ -1392,6 +1396,19 @@ class GoogleSitemapGeneratorUI {
 												?>
 												];
 											//]]>
+											document.addEventListener('DOMContentLoaded', function() {
+												let smLinksPageInput = document.getElementById('sm_links_page');
+												smLinksPageInput.addEventListener('blur', function() {
+													let postsPage = parseInt(this.value);
+													let minPostsNumber = <?php echo $this->minLinksPerPage ?>;
+													let maxPostsNumber = <?php echo $this->maxLinksPerPage ?>;
+													if (postsPage < minPostsNumber) {
+														this.value = minPostsNumber;
+													} else if (postsPage > maxPostsNumber) {
+														this.value = maxPostsNumber;
+													}
+												});
+											});
 										</script>
 										<?php
 										wp_enqueue_script( 'sitemap-script', ( $this->sg->get_plugin_url() . 'img/sitemap.js' ), '', '1.0.0', false );
@@ -1597,7 +1614,7 @@ class GoogleSitemapGeneratorUI {
 										<li>
 											<label for='sm_links_page'>
 												<b><?php esc_html_e( 'Links per page', 'sitemap' ); ?>:</b>
-												<input type='number' name='sm_links_page' id='sm_links_page' style='width:50px; margin-left:10px;' value='<?php echo esc_attr( $this->sg->get_option( 'links_page' ) ); ?>' />
+												<input type='number' name='sm_links_page' id='sm_links_page' style='width:70px; margin-left:10px;' value='<?php echo esc_attr( $this->sg->get_option( 'links_page' ) ); ?>' min="<?php echo $this->minLinksPerPage ?>" max="<?php echo $this->maxLinksPerPage ?>" />
 											</label>
 										</li>
 									</ul>

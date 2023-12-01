@@ -1388,7 +1388,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_i_lastping']          = 0; // When was the last ping .
 		$this->options['sm_i_supportfeed']       = true; // shows the support feed .
 		$this->options['sm_i_supportfeed_cache'] = 0; // Last refresh of support feed .
-		$this->options['sm_links_page']          = 1000; // Link per page support with default value 10. .
+		$this->options['sm_links_page']          = 1000; // Link per page support with default value 1000. .
 		$this->options['sm_user_consent']        = false;
 	}
 
@@ -1658,6 +1658,7 @@ final class GoogleSitemapGenerator {
 			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
 			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
 			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			'post(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
 		);
 		foreach ( $wp_rules as $key => $value ) {
 			if ( array_key_exists( $key, $sm_rules ) ) {
@@ -1682,9 +1683,10 @@ final class GoogleSitemapGenerator {
 		$pl      = $this->is_using_permalinks();
 		$options = '';
 		if ( ! empty( $type ) ) {
-			$options .= $type;
+			if($type != 'pt') $options .= $type;
 			if ( ! empty( $params ) ) {
-				$options .= '-' . $params;
+				//$options .= '-' . $params;
+				$options .= $params;
 			}
 		}
 
@@ -1714,8 +1716,13 @@ final class GoogleSitemapGenerator {
 			self::setup_rewrite_hooks();
 			GoogleSitemapGeneratorLoader::activate_rewrite();
 		}
+
 		if ( $pl ) {
-			return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
+			//return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
+			//	? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			if($type === 'misc') return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
+				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			else return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 		} else {
 			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html
@@ -1795,6 +1802,7 @@ final class GoogleSitemapGenerator {
 	 * @return array The data of the sitemap file
 	 */
 	public function simulate_sitemap( $type, $params ) {
+
 		$this->sim_mode = true;
 
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
@@ -1867,7 +1875,7 @@ final class GoogleSitemapGenerator {
 		}
 		if ( $this->get_option( 'b_time' ) !== -1 && $this->get_option( 'b_time' ) !== null ) {
 			if ( strpos( $disable_functions, 'set_time_limit' ) === false ) {
-				set_time_limit( intval($this->get_option( 'b_time' )) );
+				set_time_limit( $this->get_option( 'b_time' ) );
 			}
 		}
 
@@ -1951,6 +1959,7 @@ final class GoogleSitemapGenerator {
 			$all_params = $options['params'];
 			$type       = null;
 			$params     = null;
+
 			if ( strpos( $all_params, '-' ) !== false ) {
 				$type   = substr( $all_params, 0, strpos( $all_params, '-' ) );
 				$params = substr( $all_params, strpos( $all_params, '-' ) + 1 );
@@ -2176,6 +2185,7 @@ final class GoogleSitemapGenerator {
 		if ( empty( $page ) ) {
 			return;
 		}
+
 		// phpcs:disable
 		echo $page->render();
 		// phpcs:enable
