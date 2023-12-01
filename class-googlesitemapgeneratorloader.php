@@ -12,7 +12,7 @@
 require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorui.php';
 
 /**
- * This class is for the sitemap loader *
+ * This class is for the sitemap loader
  */
 class GoogleSitemapGeneratorLoader {
 
@@ -383,7 +383,7 @@ class GoogleSitemapGeneratorLoader {
 
 		$yoast_options    = get_option( 'wpseo', $default_value );
 		$yoast_sm_enabled = 0;
-		if ( $yoast_options !== $default_value ) {
+		if ( $yoast_options !== $default_value && isset( $yoast_options['enable_xml_sitemap'] ) ) {
 			$yoast_sm_enabled = $yoast_options['enable_xml_sitemap'] ? $yoast_options['enable_xml_sitemap'] : 0;
 		}
 
