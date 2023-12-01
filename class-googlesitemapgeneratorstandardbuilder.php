@@ -14,6 +14,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 	private $linkPerPage = 1000;
 	private $maxLinksPerPage = 50000;
+
 	/**
 	 * Creates a new GoogleSitemapGeneratorStandardBuilder instance
 	 */
@@ -91,7 +92,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$limits         = substr( $limit, 1 );
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 10;
+			$links_per_page = (int) 1000;
 		}
 		$limit          = ( (int) $limits ) * $links_per_page;
 		if ( ! $post_type || ! in_array( $post_type, $gsg->get_active_post_types(), true ) ) {
@@ -148,8 +149,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 					p.post_password = ''
 					AND p.post_type = '%s'
 					AND p.post_status = 'publish'
-					AND YEAR(p.post_date_gmt) = %d
-					AND MONTH(p.post_date_gmt) = %d
 					{$ex_post_s_q_l}
 					{$ex_cat_s_q_l}
 				ORDER BY
@@ -409,7 +408,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @param GoogleSitemapGenerator $gsg instence of sitemap generator class.
 	 */
 	public function build_misc( $gsg ) {
-
 		$lm = get_lastpostmodified( 'gmt' );
 
 		if ( $gsg->get_option( 'in_home' ) ) {
@@ -441,7 +439,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
 			$gsg->add_url(
-				$gsg->get_xml_url( '', '', array( 'html' => true ) ),
+				str_replace('.html', 'sitemap.html', $gsg->get_xml_url( '', '', array( 'html' => true ) ) ),
 				( $lm ? $gsg->get_timestamp_from_my_sql( $lm ) : time() )
 			);
 		}
@@ -796,7 +794,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$i    = 0;
 				foreach ( $taxs as $tax ) {
 					if ( 0 === ( $i % $links_per_page ) && '' !== $tax->taxonomy ) {
-						$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );
+						//$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );
+						$gsg->add_sitemap( $tax->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
 						$step = ++$step;
 					}
 					$i++;
@@ -813,7 +812,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 				for ( $product_count = 0; $product_count < $product_tags_size_of; $product_count++ ) {
 					if ( 0 === ( $product_count % $links_per_page ) ) {
-						$gsg->add_sitemap( 'producttags', $step, $blog_update );
+						//$gsg->add_sitemap( 'producttags', $step, $blog_update );
+						$gsg->add_sitemap( 'producttags', '-sitemap' . ($step === 1? '' : $step), $blog_update );
 						$step = ++$step;
 					}
 				}
@@ -836,7 +836,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$product_cat_count = count( $product_cat );
 				for ( $product_count = 0; $product_count < $product_cat_count; $product_count++ ) {
 					if ( 0 === ( $product_count % $links_per_page ) ) {
-						$gsg->add_sitemap( 'productcat', $step, $blog_update );
+						//$gsg->add_sitemap( 'productcat', $step, $blog_update );
+						$gsg->add_sitemap( 'productcat', '-sitemap' . ($step === 1? '' : $step), $blog_update );
 						$step = ++$step;
 					}
 				}
@@ -881,8 +882,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 				// phpcs:disable
 				$prp = $wpdb->prepare(
 					"SELECT
-					YEAR(p.post_date_gmt) AS `year`,
-					MONTH(p.post_date_gmt) AS `month`,
 					COUNT(p.ID) AS `numposts`,
 					MAX(p.post_modified_gmt) as `last_mod`
 					FROM
@@ -893,14 +892,12 @@ class GoogleSitemapGeneratorStandardBuilder {
 						AND p.post_status = 'publish'
 						" . $ex_post_s_q_l . ""
 						. $ex_cat_s_q_l . "
-					GROUP BY
-						YEAR(p.post_date_gmt),
-						MONTH(p.post_date_gmt)
 					ORDER BY
 						p.post_date_gmt DESC",
 						$post_type_custom
 				);
 				$posts = $wpdb->get_results($prp);
+
 				if ( $posts ) {
 					if ( 'post' === $post_type_custom ) {
 						$has_posts = true;
@@ -910,7 +907,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 						$step = 1;
 						for ( $i = 0; $i < $post->numposts; $i++ ) {
 							if ( 0 === ( $i % $links_per_page ) ) {
-								$gsg->add_sitemap( 'pt', $post_type_custom . '-p' . $step . '-' . sprintf( '%04d-%02d', $post->year, $post->month ), $gsg->get_timestamp_from_my_sql( $post->last_mod ), 'p' . $step );
+								//$gsg->add_sitemap( 'pt', $post_type_custom . '-p' . $step . '-' . sprintf( '%04d-%02d', $post->year, $post->month ), $gsg->get_timestamp_from_my_sql( $post->last_mod ), 'p' . $step );
+								$gsg->add_sitemap( 'pt', $post_type_custom . '-sitemap' . ($step === 1? '' : $step) , $gsg->get_timestamp_from_my_sql( $post->last_mod ) );
 								$step = ++$step;
 							}
 						}
@@ -923,12 +921,12 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		// Only include authors if there is a public post with a enabled post type.
 		if ( $gsg->get_option( 'in_auth' ) && $has_enabled_post_types_posts ) {
-			$gsg->add_sitemap( 'authors', null, $blog_update );
+			$gsg->add_sitemap( 'authors-sitemap', null, $blog_update );
 		}
 
 		// Only include archived if there are posts with postType post.
 		if ( $gsg->get_option( 'in_arch' ) && $has_posts ) {
-			$gsg->add_sitemap( 'archives', null, $blog_update );
+			$gsg->add_sitemap( 'archives-sitemap', null, $blog_update );
 		}
 	}
 

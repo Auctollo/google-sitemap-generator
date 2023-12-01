@@ -85,6 +85,7 @@ class GoogleSitemapGeneratorLoader {
 
 		// Disable the WP core XML sitemaps .
 		add_filter( 'wp_sitemaps_enabled', '__return_false' );
+
 	}
 
 	/**
@@ -125,10 +126,10 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function add_rewrite_rules( $wp_rules ) {
 		$sm_rules = array(
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 		);
 		return array_merge( $sm_rules, $wp_rules );
 	}
@@ -140,10 +141,10 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function get_ngin_x_rules() {
 		return array(
-			'rewrite ^/sitemap(-+([a-zA-Z0-9_-]+))?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			'rewrite ^/sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			'rewrite ^/sitemap(-+([a-zA-Z0-9_-]+))?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			'rewrite ^/sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
+			'rewrite ^/.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
+			'rewrite ^/.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
+			'rewrite ^/.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
+			'rewrite ^/.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
 		);
 
 	}
@@ -169,10 +170,10 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function remove_rewrite_rules( $wp_rules ) {
 		$sm_rules = array(
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 		);
 		foreach ( $wp_rules as $key => $value ) {
 			if ( array_key_exists( $key, $sm_rules ) ) {
@@ -421,7 +422,8 @@ class GoogleSitemapGeneratorLoader {
 				array_push( $plugin_title, $sitemap_plugins[ $i ][0] );
 			}
 		}
-		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) ) {
+
+		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0) {
 			?>
 			<style>
 				.plugin_lists{
@@ -512,28 +514,6 @@ class GoogleSitemapGeneratorLoader {
 							});
 						});
 					});
-					/*
-					var plugin_name_list = '<?php //echo implode( ',', $plugin_name ); ?>'
-					plugin_name_list = plugin_name_list.split(',')
-					var plugin_title_list = '<?php //echo implode( ',', $plugin_title ); ?>'
-					plugin_title_list = plugin_title_list.split(',')
-					var all_in_one_enabled = Number('<?php //echo $aio_seo_sm_enabled; ?>');
-					var yoast_enabled = Number('<?php //echo $yoast_sm_enabled; ?>');
-					for( var i=0; i < plugin_name_list.length; i++ ) {
-						if ( 
-								(plugin_title_list[i].includes('all_in_one') && all_in_one_enabled !== 0 )
-								||( plugin_title_list[i].includes('wp-seo') && yoast_enabled !== 0 )
-							){
-							var anchor_element_plugin = document.createElement('a')
-							anchor_element_plugin.classList.add('conflict_plugin')
-							anchor_element_plugin.id = plugin_title_list[i]
-							anchor_element_plugin.name = plugin_name_list[i].replace(/ /g,'-')
-							anchor_element_plugin.innerText = 'Disable ' + plugin_name_list[i] + "'s sitemap"
-							var parent_div = document.getElementById('other_plugin_notice')
-							parent_div.appendChild(anchor_element_plugin)
-						}
-					}
-					*/
 				</script>
 			<?php
 		}
@@ -1018,9 +998,37 @@ class GoogleSitemapGeneratorLoader {
 	 * @uses GoogleSitemapGenerator::ShowSitemap()
 	 */
 	public static function call_show_sitemap( $options ) {
+		$newFormat = self::change_url_to_required();
+		if($newFormat) $options = $newFormat;
+
 		if ( self::load_plugin() ) {
 			GoogleSitemapGenerator::get_instance()->show_sitemap( $options );
 		}
+	}
+
+	/* Get url and to transform required format */
+	public static function change_url_to_required(){
+		global $wp;
+		$current_url = parse_url(home_url(add_query_arg(array(), $wp->request)));
+		if(strlen($current_url['path']) > 1){
+			$currentUrl = substr($current_url['path'], 1);
+			$arrayType = explode('.', $currentUrl);
+			if($arrayType[1] === 'xml'){
+				$postType = explode('-', $currentUrl);
+				if(count($postType) > 1 ){
+					preg_match('/\d+/', $postType[1], $matches);
+					if(empty($matches)) $matches[0] = 1;
+
+					if($postType[0] === 'sitemap') return 'params=misc';
+					else if($postType[0] === 'post_tag' || $postType[0] === 'category' ) return 'params=tax-' . $postType[0] . '-' . $matches[0];
+					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
+					else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
+					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];					
+					else return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
