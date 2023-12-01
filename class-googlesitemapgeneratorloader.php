@@ -12,7 +12,7 @@
 require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorui.php';
 
 /**
- * This class is for the sitemap loader
+ * This class is for the sitemap loader *
  */
 class GoogleSitemapGeneratorLoader {
 
