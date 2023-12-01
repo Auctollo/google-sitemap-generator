@@ -12,6 +12,8 @@
  */
 class GoogleSitemapGeneratorStandardBuilder {
 
+	private $linkPerPage = 1000;
+	private $maxLinksPerPage = 50000;
 	/**
 	 * Creates a new GoogleSitemapGeneratorStandardBuilder instance
 	 */
@@ -517,7 +519,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$offset = intval( $offset );
 		if ( 0 === $offset ) {
 			$taxonomy = $taxonomy . '-' . $temp_offset;
-			$links_per_page = 10;
+			$links_per_page = $this->linkPerPage;
 		} else {
 			$offset = ( --$offset ) * $links_per_page;
 		}
@@ -732,9 +734,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$links_per_page = $gsg->get_option( 'links_page' );
 		$links_per_page = (int) $links_per_page;
 		if ( 0 === $links_per_page || is_nan( $links_per_page ) ) {
-			$links_per_page = 10;
-			$gsg->set_option( 'links_page', 10 );
+			$links_per_page = $this->linkPerPage;
+			$gsg->set_option( 'links_page', $this->linkPerPage );
 		}
+		else if($links_per_page < $this->linkPerPage) $links_per_page = $this->linkPerPage;
+		else if ($links_per_page > $this->maxLinksPerPage) $links_per_page = $this->maxLinksPerPage;
 		$gsg->add_sitemap( 'misc', null, $blog_update );
 
 		$taxonomies            = $this->get_enabled_taxonomies( $gsg );

@@ -1388,7 +1388,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_i_lastping']          = 0; // When was the last ping .
 		$this->options['sm_i_supportfeed']       = true; // shows the support feed .
 		$this->options['sm_i_supportfeed_cache'] = 0; // Last refresh of support feed .
-		$this->options['sm_links_page']          = 10; // Link per page support with default value 10. .
+		$this->options['sm_links_page']          = 1000; // Link per page support with default value 10. .
 		$this->options['sm_user_consent']        = false;
 	}
 
