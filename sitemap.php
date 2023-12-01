@@ -324,57 +324,68 @@ function sm_get_init_file() {
  */
 function register_consent() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		if ( isset( $_POST['user_consent_yes'] ) ) {
-			update_option( 'sm_user_consent', 'yes' );
-		}
-		if ( isset( $_POST['user_consent_no'] ) ) {
-			update_option( 'sm_user_consent', 'no' );
-		}
-		if ( isset( $_GET['action'] ) ) {
-			if ( 'no' === $_GET['action'] ) {
-				if ( $_SERVER['QUERY_STRING'] ) {
-					if( strpos( $_SERVER['QUERY_STRING'], 'google-sitemap-generator' ) ) {
-						update_option( 'sm_show_beta_banner', 'false' );
-						$count = get_option( 'sm_beta_banner_discarded_count' );
-						if ( gettype( $count ) !== 'boolean' ) {
-							update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+		if ( is_user_logged_in() ) {
+			if ( isset( $_POST['user_consent_yes'] ) ) {
+				if (isset($_POST['user_consent_yesno_nonce_token']) && check_admin_referer('user_consent_yesno_nonce', 'user_consent_yesno_nonce_token')){
+					update_option( 'sm_user_consent', 'yes' );
+				}
+			}
+			if ( isset( $_POST['user_consent_no'] ) ) {
+				if (isset($_POST['user_consent_yesno_nonce_token']) && check_admin_referer('user_consent_yesno_nonce', 'user_consent_yesno_nonce_token')){
+					update_option( 'sm_user_consent', 'no' );
+				}
+			}
+			if ( isset( $_GET['action'] ) ) {
+				if ( 'no' === $_GET['action'] ) {
+					if ( $_SERVER['QUERY_STRING'] ) {
+						if( strpos( $_SERVER['QUERY_STRING'], 'google-sitemap-generator' ) ) {
+							update_option( 'sm_show_beta_banner', 'false' );
+							$count = get_option( 'sm_beta_banner_discarded_count' );
+							if ( gettype( $count ) !== 'boolean' ) {
+								update_option( 'sm_beta_banner_discarded_count', (int) $count + 1 );
+							} else {
+								add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
+								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+							}
 						} else {
-							add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
-							update_option( 'sm_beta_banner_discarded_count', (int) 1 );
+							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 						}
 					} else {
 						add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 					}
-				} else {
-					add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 				}
 			}
-		}
-		if ( isset( $_POST['enable_updates'] ) ) {
-			if ( 'true' === $_POST['enable_updates'] ) {
-				$auto_update_plugins = get_option( 'auto_update_plugins' );
-				if ( ! is_array( $auto_update_plugins ) ) {
-					$auto_update_plugins = array();
+			if ( isset( $_POST['enable_updates'] ) ) {
+				if (isset($_POST['enable_updates_nonce_token']) && check_admin_referer('enable_updates_nonce', 'enable_updates_nonce_token')){
+					if ( 'true' === $_POST['enable_updates'] ) {
+						$auto_update_plugins = get_option( 'auto_update_plugins' );
+						if ( ! is_array( $auto_update_plugins ) ) {
+							$auto_update_plugins = array();
+						}
+						array_push( $auto_update_plugins, 'google-sitemap-generator/sitemap.php' );
+						update_option( 'auto_update_plugins', $auto_update_plugins );
+					} elseif ( 'false' === $_POST['enable_updates'] ) {
+						update_option( 'sm_hide_auto_update_banner', 'yes' );
+					}
 				}
-				array_push( $auto_update_plugins, 'google-sitemap-generator/sitemap.php' );
-				update_option( 'auto_update_plugins', $auto_update_plugins );
-			} elseif ( 'false' === $_POST['enable_updates'] ) {
-				update_option( 'sm_hide_auto_update_banner', 'yes' );
 			}
-		}
-		if ( isset( $_POST['disable_plugin'] ) ) {
-			if ( strpos( $_POST['disable_plugin'], 'all_in_one' ) !== false  ) {
-				$default_value   = 'default';
-				$aio_seo_options = get_option( 'aioseo_options', $default_value );
-				if ( $aio_seo_options !== $default_value ) {
-					$aio_seo_options                           = json_decode( $aio_seo_options );
-					$aio_seo_options->sitemap->general->enable = 0;
-					update_option( 'aioseo_options', json_encode( $aio_seo_options ) );
+			
+			if ( isset( $_POST['disable_plugin'] ) ) {
+				if (isset($_POST['disable_plugin_sitemap_nonce_token']) && check_admin_referer('disable_plugin_sitemap_nonce', 'disable_plugin_sitemap_nonce_token')){
+					if ( strpos( $_POST['disable_plugin'], 'all_in_one' ) !== false  ) {
+						$default_value   = 'default';
+						$aio_seo_options = get_option( 'aioseo_options', $default_value );
+						if ( $aio_seo_options !== $default_value ) {
+							$aio_seo_options                           = json_decode( $aio_seo_options );
+							$aio_seo_options->sitemap->general->enable = 0;
+							update_option( 'aioseo_options', json_encode( $aio_seo_options ) );
+						}
+					} elseif( strpos( $_POST['disable_plugin'], 'wp-seo' ) !== false ) { 
+						$yoast_options = get_option( 'wpseo' );
+						$yoast_options['enable_xml_sitemap'] = false;
+						update_option( 'wpseo', $yoast_options );
+					}
 				}
-			} elseif( strpos( $_POST['disable_plugin'], 'wp-seo' ) !== false ) { 
-				$yoast_options = get_option( 'wpseo' );
-				$yoast_options['enable_xml_sitemap'] = false;
-				update_option( 'wpseo', $yoast_options );
 			}
 		}
 	}
