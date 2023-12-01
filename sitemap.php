@@ -369,7 +369,7 @@ function register_consent() {
 					}
 				}
 			}
-			
+			/*
 			if ( isset( $_POST['disable_plugin'] ) ) {
 				if (isset($_POST['disable_plugin_sitemap_nonce_token']) && check_admin_referer('disable_plugin_sitemap_nonce', 'disable_plugin_sitemap_nonce_token')){
 					if ( strpos( $_POST['disable_plugin'], 'all_in_one' ) !== false  ) {
@@ -387,8 +387,24 @@ function register_consent() {
 					}
 				}
 			}
+			*/
 		}
 	}
+}
+
+function disable_plugins_callback() {
+
+	check_ajax_referer('disable_plugin_sitemap_nonce', 'nonce');
+
+	$pluginList = sanitize_text_field($_POST['pluginList']);
+	$pluginsToDisable = explode(',', $pluginList);
+
+	foreach ($pluginsToDisable as $plugin) {
+		deactivate_plugins($plugin);
+	}
+	echo 'Plugins disabled successfully';
+	wp_die();
+
 }
 
 
@@ -396,6 +412,9 @@ function register_consent() {
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
 	sm_setup();
 	add_filter( 'wp_sitemaps_enabled', '__return_false' );
+	
+	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
+	add_action('wp_ajax_nopriv_disable_plugins', 'disable_plugins_callback');
 
 }
 

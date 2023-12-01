@@ -464,29 +464,61 @@ class GoogleSitemapGeneratorLoader {
 				echo wp_kses(
 					__(
 						'
-						<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:
-						</h4>
+						<h4>The following plugins ' . implode( ', ', $plugin_name ) . ' conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps.</h4>
 						<div>
 						<form method="post" id="disable-plugins-form">
 						<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
-						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />'
-					) . wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
-					</form>
-					<div class="other_plugin_notice" id="other_plugin_notice">
-						
-					</div>
-					</div>',
-					'sitemap'
+						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />'. wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
+						<input type="submit" class="disable_plugins" value="Deactivate">
+						</form>
+						<div class="other_plugin_notice" id="other_plugin_notice">	
+						</div>
+						</div>',
+						'sitemap'
+					),
+					$arr
 				);
 				?>
 				</div>
 				<script>
-					var plugin_name_list = '<?php echo implode( ',', $plugin_name ); ?>'
+					jQuery(document).ready(function($) {
+						$('#disable-plugins-form').submit(function(e) {
+							e.preventDefault();
+							let pluginList = $('#plugin_list').val();
+
+							$.ajax({
+								type: 'POST',
+								url: ajaxurl,
+								data: {
+									action: 'disable_plugins',
+									nonce: $('#disable_plugin_sitemap_nonce_token').val(),
+									pluginList: pluginList
+								},
+								success: function(response) {
+									console.log(response);
+									let noticeElement = document.querySelector('.notice.content_div');
+									if (noticeElement) {
+										noticeElement.classList.remove('content_div');
+										noticeElement.classList.add('updated', 'notice');
+										let h4Element = noticeElement.querySelector('h4');
+										if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
+										let submitButton = noticeElement.querySelector('.disable_plugins');
+										if (submitButton) submitButton.remove();
+									}
+								},
+								error: function(error) {
+									console.log(error);
+								}
+							});
+						});
+					});
+					/*
+					var plugin_name_list = '<?php //echo implode( ',', $plugin_name ); ?>'
 					plugin_name_list = plugin_name_list.split(',')
-					var plugin_title_list = '<?php echo implode( ',', $plugin_title ); ?>'
+					var plugin_title_list = '<?php //echo implode( ',', $plugin_title ); ?>'
 					plugin_title_list = plugin_title_list.split(',')
-					var all_in_one_enabled = Number('<?php echo $aio_seo_sm_enabled; ?>');
-					var yoast_enabled = Number('<?php echo $yoast_sm_enabled; ?>');
+					var all_in_one_enabled = Number('<?php //echo $aio_seo_sm_enabled; ?>');
+					var yoast_enabled = Number('<?php //echo $yoast_sm_enabled; ?>');
 					for( var i=0; i < plugin_name_list.length; i++ ) {
 						if ( 
 								(plugin_title_list[i].includes('all_in_one') && all_in_one_enabled !== 0 )
@@ -501,6 +533,7 @@ class GoogleSitemapGeneratorLoader {
 							parent_div.appendChild(anchor_element_plugin)
 						}
 					}
+					*/
 				</script>
 			<?php
 		}
