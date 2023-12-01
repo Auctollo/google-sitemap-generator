@@ -549,7 +549,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$term = $terms[ $tax_count ];
 				switch ( $term->taxonomy ) {
 					case 'category':
-						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
+						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
 						break;
 					case 'product_cat':
 						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ) );
@@ -560,6 +560,30 @@ class GoogleSitemapGeneratorStandardBuilder {
 				}
 				$step++;
 			}
+		}
+	}
+
+	/*
+		get last updated date of taxonomy post 
+		returns timestamp (int)
+	*/
+	private function getTaxonomyUpdatedDate($term_id){
+		global $wpdb;
+
+		$query = $wpdb->prepare("
+			SELECT p.*
+			FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			WHERE tt.term_id = %d
+			ORDER BY p.post_date DESC
+			LIMIT 1
+		", $term_id);
+	
+		$post = $wpdb->get_row($query);
+	
+		if ($post) {
+			return strtotime($post->post_date);
 		}
 	}
 
