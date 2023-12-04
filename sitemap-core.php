@@ -1730,6 +1730,20 @@ final class GoogleSitemapGenerator {
 		}
 	}
 
+	/* 
+	Returns base sitemap url 
+	*/
+
+	public function get_base_sitemap_url(){
+		$build_options = [];
+		$build_options = array_merge( $this->build_options, $build_options );
+
+		$html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
+		$zip  = ( isset( $build_options['zip'] ) ? $build_options['zip'] : false );
+		$base_url = get_bloginfo( 'url' );
+		return trailingslashit( $base_url ) . 'sitemap' . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+	}
+
 	/**
 	 * Returns if there is still an old sitemap file in the site directory
 	 *
