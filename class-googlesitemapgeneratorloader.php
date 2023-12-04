@@ -416,6 +416,7 @@ class GoogleSitemapGeneratorLoader {
 
 		$plugin_title = array();
 		$plugin_name  = array();
+		
 		for ( $i = 0; $i < count( $sitemap_plugins ); $i++ ) {
 			if ( in_array( $sitemap_plugins[ $i ][1], $conflict_plugins ) ) {
 				array_push( $plugin_name, $sitemap_plugins[ $i ][1] );
@@ -424,98 +425,136 @@ class GoogleSitemapGeneratorLoader {
 		}
 
 		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0) {
-			?>
-			<style>
-				.plugin_lists{
-					font-style: italic;
+			
+			$plug_name = [];
+			$plug_title = [];
+			if($yoast_options = get_option('wpseo')){
+				$yoast_options = get_option('wpseo');
+				if (isset($yoast_options['enable_xml_sitemap'])) {
+					$sitemap_enabled = $yoast_options['enable_xml_sitemap'];
+					if ($sitemap_enabled) {
+						$plug_name[] = 'Yoast SEO';
+						$plug_title[] = 'wordpress-seo/wp-seo.php';
+					}
 				}
-				.other_plugin_notice{
-					margin-bottom: 10px;
+			}
+	
+			$aioseo_option_key = 'aioseo_options';
+			if($aioseo_options = get_option($aioseo_option_key)){
+				$aioseo_options = json_decode($aioseo_options, true);
+				if($aioseo_options['sitemap']['general']['enable']){
+					$plug_name[] = 'All in One SEO';
+					$plug_title[] = 'all-in-one-seo-pack/all_in_one_seo_pack.php';
 				}
-				.content_div{
-					margin-top:0;
-					padding:0 10px 10px 10px;
-					box-shadow: 0 1px 2px #0003;
-					border-left: 4px solid #dc3232;
-					margin-bottom:10px;
-				}
-				.conflict_plugin{
-					background: white;
-					color: #2271b1;
-					border: 1px solid #2271b1;
-					border-color: #2271b1;
-					cursor: pointer;
-					padding: 8px;
-					text-decoration: none;
-					margin-right: 10px;
-					border-radius: 5px;
-				}
-				.disable_plugins{
-					background: #2271b1;
-					color: white;
-					border-color: #2271b1;
-					cursor: pointer;
-					padding: 8px;
-					text-decoration: none;
-				}
-				</style>
-				<div class="notice content_div" style="border-left-width:4px;justify-content:space-between;">
-
-				<?php
-				/* translators: %s: search term */
-				echo wp_kses(
-					__(
-						'
-						<h4>The following plugins ' . implode( ', ', $plugin_name ) . ' conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps.</h4>
-						<div>
-						<form method="post" id="disable-plugins-form">
-						<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
-						<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plugin_title ) . '" />'. wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
-						<input type="submit" class="disable_plugins" value="Deactivate">
-						</form>
-						<div class="other_plugin_notice" id="other_plugin_notice">	
-						</div>
-						</div>',
-						'sitemap'
-					),
-					$arr
-				);
+			}
+			if(count($plug_name) > 0){
 				?>
-				</div>
-				<script>
-					jQuery(document).ready(function($) {
-						$('#disable-plugins-form').submit(function(e) {
-							e.preventDefault();
-							let pluginList = $('#plugin_list').val();
+				<style>
+					.plugin_lists{
+						font-style: italic;
+					}
+					.other_plugin_notice{
+						margin-bottom: 10px;
+					}
+					.content_div{
+						margin-top:0;
+						padding:0 10px 10px 10px;
+						box-shadow: 0 1px 2px #0003;
+						border-left: 4px solid #dc3232;
+						margin-bottom:10px;
+					}
+					.conflict_plugin{
+						background: white;
+						color: #2271b1;
+						border: 1px solid #2271b1;
+						border-color: #2271b1;
+						cursor: pointer;
+						padding: 8px;
+						text-decoration: none;
+						margin-right: 10px;
+						border-radius: 5px;
+					}
+					.disable_plugins{
+						background: #2271b1;
+						color: white;
+						border-color: #2271b1;
+						cursor: pointer;
+						padding: 8px;
+						text-decoration: none;
+					}
+					</style>
+					<div class="notice content_div" style="border-left-width:4px;justify-content:space-between;">
 
-							$.ajax({
-								type: 'POST',
-								url: ajaxurl,
-								data: {
-									action: 'disable_plugins',
-									nonce: $('#disable_plugin_sitemap_nonce_token').val(),
-									pluginList: pluginList
-								},
-								success: function(response) {
-									console.log(response);
-									let noticeElement = document.querySelector('.notice.content_div');
-									if (noticeElement) {
-										noticeElement.classList.remove('content_div');
-										noticeElement.classList.add('updated', 'notice');
-										let h4Element = noticeElement.querySelector('h4');
-										if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
-										let submitButton = noticeElement.querySelector('.disable_plugins');
-										if (submitButton) submitButton.remove();
+					<?php
+					/* translators: %s: search term */
+					echo wp_kses(
+						__(
+							'<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:</h4>
+							',
+							'sitemap'
+						),
+						$arr
+					);
+					echo wp_kses_post('<ul style="list-style-type: none;">');
+					foreach ($plug_name as $name) {
+						echo wp_kses_post(
+							'<li>' . esc_html($name) . '</li>'
+						);
+					}
+					echo wp_kses_post('</ul>');
+					echo wp_kses(
+						__(
+							'
+							<div>
+							<form method="post" id="disable-plugins-form">
+							<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
+							<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plug_title ) . '" />'. wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
+							<input type="submit" class="disable_plugins" value="Deactivate">
+							</form>
+							<div class="other_plugin_notice" id="other_plugin_notice">	
+							</div>
+							</div>',
+							'sitemap'
+						),
+						$arr
+					);
+					?>
+					</div>
+					<script>
+						jQuery(document).ready(function($) {
+							$('#disable-plugins-form').submit(function(e) {
+								e.preventDefault();
+								let pluginList = $('#plugin_list').val();
+
+								$.ajax({
+									type: 'POST',
+									url: ajaxurl,
+									data: {
+										action: 'disable_plugins',
+										nonce: $('#disable_plugin_sitemap_nonce_token').val(),
+										pluginList: pluginList
+									},
+									success: function(response) {
+										console.log(response);
+										let noticeElement = document.querySelector('.notice.content_div');
+										if (noticeElement) {
+											noticeElement.classList.remove('content_div');
+											noticeElement.classList.add('updated', 'notice');
+											let h4Element = noticeElement.querySelector('h4');
+											if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
+											let submitButton = noticeElement.querySelector('.disable_plugins');
+											if (submitButton) submitButton.remove();
+										}
+									},
+									error: function(error) {
+										console.log(error);
 									}
-								},
-								error: function(error) {
-									console.log(error);
-								}
+								});
 							});
 						});
-					});
-				</script>
-			<?php
+					</script>
+				<?php
+			}
 		}
 		$default_value    = 'show_banner';
 		$value            = get_option( 'sm_show_beta_banner', $default_value );

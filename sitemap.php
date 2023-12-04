@@ -324,7 +324,7 @@ function sm_get_init_file() {
  */
 function register_consent() {
 	if ( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		if ( is_user_logged_in() ) {
+		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
 			if ( isset( $_POST['user_consent_yes'] ) ) {
 				if (isset($_POST['user_consent_yesno_nonce_token']) && check_admin_referer('user_consent_yesno_nonce', 'user_consent_yesno_nonce_token')){
 					update_option( 'sm_user_consent', 'yes' );
@@ -400,9 +400,25 @@ function disable_plugins_callback() {
 	$pluginsToDisable = explode(',', $pluginList);
 
 	foreach ($pluginsToDisable as $plugin) {
-		deactivate_plugins($plugin);
+		if($plugin === 'all-in-one-seo-pack/all_in_one_seo_pack.php'){
+			/* all in one seo deactivation */
+			$aioseo_option_key = 'aioseo_options';
+			if($aioseo_options = get_option($aioseo_option_key)){
+				$aioseo_options = json_decode($aioseo_options, true);
+				$aioseo_options['sitemap']['general']['enable'] = false;
+				update_option($aioseo_option_key, json_encode($aioseo_options));
+			}
+		}
+		if($plugin === 'wordpress-seo/wp-seo.php'){
+			/* yoast sitemap deactivation */
+			if($yoast_options = get_option('wpseo')){
+				$yoast_options['enable_xml_sitemap'] = false;
+				update_option('wpseo', $yoast_options);
+			}
+		}
 	}
-	echo 'Plugins disabled successfully';
+
+	echo 'Plugins sitemaps disabled successfully';
 	wp_die();
 
 }
