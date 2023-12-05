@@ -1187,7 +1187,7 @@ class GoogleSitemapGeneratorLoader {
 											noticeElement.classList.remove('content_div');
 											noticeElement.classList.add('updated', 'notice');
 											let h4Element = noticeElement.querySelector('h4');
-											if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
+											if (h4Element) h4Element.innerText = 'Successfully disabled conflicting sitemap(s). Verify that search engines have the correct sitemap URL and that your robots.txt file contains the correct sitemap hint.';
 											let submitButton = noticeElement.querySelector('.disable_plugins');
 											if (submitButton) submitButton.remove();
 										}
