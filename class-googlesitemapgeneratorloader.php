@@ -294,268 +294,10 @@ class GoogleSitemapGeneratorLoader {
 	 * Beta notice.
 	 */
 	public static function beta_notice() {
-		$window_url   = home_url() . $_SERVER[ 'REQUEST_URI' ];
-		$parts        = wp_parse_url( $window_url );
-		$current_page = '';
-		$current_url  = $_SERVER['REQUEST_URI'];
-		if ( isset( $parts['query'] ) ) {
-			parse_str( $parts['query'], $query );
-			if ( isset( $query['page'] ) ) {
-				$current_page = $query['page'];
-			}
-		}
-		$arr = array(
-			'br'     => array(),
-			'p'      => array(),
-			'h3'     => array(),
-			'div'    => array(
-				'style' => array(
-					'display'         => 'flex',
-					'justify-content' => 'space-between',
-				),
-				'class' => array(),
-				'id'    => array(),
-			),
-			'a'      => array(
-				'href'  => array(),
-				'name'  => array(),
-				'class' => array(),
-				'name'  => array(),
-				'id'    => array(),
-			),
-			'h4'     => array(
-				'style' => array(
-					'width'   => array(),
-					'display' => array(),
-				),
-				'id'    => array(),
-				'class' => array(),
-			),
-			'h3'     => array(
-				'style' => array(
-					'width'   => array(),
-					'display' => array(),
-				),
-				'id'    => array(),
-			),
-			'img'    => array(
-				'src'    => array(),
-				'class'  => array(),
-				'id'     => array(),
-				'height' => array(),
-				'width'  => array(),
-			),
-			'button' => array(
-				'onClick' => array(),
-				'type'    => array(),
-				'onclick' => array(),
-				'class'   => array(),
-				'id'      => array(),
-			),
-			'strong' => array(),
-			'input'  => array(
-				'type'  => array(),
-				'class' => array(),
-				'id'    => array(),
-				'name'  => array(),
-				'value' => array(),
-				'style' => array(
-					'position'     => array(),
-					'padding'      => array(),
-					'background'   => array(),
-					'right'        => array(),
-					'color'        => array(),
-					'border-color' => array(),
-					'cursor'       => array(),
-				),
-			),
-			'form'   => array(
-				'id'     => array(),
-				'method' => array(),
-				'action' => array(),
-				'style'  => array(
-					'margin-top'  => array(),
-					'margin-left' => array(),
-					'display'     => array(),
-				),
-			),
-		);
-		$default_value = 'default';
 
-		$yoast_options    = get_option( 'wpseo', $default_value );
-		$yoast_sm_enabled = 0;
-		if ( $yoast_options !== $default_value && isset( $yoast_options['enable_xml_sitemap'] ) ) {
-			$yoast_sm_enabled = $yoast_options['enable_xml_sitemap'] ? $yoast_options['enable_xml_sitemap'] : 0;
-		}
+		$current_page  = self::get_current_page_url();
+		$arr = self::get_tags_array();
 
-		$aio_seo_options    = get_option( 'aioseo_options', $default_value );
-		$aio_seo_sm_enabled = 0;
-
-		if ( $aio_seo_options !== $default_value ) {
-			$aio_seo_options    = json_decode( $aio_seo_options );
-			$aio_seo_sm_enabled = $aio_seo_options->sitemap->general->enable;
-		}
-		$sitemap_plugins  = array();
-		$plugins          = get_plugins();
-		foreach ( $plugins as $key => $value ) {
-			$plug = array();
-			if ( strpos( $key, 'google-sitemap-generator' ) !== false ) {
-				continue;
-			}
-			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false ) && is_plugin_active( ( $key ) ) ) {
-				array_push( $plug, $key );
-				foreach ( $value as $k => $v ) {
-					if ( 'Name' === $k ) {
-						array_push( $plug, $v );
-					}
-				}
-				array_push( $sitemap_plugins, $plug );
-			}
-		}
-		$conflict_plugins = explode( ',', SM_CONFLICT_PLUGIN_LIST );
-
-		$plugin_title = array();
-		$plugin_name  = array();
-		
-		for ( $i = 0; $i < count( $sitemap_plugins ); $i++ ) {
-			if ( in_array( $sitemap_plugins[ $i ][1], $conflict_plugins ) ) {
-				array_push( $plugin_name, $sitemap_plugins[ $i ][1] );
-				array_push( $plugin_title, $sitemap_plugins[ $i ][0] );
-			}
-		}
-
-		if ( 'google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0) {
-			
-			$plug_name = [];
-			$plug_title = [];
-			if($yoast_options = get_option('wpseo')){
-				$yoast_options = get_option('wpseo');
-				if (isset($yoast_options['enable_xml_sitemap'])) {
-					$sitemap_enabled = $yoast_options['enable_xml_sitemap'];
-					if ($sitemap_enabled) {
-						$plug_name[] = 'Yoast SEO';
-						$plug_title[] = 'wordpress-seo/wp-seo.php';
-					}
-				}
-			}
-	
-			$aioseo_option_key = 'aioseo_options';
-			if($aioseo_options = get_option($aioseo_option_key)){
-				$aioseo_options = json_decode($aioseo_options, true);
-				if($aioseo_options['sitemap']['general']['enable']){
-					$plug_name[] = 'All in One SEO';
-					$plug_title[] = 'all-in-one-seo-pack/all_in_one_seo_pack.php';
-				}
-			}
-			if(count($plug_name) > 0){
-				?>
-				<style>
-					.plugin_lists{
-						font-style: italic;
-					}
-					.other_plugin_notice{
-						margin-bottom: 10px;
-					}
-					.content_div{
-						margin-top:0;
-						padding:0 10px 10px 10px;
-						box-shadow: 0 1px 2px #0003;
-						border-left: 4px solid #dc3232;
-						margin-bottom:10px;
-					}
-					.conflict_plugin{
-						background: white;
-						color: #2271b1;
-						border: 1px solid #2271b1;
-						border-color: #2271b1;
-						cursor: pointer;
-						padding: 8px;
-						text-decoration: none;
-						margin-right: 10px;
-						border-radius: 5px;
-					}
-					.disable_plugins{
-						background: #2271b1;
-						color: white;
-						border-color: #2271b1;
-						cursor: pointer;
-						padding: 8px;
-						text-decoration: none;
-					}
-					</style>
-					<div class="notice content_div" style="border-left-width:4px;justify-content:space-between;">
-
-					<?php
-					/* translators: %s: search term */
-					echo wp_kses(
-						__(
-							'<h4>One or more plugins conflict with proper indexation of your website. Use the deactivate button below to disable the extra sitemaps:</h4>
-							',
-							'sitemap'
-						),
-						$arr
-					);
-					echo wp_kses_post('<ul style="list-style-type: none;">');
-					foreach ($plug_name as $name) {
-						echo wp_kses_post(
-							'<li>' . esc_html($name) . '</li>'
-						);
-					}
-					echo wp_kses_post('</ul>');
-					echo wp_kses(
-						__(
-							'
-							<div>
-							<form method="post" id="disable-plugins-form">
-							<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
-							<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plug_title ) . '" />'. wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
-							<input type="submit" class="disable_plugins" value="Deactivate">
-							</form>
-							<div class="other_plugin_notice" id="other_plugin_notice">	
-							</div>
-							</div>',
-							'sitemap'
-						),
-						$arr
-					);
-					?>
-					</div>
-					<script>
-						jQuery(document).ready(function($) {
-							$('#disable-plugins-form').submit(function(e) {
-								e.preventDefault();
-								let pluginList = $('#plugin_list').val();
-
-								$.ajax({
-									type: 'POST',
-									url: ajaxurl,
-									data: {
-										action: 'disable_plugins',
-										nonce: $('#disable_plugin_sitemap_nonce_token').val(),
-										pluginList: pluginList
-									},
-									success: function(response) {
-										console.log(response);
-										let noticeElement = document.querySelector('.notice.content_div');
-										if (noticeElement) {
-											noticeElement.classList.remove('content_div');
-											noticeElement.classList.add('updated', 'notice');
-											let h4Element = noticeElement.querySelector('h4');
-											if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
-											let submitButton = noticeElement.querySelector('.disable_plugins');
-											if (submitButton) submitButton.remove();
-										}
-									},
-									error: function(error) {
-										console.log(error);
-									}
-								});
-							});
-						});
-					</script>
-				<?php
-			}
-		}
 		$default_value    = 'show_banner';
 		$value            = get_option( 'sm_show_beta_banner', $default_value );
 		$now              = time();
@@ -824,12 +566,14 @@ class GoogleSitemapGeneratorLoader {
 							<p>&nbsp;</p>
 							<form method="POST">
 								<input type="submit" name="user_consent_yes" class="allow_consent" value="I want the best!" />
-								<input type="submit" name="user_consent_no" class "decline_consent" value="I don\'t know what I want" />'
-					) . wp_nonce_field("user_consent_yesno_nonce", "user_consent_yesno_nonce_token") . '
-					</form>
-					</div>
-					</div>',
+								<input type="submit" name="user_consent_no" class "decline_consent" value="I don\'t know what I want" />' . wp_nonce_field("user_consent_yesno_nonce", "user_consent_yesno_nonce_token") . 
+							'</form>
+							</div>
+						</div>',
 					'sitemap'
+					),
+					function() {
+					}
 				),
 				$arr
 			);
@@ -917,14 +661,16 @@ class GoogleSitemapGeneratorLoader {
 						<h4>Auto-updates aren not enabled for Sitemap Generator. Would you like to enable auto-updates to always have the best indexation features?
 						</h4>
 						<form method="post" id="enable-updates-form">
-						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />'
-					) . wp_nonce_field("enable_updates_nonce", "enable_updates_nonce_token") . '
-					</form>
-					<div class="justify-content">
-					<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
-					<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
-					</div>',
-					'sitemap',
+						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />' . wp_nonce_field("enable_updates_nonce", "enable_updates_nonce_token") .
+						'</form>
+						<div class="justify-content">
+						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
+						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
+						</div>',
+						'sitemap',
+					),
+					function() {
+					}
 				),
 				$arr
 			);
@@ -1174,6 +920,288 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function get_svn_version() {
 		return self::$svn_version;
+	}
+
+	public static function get_current_page_url(){
+		$window_url   = home_url() . $_SERVER[ 'REQUEST_URI' ];
+		$parts        = wp_parse_url( $window_url );
+		$current_page = '';
+		$current_url  = $_SERVER['REQUEST_URI'];
+		if ( isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+			if ( isset( $query['page'] ) ) {
+				$current_page = $query['page'];
+			}
+		}
+		return $current_page;
+	}
+
+	public static function get_tags_array(){
+		return array(
+			'br'     => array(),
+			'p'      => array(),
+			'h3'     => array(),
+			'div'    => array(
+				'style' => array(
+					'display'         => 'flex',
+					'justify-content' => 'space-between',
+				),
+				'class' => array(),
+				'id'    => array(),
+			),
+			'a'      => array(
+				'href'  => array(),
+				'name'  => array(),
+				'class' => array(),
+				'name'  => array(),
+				'id'    => array(),
+			),
+			'h4'     => array(
+				'style' => array(
+					'width'   => array(),
+					'display' => array(),
+				),
+				'id'    => array(),
+				'class' => array(),
+			),
+			'h3'     => array(
+				'style' => array(
+					'width'   => array(),
+					'display' => array(),
+				),
+				'id'    => array(),
+			),
+			'img'    => array(
+				'src'    => array(),
+				'class'  => array(),
+				'id'     => array(),
+				'height' => array(),
+				'width'  => array(),
+			),
+			'button' => array(
+				'onClick' => array(),
+				'type'    => array(),
+				'onclick' => array(),
+				'class'   => array(),
+				'id'      => array(),
+			),
+			'strong' => array(),
+			'input'  => array(
+				'type'  => array(),
+				'class' => array(),
+				'id'    => array(),
+				'name'  => array(),
+				'value' => array(),
+				'style' => array(
+					'position'     => array(),
+					'padding'      => array(),
+					'background'   => array(),
+					'right'        => array(),
+					'color'        => array(),
+					'border-color' => array(),
+					'cursor'       => array(),
+				),
+			),
+			'form'   => array(
+				'id'     => array(),
+				'method' => array(),
+				'action' => array(),
+				'style'  => array(
+					'margin-top'  => array(),
+					'margin-left' => array(),
+					'display'     => array(),
+				),
+			),
+		);
+	}
+
+	public static function create_notice_conflict_plugin(){
+
+		$window_url   = home_url() . $_SERVER[ 'REQUEST_URI' ];
+		$parts        = wp_parse_url( $window_url );
+		$current_page = '';
+		$current_url  = $_SERVER['REQUEST_URI'];
+		if ( isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+			if ( isset( $query['page'] ) ) {
+				$current_page = $query['page'];
+			}
+		}
+		
+		$default_value = 'default';
+
+		$yoast_options    = get_option( 'wpseo', $default_value );
+		$yoast_sm_enabled = 0;
+		if ( $yoast_options !== $default_value && isset( $yoast_options['enable_xml_sitemap'] ) ) {
+			$yoast_sm_enabled = $yoast_options['enable_xml_sitemap'] ? $yoast_options['enable_xml_sitemap'] : 0;
+		}
+
+		$aio_seo_options    = get_option( 'aioseo_options', $default_value );
+		$aio_seo_sm_enabled = 0;
+
+		if ( $aio_seo_options !== $default_value ) {
+			$aio_seo_options    = json_decode( $aio_seo_options );
+			$aio_seo_sm_enabled = $aio_seo_options->sitemap->general->enable;
+		}
+		$sitemap_plugins  = array();
+		$plugins          = get_plugins();
+		foreach ( $plugins as $key => $value ) {
+			$plug = array();
+			if ( strpos( $key, 'google-sitemap-generator' ) !== false ) {
+				continue;
+			}
+			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false ) && is_plugin_active( ( $key ) ) ) {
+				array_push( $plug, $key );
+				foreach ( $value as $k => $v ) {
+					if ( 'Name' === $k ) {
+						array_push( $plug, $v );
+					}
+				}
+				array_push( $sitemap_plugins, $plug );
+			}
+		}
+		$conflict_plugins = explode( ',', SM_CONFLICT_PLUGIN_LIST );
+
+		$plugin_title = array();
+		$plugin_name  = array();
+		
+		for ( $i = 0; $i < count( $sitemap_plugins ); $i++ ) {
+			if ( in_array( $sitemap_plugins[ $i ][1], $conflict_plugins ) ) {
+				array_push( $plugin_name, $sitemap_plugins[ $i ][1] );
+				array_push( $plugin_title, $sitemap_plugins[ $i ][0] );
+			}
+		}
+
+		//var_dump('google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0);
+		if ( count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0) {
+			$plug_name = [];
+			$plug_title = [];
+			if($yoast_options = get_option('wpseo')){
+				$yoast_options = get_option('wpseo');
+				if (isset($yoast_options['enable_xml_sitemap'])) {
+					$sitemap_enabled = $yoast_options['enable_xml_sitemap'];
+					if ($sitemap_enabled) {
+						$plug_name[] = 'Yoast SEO';
+						$plug_title[] = 'wordpress-seo/wp-seo.php';
+					}
+				}
+			}
+	
+			$aioseo_option_key = 'aioseo_options';
+			if($aioseo_options = get_option($aioseo_option_key)){
+				$aioseo_options = json_decode($aioseo_options, true);
+				if($aioseo_options['sitemap']['general']['enable']){
+					$plug_name[] = 'All in One SEO';
+					$plug_title[] = 'all-in-one-seo-pack/all_in_one_seo_pack.php';
+				}
+			}
+			if(count($plug_name) > 0){
+				?>
+				<style>
+					.plugin_lists{
+						font-style: italic;
+					}
+					.other_plugin_notice{
+						margin-bottom: 10px;
+					}
+					.content_div{
+						margin-top:0;
+						padding:0 10px 10px 10px;
+						box-shadow: 0 1px 2px #0003;
+						border-left: 4px solid #dc3232;
+						margin-bottom:10px;
+					}
+					.conflict_plugin{
+						background: white;
+						color: #2271b1;
+						border: 1px solid #2271b1;
+						border-color: #2271b1;
+						cursor: pointer;
+						padding: 8px;
+						text-decoration: none;
+						margin-right: 10px;
+						border-radius: 5px;
+					}
+					.disable_plugins{
+						background: #2271b1;
+						color: white;
+						border-color: #2271b1;
+						cursor: pointer;
+						padding: 8px;
+						text-decoration: none;
+					}
+					</style>
+					<div class="notice content_div" style="border-left-width:4px;justify-content:space-between;">
+
+					<?php
+					/* translators: %s: search term */
+					echo wp_kses(
+						__(
+							'<h4>One or more plugins conflict with proper indexation of your website. Use the deactivate button below to disable the extra sitemaps:</h4>
+							',
+							'sitemap'
+						),
+						self::get_tags_array()
+					);
+					echo wp_kses_post('<ul style="list-style-type: none;">');
+					foreach ($plug_name as $name) {
+						echo wp_kses_post(
+							'<li>' . esc_html($name) . '</li>'
+						);
+					}
+					echo wp_kses_post('</ul>');
+					echo wp_kses(
+						__(
+							'<div>
+							<form method="post" id="disable-plugins-form">
+							<input type="hidden" id="disable_plugin" name="disable_plugin" value="false" />
+							<input type="hidden" id="plugin_list" name="plugin_list" value="' . implode( ',', $plug_title ) . '" />'. wp_nonce_field("disable_plugin_sitemap_nonce", "disable_plugin_sitemap_nonce_token") . '
+							<input type="submit" class="disable_plugins" value="Deactivate">
+							</form>
+							<div class="other_plugin_notice" id="other_plugin_notice">	
+							</div>
+							</div>',
+							'sitemap'
+						),
+						self::get_tags_array()
+					);
+					?>
+					</div>
+					<script>
+						jQuery(document).ready(function($) {
+							$('#disable-plugins-form').submit(function(e) {
+								e.preventDefault();
+								let pluginList = $('#plugin_list').val();
+
+								$.ajax({
+									type: 'POST',
+									url: ajaxurl,
+									data: {
+										action: 'disable_plugins',
+										nonce: $('#disable_plugin_sitemap_nonce_token').val(),
+										pluginList: pluginList
+									},
+									success: function(response) {
+										let noticeElement = document.querySelector('.notice.content_div');
+										if (noticeElement) {
+											noticeElement.classList.remove('content_div');
+											noticeElement.classList.add('updated', 'notice');
+											let h4Element = noticeElement.querySelector('h4');
+											if (h4Element) h4Element.innerText = 'You successfully deactivated conflict plugins';
+											let submitButton = noticeElement.querySelector('.disable_plugins');
+											if (submitButton) submitButton.remove();
+										}
+									},
+									error: function(error) {
+										console.log(error);
+									}
+								});
+							});
+						});
+					</script>
+				<?php
+			}
+		}
 	}
 }
 

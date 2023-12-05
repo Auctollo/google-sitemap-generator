@@ -16,7 +16,7 @@
  * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.14
+ * Version: 4.1.13
  * Author: Auctollo
  * Author URI: https://auctollo.com/
  * Text Domain: sitemap
@@ -418,11 +418,13 @@ function disable_plugins_callback() {
 		}
 	}
 
-	echo 'The conflicting sitemap(s) successfully disabled. Verify that search engines have the correct sitemap URL and that your robots.txt file contains the correct sitemap hint.';
+	echo 'Plugins sitemaps disabled successfully';
 	wp_die();
 
 }
-
+ function conflict_plugins_admin_notice(){
+	GoogleSitemapGeneratorLoader::create_notice_conflict_plugin();
+ }
 
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
@@ -432,5 +434,6 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
 	add_action('wp_ajax_nopriv_disable_plugins', 'disable_plugins_callback');
 
-}
+	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
+}
