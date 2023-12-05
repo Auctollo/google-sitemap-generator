@@ -489,7 +489,7 @@ class GoogleSitemapGeneratorLoader {
 					/* translators: %s: search term */
 					echo wp_kses(
 						__(
-							'<h4>The following plugins conflict with proper indexation of your website. Use the buttons below to disable the extra sitemaps:</h4>
+							'<h4>One or more plugins conflict with proper indexation of your website. Use the deactivate button below to disable the extra sitemaps:</h4>
 							',
 							'sitemap'
 						),

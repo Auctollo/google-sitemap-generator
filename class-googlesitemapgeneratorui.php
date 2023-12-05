@@ -1057,7 +1057,7 @@ class GoogleSitemapGeneratorUI {
 									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Suggest a Feature', 'sitemap' ); ?></a>
 									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help' ) ); ?>'><?php esc_html_e( 'View Frequently Asked Questions', 'sitemap' ); ?></a>
 									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-list' ) ); ?>'><?php esc_html_e( 'Follow the Forum', 'sitemap' ); ?></a>
-									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Visit Support Forum', 'sitemap' ); ?></a>
+									<!-- <a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-support' ) ); ?>'><?php esc_html_e( 'Visit Support Forum', 'sitemap' ); ?></a> -->
 									<a class='sm_button' href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-bugs' ) ); ?>'><?php esc_html_e( 'Report a Bug', 'sitemap' ); ?></a>
 									<?php
 									if ( __( 'translator_name', 'sitemap' ) !== 'translator_name' ) {
