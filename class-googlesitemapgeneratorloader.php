@@ -669,8 +669,7 @@ class GoogleSitemapGeneratorLoader {
 						</div>',
 						'sitemap',
 					),
-					function() {
-					}
+					''
 				),
 				$arr
 			);
@@ -1072,8 +1071,7 @@ class GoogleSitemapGeneratorLoader {
 			}
 		}
 
-		//var_dump('google-sitemap-generator/sitemap.php' === $current_page && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0);
-		if ( count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0) {
+		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0){
 			$plug_name = [];
 			$plug_title = [];
 			if($yoast_options = get_option('wpseo')){
