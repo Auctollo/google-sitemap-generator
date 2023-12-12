@@ -432,7 +432,6 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_filter( 'wp_sitemaps_enabled', '__return_false' );
 	
 	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
-	add_action('wp_ajax_nopriv_disable_plugins', 'disable_plugins_callback');
 
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
