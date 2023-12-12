@@ -259,7 +259,7 @@ class GoogleSitemapGeneratorLoader {
 	 * @uses add_options_page()
 	 */
 	public static function register_admin_page() {
-		add_options_page( __( 'XML-Sitemap Generator', 'sitemap' ), __( 'XML-Sitemap', 'sitemap' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
+		add_options_page( __( 'XML-Sitemap Generator', 'google-sitemap-generator' ), __( 'XML-Sitemap', 'google-sitemap-generator' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
 	}
 
 	/**
@@ -539,7 +539,7 @@ class GoogleSitemapGeneratorLoader {
 						<a href="' . $decline_consent_url . $qs . '" id="discard_content" class="discard_button" name="discard_consent">X</a>
 						</div>
 						',
-						'sitemap'
+						'google-sitemap-generator'
 					),
 					$arr
 				);
@@ -570,7 +570,7 @@ class GoogleSitemapGeneratorLoader {
 							'</form>
 							</div>
 						</div>',
-					'sitemap'
+					'google-sitemap-generator'
 					),
 					function() {
 					}
@@ -597,7 +597,7 @@ class GoogleSitemapGeneratorLoader {
 							</div>
 						</div>
 						',
-						'sitemap'
+						'google-sitemap-generator'
 					),
 					function() {
 					}
@@ -667,7 +667,7 @@ class GoogleSitemapGeneratorLoader {
 						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
 						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
 						</div>',
-						'sitemap',
+						'google-sitemap-generator',
 					),
 					''
 				),
@@ -705,9 +705,9 @@ class GoogleSitemapGeneratorLoader {
 	public static function register_plugin_links( $links, $file ) {
 		$base = self::get_base_name();
 		if ( $file === $base ) {
-			$links[] = '<a href="options-general.php?page=' . self::get_base_name() . '">' . __( 'Settings', 'sitemap' ) . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __( 'FAQ', 'sitemap' ) . '</a>';
-			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __( 'Support', 'sitemap' ) . '</a>';
+			$links[] = '<a href="options-general.php?page=' . self::get_base_name() . '">' . __( 'Settings', 'google-sitemap-generator' ) . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-faq/">' . __( 'FAQ', 'google-sitemap-generator' ) . '</a>';
+			$links[] = '<a href="http://www.arnebrachhold.de/redir/sitemap-plist-support/">' . __( 'Support', 'google-sitemap-generator' ) . '</a>';
 		}
 		return $links;
 	}
@@ -1137,7 +1137,7 @@ class GoogleSitemapGeneratorLoader {
 						__(
 							'<h4>One or more plugins conflict with proper indexation of your website. Use the deactivate button below to disable the extra sitemaps:</h4>
 							',
-							'sitemap'
+							'google-sitemap-generator'
 						),
 						self::get_tags_array()
 					);
@@ -1159,7 +1159,7 @@ class GoogleSitemapGeneratorLoader {
 							<div class="other_plugin_notice" id="other_plugin_notice">	
 							</div>
 							</div>',
-							'sitemap'
+							'google-sitemap-generator'
 						),
 						self::get_tags_array()
 					);
