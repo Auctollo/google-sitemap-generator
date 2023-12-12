@@ -392,36 +392,37 @@ function register_consent() {
 	}
 }
 
-function disable_plugins_callback() {
+function disable_plugins_callback(){
+    if (current_user_can('manage_options')) {
+        check_ajax_referer('disable_plugin_sitemap_nonce', 'nonce');
 
-	check_ajax_referer('disable_plugin_sitemap_nonce', 'nonce');
+        $pluginList = sanitize_text_field($_POST['pluginList']);
+        $pluginsToDisable = explode(',', $pluginList);
 
-	$pluginList = sanitize_text_field($_POST['pluginList']);
-	$pluginsToDisable = explode(',', $pluginList);
+        foreach ($pluginsToDisable as $plugin) {
+            if ($plugin === 'all-in-one-seo-pack/all_in_one_seo_pack.php') {
+                /* all in one seo deactivation */
+                $aioseo_option_key = 'aioseo_options';
+                if ($aioseo_options = get_option($aioseo_option_key)) {
+                    $aioseo_options = json_decode($aioseo_options, true);
+                    $aioseo_options['sitemap']['general']['enable'] = false;
+                    update_option($aioseo_option_key, json_encode($aioseo_options));
+                }
+            }
+            if ($plugin === 'wordpress-seo/wp-seo.php') {
+                /* yoast sitemap deactivation */
+                if ($yoast_options = get_option('wpseo')) {
+                    $yoast_options['enable_xml_sitemap'] = false;
+                    update_option('wpseo', $yoast_options);
+                }
+            }
+        }
 
-	foreach ($pluginsToDisable as $plugin) {
-		if($plugin === 'all-in-one-seo-pack/all_in_one_seo_pack.php'){
-			/* all in one seo deactivation */
-			$aioseo_option_key = 'aioseo_options';
-			if($aioseo_options = get_option($aioseo_option_key)){
-				$aioseo_options = json_decode($aioseo_options, true);
-				$aioseo_options['sitemap']['general']['enable'] = false;
-				update_option($aioseo_option_key, json_encode($aioseo_options));
-			}
-		}
-		if($plugin === 'wordpress-seo/wp-seo.php'){
-			/* yoast sitemap deactivation */
-			if($yoast_options = get_option('wpseo')){
-				$yoast_options['enable_xml_sitemap'] = false;
-				update_option('wpseo', $yoast_options);
-			}
-		}
-	}
-
-	echo 'Plugins sitemaps disabled successfully';
-	wp_die();
-
+        echo 'Plugins sitemaps disabled successfully';
+        wp_die();
+    }
 }
+
  function conflict_plugins_admin_notice(){
 	GoogleSitemapGeneratorLoader::create_notice_conflict_plugin();
  }
@@ -432,7 +433,6 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_filter( 'wp_sitemaps_enabled', '__return_false' );
 	
 	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
-	add_action('wp_ajax_nopriv_disable_plugins', 'disable_plugins_callback');
 
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
