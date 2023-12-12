@@ -644,7 +644,7 @@ class GoogleSitemapGeneratorPrioByCountProvider implements Google_Sitemap_Genera
 	 * @return string The translated name
 	 */
 	public static function get_name() {
-		return __( 'Comment Count', 'sitemap' );
+		return __( 'Comment Count', 'google-sitemap-generator' );
 	}
 
 	/**
@@ -654,7 +654,7 @@ class GoogleSitemapGeneratorPrioByCountProvider implements Google_Sitemap_Genera
 	 * @return string The translated description
 	 */
 	public static function get_description() {
-		return __( 'Uses the number of comments of the post to calculate the priority', 'sitemap' );
+		return __( 'Uses the number of comments of the post to calculate the priority', 'google-sitemap-generator' );
 	}
 
 	/**
@@ -712,7 +712,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements Google_Sitemap_Gene
 	 * @return string The translated name
 	 */
 	public static function get_name() {
-		return __( 'Comment Average', 'sitemap' );
+		return __( 'Comment Average', 'google-sitemap-generator' );
 	}
 
 	/**
@@ -722,7 +722,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements Google_Sitemap_Gene
 	 * @return string The translated description
 	 */
 	public static function get_description() {
-		return __( 'Uses the average comment count to calculate the priority', 'sitemap' );
+		return __( 'Uses the average comment count to calculate the priority', 'google-sitemap-generator' );
 	}
 
 	/**
@@ -910,13 +910,13 @@ final class GoogleSitemapGenerator {
 			load_plugin_textdomain( 'sitemap', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
 			$this->freq_names = array(
-				'always'  => __( 'Always', 'sitemap' ),
-				'hourly'  => __( 'Hourly', 'sitemap' ),
-				'daily'   => __( 'Daily', 'sitemap' ),
-				'weekly'  => __( 'Weekly', 'sitemap' ),
-				'monthly' => __( 'Monthly', 'sitemap' ),
-				'yearly'  => __( 'Yearly', 'sitemap' ),
-				'never'   => __( 'Never', 'sitemap' ),
+				'always'  => __( 'Always', 'google-sitemap-generator' ),
+				'hourly'  => __( 'Hourly', 'google-sitemap-generator' ),
+				'daily'   => __( 'Daily', 'google-sitemap-generator' ),
+				'weekly'  => __( 'Weekly', 'google-sitemap-generator' ),
+				'monthly' => __( 'Monthly', 'google-sitemap-generator' ),
+				'yearly'  => __( 'Yearly', 'google-sitemap-generator' ),
+				'never'   => __( 'Never', 'google-sitemap-generator' ),
 			);
 
 			$this->load_options();
@@ -2754,11 +2754,11 @@ final class GoogleSitemapGenerator {
 							'%s',
 							'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
 							/* translators: %s: search term */
-							__( 'Thank you for using Google XML Sitemaps! <a href=\'%s\' target=\'_blank\'>Please help us improve by taking this short survey!</a>', 'sitemap' )
+							__( 'Thank you for using Google XML Sitemaps! <a href=\'%s\' target=\'_blank\'>Please help us improve by taking this short survey!</a>', 'google-sitemap-generator' )
 						)
 					);
 					?>
-					<a href='<?php esc_url( $this->get_back_link() ) . '&amp;sm_hide_survey=true'; ?>' style='float:right; display:block; border:none;'><small style='font-weight:normal; '><?php esc_html_e( 'Don\'t show this anymore', 'sitemap' ); ?></small></a>
+					<a href='<?php esc_url( $this->get_back_link() ) . '&amp;sm_hide_survey=true'; ?>' style='float:right; display:block; border:none;'><small style='font-weight:normal; '><?php esc_html_e( 'Don\'t show this anymore', 'google-sitemap-generator' ); ?></small></a>
 				</p>
 			</strong>
 			<div style='clear:right;'></div>
