@@ -667,7 +667,7 @@ class GoogleSitemapGeneratorLoader {
 						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
 						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
 						</div>',
-						'google-sitemap-generator',
+						'google-sitemap-generator'
 					),
 					''
 				),
