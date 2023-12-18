@@ -530,9 +530,7 @@ class GoogleSitemapGeneratorLoader {
 				$qs = 'settings_page_google-sitemap-generator/sitemap' === $current_screen ? '&action=no' : '?action=no';
 				/* translators: %s: search term */
 				echo wp_kses(
-					__(
-						'
-						<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!</h4>
+					__('<h4>Do you want the best SEO indexation technology for your website? Join the Google XML Sitemaps Beta Program now!</h4>
 						<input type="hidden" id="action" name="action" value="my_action" >
 						<div class="justify-content">
 						<a href="' . $consent_url . '?action=yes" id="user_consent" class="allow_beta_consent" target="blank" name="user_consent" >Yes, I am in</a>
@@ -554,27 +552,20 @@ class GoogleSitemapGeneratorLoader {
 		if ( $default_value === $consent_value && 'google-sitemap-generator/sitemap.php' === $current_page ) {
 			/* translators: %s: search term */
 			echo wp_kses(
-				sprintf(
-					__(
-						'
-						<div class="modal-wrapper" id="modal-wrapper">
-							<div class="modal-container">
-							<h3>Help Us Improve!</h3>
-							<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data?</p>
-							<p>Understanding feature usage and use cases better means we can provide you with the best indexation and indexing performance.</p>
-							<p><a href="https://auctollo.com/policies/privacy/" target="_blank">We respect your privacy!</a></p>
-							<p>&nbsp;</p>
-							<form method="POST">
-								<input type="submit" name="user_consent_yes" class="allow_consent" value="I want the best!" />
-								<input type="submit" name="user_consent_no" class "decline_consent" value="I don\'t know what I want" />' . wp_nonce_field("user_consent_yesno_nonce", "user_consent_yesno_nonce_token") . 
-							'</form>
-							</div>
-						</div>',
-					'google-sitemap-generator'
-					),
-					function() {
-					}
-				),
+				__('<div class="modal-wrapper" id="modal-wrapper">
+						<div class="modal-container">
+						<h3>Help Us Improve!</h3>
+						<p>Would you help us improve Google XML Sitemaps by sharing anonymous usage data?</p>
+						<p>Understanding feature usage and use cases better means we can provide you with the best indexation and indexing performance.</p>
+						<p><a href="https://auctollo.com/policies/privacy/" target="_blank">We respect your privacy!</a></p>
+						<p>&nbsp;</p>
+						<form method="POST">
+							<input type="submit" name="user_consent_yes" class="allow_consent" value="I want the best!" />
+							<input type="submit" name="user_consent_no" class "decline_consent" value="I don\'t know what I want" />' . wp_nonce_field("user_consent_yesno_nonce", "user_consent_yesno_nonce_token") . 
+						'</form>
+						</div>
+					</div>',
+					'google-sitemap-generator'),
 				$arr
 			);
 		}
@@ -584,23 +575,16 @@ class GoogleSitemapGeneratorLoader {
 		if ( 'google-sitemap-generator/sitemap.php' === $current_page ) {
 			/* translators: %s: search term */
 			echo wp_kses(
-				sprintf(
-					__(
-						'
-						<div class="cookie-info-banner-wrapper" id="cookie-info-banner-wrapper">
-							<div class="modal-container">
-							<h3>Help Us Improve!</h3>
-								<button class="close_popup" id="close_popup">
-								<img height="25" width="20" class="close_cookie_information" src="' . $image_url . '" />
-								</button>
-								<p>Would you help us improve our indexation technology by sharing usage data anonymously?</p>
-							</div>
+				__('<div class="cookie-info-banner-wrapper" id="cookie-info-banner-wrapper">
+						<div class="modal-container">
+						<h3>Help Us Improve!</h3>
+							<button class="close_popup" id="close_popup">
+							<img height="25" width="20" class="close_cookie_information" src="' . $image_url . '" />
+							</button>
+							<p>Would you help us improve our indexation technology by sharing usage data anonymously?</p>
 						</div>
-						',
-						'google-sitemap-generator'
-					),
-					function() {
-					}
+					</div>',
+					'google-sitemap-generator'
 				),
 				$arr
 			);
@@ -655,21 +639,16 @@ class GoogleSitemapGeneratorLoader {
 			<?php
 			/* translators: %s: search term */
 			echo wp_kses(
-				sprintf(
-					__(
-						'
-						<h4>Auto-updates aren not enabled for Sitemap Generator. Would you like to enable auto-updates to always have the best indexation features?
-						</h4>
-						<form method="post" id="enable-updates-form">
-						<input type="hidden" id="enable_updates" name="enable_updates" value="false" />' . wp_nonce_field("enable_updates_nonce", "enable_updates_nonce_token") .
-						'</form>
-						<div class="justify-content">
-						<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
-						<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
-						</div>',
-						'google-sitemap-generator'
-					),
-					''
+				__('<h4>Auto-updates aren not enabled for Sitemap Generator. Would you like to enable auto-updates to always have the best indexation features?
+					</h4>
+					<form method="post" id="enable-updates-form">
+					<input type="hidden" id="enable_updates" name="enable_updates" value="false" />' . wp_nonce_field("enable_updates_nonce", "enable_updates_nonce_token") .
+					'</form>
+					<div class="justify-content">
+					<a id="enable_auto_update" class="enable_auto_update" name="enable_auto_update">Enable Auto-Updates!</a>
+					<a id="do_not_enable_auto_update" class="do_not_enable_auto_update" name="do_not_enable_auto_update">X</a>
+					</div>',
+					'google-sitemap-generator'
 				),
 				$arr
 			);
