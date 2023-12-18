@@ -1,7 +1,7 @@
 === XML Sitemap Generator for Google ===
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woo commerce, robots.txt, site kit, schema, bing, baidu, yandex
-Requires at least: 4.4
+Requires at least: 4.6
 Tested up to: 6.4.2
 Stable tag: 4.1.15
 Requires PHP: 5.0
