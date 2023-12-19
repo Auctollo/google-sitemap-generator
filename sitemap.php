@@ -16,7 +16,7 @@
  * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.15
+ * Version: 4.1.16
  * Author: Auctollo
  * Author URI: https://auctollo.com/
  * Text Domain: sitemap
