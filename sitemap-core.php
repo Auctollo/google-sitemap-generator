@@ -1976,6 +1976,7 @@ final class GoogleSitemapGenerator {
 
 			if ( strpos( $all_params, '-' ) !== false ) {
 				$type   = substr( $all_params, 0, strpos( $all_params, '-' ) );
+				if($type === 'pt' && explode("-", $all_params)[1] === 'externals' ) $type = 'externals';
 				$params = substr( $all_params, strpos( $all_params, '-' ) + 1 );
 			} else {
 				$type = $all_params;
