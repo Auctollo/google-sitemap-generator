@@ -570,6 +570,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$excludes = $excl_cats;
 			}
 			add_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
+			/*
 			$terms = get_terms(
 				$taxonomy,
 				array(
@@ -580,7 +581,18 @@ class GoogleSitemapGeneratorStandardBuilder {
 					'exclude'      => $excludes,
 				)
 			);
+			*/
+			$terms = array_values(
+				array_unique(
+					array_filter(get_terms(), function ($term) use ($taxonomy) {
+						return $term->taxonomy === $taxonomy;
+					}),
+					SORT_REGULAR
+				)
+			);
 			remove_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
+	
+			//$terms = array_values(array_unique($terms, SORT_REGULAR));
 
 			$step          = 1;
 			$size_of_terms = count( $terms );

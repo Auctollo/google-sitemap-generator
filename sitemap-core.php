@@ -753,7 +753,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements Google_Sitemap_Gene
 	public function get_post_priority( $post_id, $comment_count ) {
 
 		// Do not divide by zero !
-		if ( 0 === $this->average ) {
+		if ( 0 === $this->average|| 0.0 === $this->average ) {
 			if ( $comment_count > 0 ) {
 				$priority = 1;
 			} else {
