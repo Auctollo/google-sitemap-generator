@@ -915,6 +915,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 						$has_posts = true;
 					}
 					$has_enabled_post_types_posts = true;
+
 					foreach ( $posts as $post ) {
 						$step = 1;
 						for ( $i = 0; $i < $post->numposts; $i++ ) {

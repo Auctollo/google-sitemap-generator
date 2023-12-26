@@ -777,7 +777,8 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if($arrayType[1] === 'xml'){
-				$postType = explode('-', $currentUrl);
+				//$postType = explode('-', $currentUrl); // 26.12.2023
+				$postType = explode('-sitemap', $currentUrl);
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
