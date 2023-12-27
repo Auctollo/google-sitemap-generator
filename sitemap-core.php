@@ -387,9 +387,12 @@ class GoogleSitemapGeneratorPage {
 		$r  = '';
 		$r .= "\t<url>\n";
 		$r .= "\t\t<loc>" . $this->escape_xml( esc_url_raw( $this->url ) ) . "</loc>\n";
+
 		if ( $this->last_mod > 0 ) {
-			$r .= "\t\t<lastmod>" . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . "</lastmod>\n";
+			//$r .= "\t\t<lastmod>" . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . "</lastmod>\n";
+			$r .= "\t\t<lastmod>"  . gmdate( 'Y-m-d\TH:i:sP', $this->last_mod ) .  "</lastmod>\n";
 		}
+
 		if ( ! empty( $this->change_freq ) ) {
 			$r .= "\t\t<changefreq>" . $this->change_freq . "</changefreq>\n";
 		}
@@ -397,6 +400,7 @@ class GoogleSitemapGeneratorPage {
 			$r .= "\t\t<priority>" . number_format( $this->priority, 1 ) . "</priority>\n";
 		}
 		$r .= "\t</url>\n";
+		
 		return $r;
 	}
 
