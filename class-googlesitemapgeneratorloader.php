@@ -777,13 +777,13 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if($arrayType[1] === 'xml'){
-				$postType = explode('-', $currentUrl);
+				$postType = explode('-sitemap', $currentUrl);
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
 
 					if($postType[0] === 'sitemap') return 'params=misc';
-					else if($postType[0] === 'post_tag' || $postType[0] === 'category' ) return 'params=tax-' . $postType[0] . '-' . $matches[0];
+					else if($postType[0] === 'post_tag' || $postType[0] === 'category' || taxonomy_exists($postType[0])) return 'params=tax-' . $postType[0] . '-' . $matches[0];
 					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
 					else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
 					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];					
