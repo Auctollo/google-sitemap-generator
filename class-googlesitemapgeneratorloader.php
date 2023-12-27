@@ -776,7 +776,7 @@ class GoogleSitemapGeneratorLoader {
 		if(strlen($current_url['path']) > 1){
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
-			if(in_array($arrayType[1], ['xml', 'html'])){
+			if (in_array($arrayType[1], array('xml', 'html'))){
 				$postType = explode('-sitemap', $currentUrl);
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
