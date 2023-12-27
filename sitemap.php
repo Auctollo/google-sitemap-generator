@@ -19,7 +19,7 @@
  * Version: 4.1.17
  * Author: Auctollo
  * Author URI: https://auctollo.com/
- * Text Domain: sitemap
+ * Text Domain: google-sitemap-generator
  * Domain Path: /lang
 
 
@@ -64,6 +64,9 @@ define( 'SM_CONFLICT_PLUGIN_LIST', 'All in One SEO,Yoast SEO' );
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
+add_action( 'plugins_loaded', function() {
+	load_plugin_textdomain( 'google-sitemap-generator', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+});
 
 
 /**
