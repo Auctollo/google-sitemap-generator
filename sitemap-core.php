@@ -2180,7 +2180,11 @@ final class GoogleSitemapGenerator {
 		$this->initate();
 		if ( $this->get_option( 'b_robots' ) === true ) {
 
-			$sm_url = $this->get_xml_url();
+			//$sm_url = $this->get_xml_url();
+			$html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
+			$zip  = ( isset( $build_options['zip'] ) ? $build_options['zip'] : false );
+			if($this->get_option( 'b_sitemap_name' )) $sm_url = trailingslashit( get_bloginfo( 'url' ) ) . ( '' === $this->get_option( 'b_sitemap_name' ) ? '' : $this->get_option( 'b_sitemap_name' ) ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			else $sm_url = get_bloginfo( 'url' ) . '/sitemap.xml';
 
 			echo "\nSitemap: " . esc_url( $sm_url ) . "\n";
 		}
