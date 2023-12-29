@@ -777,7 +777,11 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if (in_array($arrayType[1], array('xml', 'html'))){
-				$postType = explode('-sitemap', $currentUrl);
+				if( strpos($arrayType[0], 'sitemap-misc') !== false ) {
+					$postType[0] = 'sitemap';
+					$postType[1] = $arrayType[1];
+				}
+				else $postType = explode('-sitemap', $currentUrl);
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
@@ -1021,6 +1025,15 @@ class GoogleSitemapGeneratorLoader {
 			$aio_seo_options    = json_decode( $aio_seo_options );
 			$aio_seo_sm_enabled = $aio_seo_options->sitemap->general->enable;
 		}
+
+		$jetpack_options    = get_option( 'jetpack_active_modules', $default_value );
+		$jetpack_sm_enabled = 0;
+		if(is_array($jetpack_options)) {
+            if (in_array('sitemaps', $jetpack_options)) {
+                $jetpack_sm_enabled = 1;
+            }
+        }
+
 		$sitemap_plugins  = array();
 		$plugins          = get_plugins();
 		foreach ( $plugins as $key => $value ) {
@@ -1038,6 +1051,7 @@ class GoogleSitemapGeneratorLoader {
 				array_push( $sitemap_plugins, $plug );
 			}
 		}
+
 		$conflict_plugins = explode( ',', SM_CONFLICT_PLUGIN_LIST );
 
 		$plugin_title = array();
@@ -1050,7 +1064,7 @@ class GoogleSitemapGeneratorLoader {
 			}
 		}
 
-		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled ) && count($plugin_name) > 0){
+		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled || 0 !== $jetpack_sm_enabled ) && count($plugin_name) > 0){
 			$plug_name = [];
 			$plug_title = [];
 			if($yoast_options = get_option('wpseo')){
@@ -1072,6 +1086,12 @@ class GoogleSitemapGeneratorLoader {
 					$plug_title[] = 'all-in-one-seo-pack/all_in_one_seo_pack.php';
 				}
 			}
+
+			if($jetpack_sm_enabled){
+				$plug_name[] = 'Jetpack Sitemap';
+				$plug_title[] = 'jetpack/jetpack.php';
+			}
+
 			if(count($plug_name) > 0){
 				?>
 				<style>
