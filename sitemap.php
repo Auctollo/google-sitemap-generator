@@ -60,7 +60,7 @@ define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitem
 define( 'SM_BETA_USER_INFO_URL', 'https://api.auctollo.com/beta/consent' );
 define( 'SM_LEARN_MORE_API_URL', 'https://api.auctollo.com/lp' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
-define( 'SM_CONFLICT_PLUGIN_LIST', 'All in One SEO,Yoast SEO' );
+define( 'SM_CONFLICT_PLUGIN_LIST', 'All in One SEO,Yoast SEO, Jetpack' );
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
@@ -417,6 +417,15 @@ function disable_plugins_callback(){
                 if ($yoast_options = get_option('wpseo')) {
                     $yoast_options['enable_xml_sitemap'] = false;
                     update_option('wpseo', $yoast_options);
+                }
+            }
+			if ($plugin === 'jetpack/jetpack.php') {
+                /* jetpack sitemap deactivation */
+                $modules_array = get_option('jetpack_active_modules');
+                if (in_array('sitemaps', $modules_array)) {
+                    $key = array_search('sitemaps', $modules_array);
+                    unset($modules_array[$key]);
+                    update_option('jetpack_active_modules', $modules_array);
                 }
             }
         }
