@@ -422,11 +422,13 @@ function disable_plugins_callback(){
 			if ($plugin === 'jetpack/jetpack.php') {
                 /* jetpack sitemap deactivation */
                 $modules_array = get_option('jetpack_active_modules');
-                if (in_array('sitemaps', $modules_array)) {
-                    $key = array_search('sitemaps', $modules_array);
-                    unset($modules_array[$key]);
-                    update_option('jetpack_active_modules', $modules_array);
-                }
+				if(is_array($modules_array)) {
+					if (in_array('sitemaps', $modules_array)) {
+						$key = array_search('sitemaps', $modules_array);
+						unset($modules_array[$key]);
+						update_option('jetpack_active_modules', $modules_array);
+					}
+				}
             }
         }
 

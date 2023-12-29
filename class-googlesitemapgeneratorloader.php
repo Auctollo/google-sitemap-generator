@@ -777,7 +777,11 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if (in_array($arrayType[1], array('xml', 'html'))){
-				$postType = explode('-sitemap', $currentUrl);
+				if( strpos($arrayType[0], 'sitemap-misc') !== false ) {
+					$postType[0] = 'sitemap';
+					$postType[1] = $arrayType[1];
+				}
+				else $postType = explode('-sitemap', $currentUrl);
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
@@ -1024,9 +1028,11 @@ class GoogleSitemapGeneratorLoader {
 
 		$jetpack_options    = get_option( 'jetpack_active_modules', $default_value );
 		$jetpack_sm_enabled = 0;
-		if ( in_array('sitemaps', $jetpack_options) ) {
-			$jetpack_sm_enabled = 1;
-		}
+		if(is_array($jetpack_options)) {
+            if (in_array('sitemaps', $jetpack_options)) {
+                $jetpack_sm_enabled = 1;
+            }
+        }
 
 		$sitemap_plugins  = array();
 		$plugins          = get_plugins();
