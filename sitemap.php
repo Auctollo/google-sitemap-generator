@@ -51,6 +51,7 @@ if ( (int) $wp_version > 4 ) {
 }
 
 require_once trailingslashit( dirname( __FILE__ ) ) . 'sitemap-core.php';
+require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorindexnow.php'; //add class indexNow file
 
 include_once( ABSPATH . 'wp-admin/includes/file.php' );
 include_once( ABSPATH . 'wp-admin/includes/misc.php' );
@@ -66,8 +67,11 @@ add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
 add_action( 'plugins_loaded', function() {
 	load_plugin_textdomain( 'google-sitemap-generator', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+
+
 });
 
+add_action( 'save_post', 'indexnow_after_post_save', 10, 3 ); //send to indexNow
 
 /**
  * Google analytics .
@@ -440,6 +444,15 @@ function disable_plugins_callback(){
  function conflict_plugins_admin_notice(){
 	GoogleSitemapGeneratorLoader::create_notice_conflict_plugin();
  }
+
+ /* send to index updated url */
+function indexnow_after_post_save( $post_ID, $post, $update ) {
+	$indexnow = get_option('sm_options');
+	if($indexnow['sm_b_indexnow']){
+	    $newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
+        $newUrlToIndex->start( get_permalink( $post_ID ) );
+    }
+}
 
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {

@@ -1268,8 +1268,10 @@ class GoogleSitemapGeneratorUI {
 											</small>
 										</li> -->
 										<li>
-											<input type='checkbox' id='sm_b_indexnow' name='sm_b_indexnow' <?php echo ( $this->sg->get_option( 'b_indexnow' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-											<label for='sm_b_indexnow'><?php esc_html_e( 'Use IndexNow Protocol to notify Microsoft Bing, Seznam.cz, Naver, and Yandex search engines about updates to your site', 'google-sitemap-generator' ); ?></label><br />
+											<label for='sm_b_indexnow'>
+												<input type='checkbox' id='sm_b_indexnow' name='sm_b_indexnow' <?php echo ( $this->sg->get_option( 'b_indexnow' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+												<?php esc_html_e( 'Use IndexNow Protocol to notify Microsoft Bing, Seznam.cz, Naver, and Yandex search engines about updates to your site', 'google-sitemap-generator' ); ?>
+											</label><br />
 											<small>
 											<?php
 											$arr = array(
