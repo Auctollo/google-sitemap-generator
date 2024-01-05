@@ -54,6 +54,7 @@ if ( isset( $_GET['action'] ) ) {
 			add_option( 'sm_beta_opt_in', true );
 			update_option( 'sm_beta_banner_discarded_count', (int) 2 );
 			GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+			GoogleSitemapGeneratorLoader::activation_indexnow_setup(); //activtion indexNow
 			echo "<script>
 					window.addEventListener('DOMContentLoaded', (event) => {
 							var url = '" . SM_LEARN_MORE_API_URL . "/?utm_source=wordpress&utm_medium=notification&utm_campaign=beta&utm_id=v4'
