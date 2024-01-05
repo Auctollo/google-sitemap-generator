@@ -548,7 +548,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$offset         = $taxonomy;
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 10;
+			$links_per_page = (int) 1000;
 		}
 		if ( strpos( $taxonomy, '-' ) !== false ) {
 			$offset   = substr( $taxonomy, strrpos( $taxonomy, '-' ) + 1 );
@@ -679,7 +679,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	public function build_product_tags( GoogleSitemapGenerator $gsg, $offset ) {
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 10;
+			$links_per_page = (int) 1000;
 		}
 		$offset         = ( --$offset ) * $links_per_page;
 
@@ -713,7 +713,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	public function build_product_categories( GoogleSitemapGenerator $gsg, $offset ) {
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 10;
+			$links_per_page = (int) 1000;
 		}
 		$offset         = ( --$offset ) * $links_per_page;
 		$excludes       = array();
