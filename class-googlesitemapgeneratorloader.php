@@ -1044,7 +1044,7 @@ class GoogleSitemapGeneratorLoader {
 			if ( strpos( $key, 'google-sitemap-generator' ) !== false ) {
 				continue;
 			}
-			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false ) && is_plugin_active( ( $key ) ) ) {
+			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false || $jetpack_sm_enabled ) && is_plugin_active( ( $key ) ) ) {
 				array_push( $plug, $key );
 				foreach ( $value as $k => $v ) {
 					if ( 'Name' === $k ) {
