@@ -1097,12 +1097,14 @@ class GoogleSitemapGeneratorUI {
 
 									$status = GoogleSitemapGeneratorStatus::Load();
 									$head   = __( 'Search engines haven\'t been notified yet', 'google-sitemap-generator' );
-									if ( null !== $status && 0 < $status->get_start_time() ) {
+
+									$indexnowDate = get_option('sm_options');
+									if ( null !== $status && 0 < $status->get_start_time() && $indexnowDate['sm_b_indexnow'] ) {
 										$opt = get_option( 'gmt_offset' );
 										$st  = $status->get_start_time() + ( $opt * 3600 );
 										/* translators: %s: search term */
 										$head = str_replace( '%date%', date_i18n( get_option( 'date_format' ), $st ) . ' ' . date_i18n( get_option( 'time_format' ), $st ), esc_html__( 'Result of the last ping, started on %date%.', 'google-sitemap-generator' ) );
-									}
+									} else esc_html__( '“Search engines haven’t been notified yet…”', 'google-sitemap-generator' );
 
 									$this->html_print_box_header( 'sm_rebuild', $head );
 									?>
