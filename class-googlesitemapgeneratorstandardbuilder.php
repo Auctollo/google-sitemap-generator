@@ -174,7 +174,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$ex_cat_s_q_l}
 			";
 			// phpcs:disable
-			$q = $wpdb->prepare( $qs, $post_type, $year, $month );
+			$q = $wpdb->prepare( $qs, $post_type );
+
 			// phpcs:enable
 			$posts      = $wpdb->get_results( $q ); // phpcs:ignore
 			$posts      = array_slice( $posts, ( $limit - $links_per_page ) );

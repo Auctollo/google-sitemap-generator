@@ -376,6 +376,7 @@ function register_consent() {
 					}
 				}
 			}
+			
 			/*
 			if ( isset( $_POST['disable_plugin'] ) ) {
 				if (isset($_POST['disable_plugin_sitemap_nonce_token']) && check_admin_referer('disable_plugin_sitemap_nonce', 'disable_plugin_sitemap_nonce_token')){
@@ -395,6 +396,18 @@ function register_consent() {
 				}
 			}
 			*/
+		}
+	}
+	$updateUrlRules = get_option('sm_options');
+	if(!isset($updateUrlRules['sm_b_rewrites']) || $updateUrlRules['sm_b_rewrites'] == false){
+		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+		if (isset($updateUrlRules['sm_b_rewrites'])) {
+			$updateUrlRules['sm_b_rewrites'] = true;
+			update_option('sm_options', $updateUrlRules);
+		} else {
+			$updateUrlRules['sm_b_rewrites'] = true;
+			add_option('sm_options', $updateUrlRules);
+			update_option('sm_options', $updateUrlRules);
 		}
 	}
 }
@@ -441,9 +454,9 @@ function disable_plugins_callback(){
     }
 }
 
- function conflict_plugins_admin_notice(){
+function conflict_plugins_admin_notice(){
 	GoogleSitemapGeneratorLoader::create_notice_conflict_plugin();
- }
+}
 
  /* send to index updated url */
 function indexnow_after_post_save( $post_ID, $post, $update ) {
