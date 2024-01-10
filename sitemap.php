@@ -401,6 +401,9 @@ function register_consent() {
 	$updateUrlRules = get_option('sm_options');
 	if(!isset($updateUrlRules['sm_b_rewrites']) || $updateUrlRules['sm_b_rewrites'] == false){
 		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+		GoogleSitemapGeneratorLoader::activate_rewrite();
+		GoogleSitemapGeneratorLoader::activation_indexnow_setup();
+
 		if (isset($updateUrlRules['sm_b_rewrites'])) {
 			$updateUrlRules['sm_b_rewrites'] = true;
 			update_option('sm_options', $updateUrlRules);
@@ -409,6 +412,7 @@ function register_consent() {
 			add_option('sm_options', $updateUrlRules);
 			update_option('sm_options', $updateUrlRules);
 		}
+		
 	}
 }
 
