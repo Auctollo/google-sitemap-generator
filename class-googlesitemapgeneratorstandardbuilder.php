@@ -611,7 +611,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ) );
 						break;
 					default:
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'pr_tags' ) );
+					$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ) );
 						break;
 				}
 				$step++;
