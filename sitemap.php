@@ -465,10 +465,13 @@ function conflict_plugins_admin_notice(){
  /* send to index updated url */
 function indexnow_after_post_save( $post_ID, $post, $update ) {
 	$indexnow = get_option('sm_options');
-	if($indexnow['sm_b_indexnow']){
+	$indexNowStatus = false;
+	if(isset($indexnow['sm_b_indexnow'])) $indexNowStatus = $indexnow['sm_b_indexnow'];
+	if($indexNowStatus === true){
 	    $newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
         $newUrlToIndex->start( get_permalink( $post_ID ) );
     }
+
 }
 
 // Don't do anything if this file was called directly.

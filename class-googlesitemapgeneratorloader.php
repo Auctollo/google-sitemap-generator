@@ -1209,15 +1209,25 @@ class GoogleSitemapGeneratorLoader {
 	*/
 	public static function activation_indexnow_setup(){
 		$api_key = wp_generate_uuid4();
-		update_option( 'gsg_indexnow-is_valid_api_key', '2' );
-		update_option( 'gsg_indexnow-admin_api_key', base64_encode( $api_key ) );
+		if(is_multisite()){
+			update_site_option('gsg_indexnow-is_valid_api_key', '2');
+			update_site_option('gsg_indexnow-admin_api_key', base64_encode( $api_key ));
+		} else {
+			update_option( 'gsg_indexnow-is_valid_api_key', '2' );
+			update_option( 'gsg_indexnow-admin_api_key', base64_encode( $api_key ) );
+		}
 	}
 
 	public static function deactivation_indexnow() {
-		delete_option( 'gsg_indexnow-is_valid_api_key' );
-		delete_option( 'gsg_indexnow-admin_api_key' );
+		if(is_multisite()){
+			delete_site_option( 'gsg_indexnow-is_valid_api_key' );
+			delete_site_option( 'gsg_indexnow-admin_api_key' );
+		} else {
+			delete_option( 'gsg_indexnow-is_valid_api_key' );
+			delete_option( 'gsg_indexnow-admin_api_key' );
+		}
 	}
-
+	
 }
 
 // Enable the plugin for the init hook, but only if WP is loaded. Calling this php file directly will do nothing.

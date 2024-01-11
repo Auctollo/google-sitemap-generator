@@ -55,8 +55,8 @@ class GoogleSitemapGeneratorIndexNow {
 		}
 		try {
 			if ( 200 === $response['response']['code'] || 202 === $response['response']['code'] ) {
-				$updateUrlRules['sm_b_index_date'] = time();
-				update_option('sm_options', $updateUrlRules);
+				//$updateUrlRules['sm_b_index_date'] = time();
+				//update_option('sm_options', $updateUrlRules);
 
 				return 'success';
 			} else {
