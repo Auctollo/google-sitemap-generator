@@ -553,6 +553,15 @@ class GoogleSitemapGeneratorUI {
 			delete_option( 'sm_disabe_other_plugin' );
 			$this->sg->init_options();
 			$this->sg->save_options();
+
+			$auto_update_plugins = get_option( 'auto_update_plugins' );
+			if ( is_array( $auto_update_plugins ) ) {
+				foreach( $auto_update_plugins as $one_plugin){
+					if($one_plugin != 'google-sitemap-generator/sitemap.php') $newArr[] = $one_plugin;
+				}
+				update_option( 'auto_update_plugins', $newArr );
+			}
+
 			$message .= __( 'The default configuration was restored.', 'google-sitemap-generator' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
 			check_admin_referer( 'sitemap' );
