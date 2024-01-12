@@ -444,7 +444,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
 			$gsg->add_url(
-				str_replace('.html', 'sitemap.html', $gsg->get_xml_url( '', '', array( 'html' => true ) ) ),
+				str_replace('.html', 'sitemap.html', $gsg->get_xml_url( 'main', '', array( 'html' => true ) ) ),
 				( $lm ? $gsg->get_timestamp_from_my_sql( $lm ) : time() )
 			);
 		}
