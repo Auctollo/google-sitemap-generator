@@ -1729,6 +1729,7 @@ final class GoogleSitemapGenerator {
 			//	? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 			if($type === 'misc') return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			else if($type === 'main') return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? get_option('sm_options')['sm_b_sitemap_name'] . '.xml' : '.html' ) . ( $zip ? '.gz' : '' );
 			else return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 		} else {

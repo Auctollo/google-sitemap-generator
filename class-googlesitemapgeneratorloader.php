@@ -785,6 +785,12 @@ class GoogleSitemapGeneratorLoader {
 					$postType[1] = $arrayType[1];
 				}
 				else $postType = explode('-sitemap', $currentUrl);
+
+				if (strpos($postType[0], '/') !== false){
+					$newType = explode('/', $postType[0]);
+					$postType[0] = end($newType);
+				}
+
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
@@ -793,7 +799,8 @@ class GoogleSitemapGeneratorLoader {
 					else if($postType[0] === 'post_tag' || $postType[0] === 'category' || taxonomy_exists($postType[0])) return 'params=tax-' . $postType[0] . '-' . $matches[0];
 					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
 					else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
-					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];					
+					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
+					else if($postType[0] === 'producttags') return 'params=producttags-' . $matches[0];
 					else return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
 				}
 			}
