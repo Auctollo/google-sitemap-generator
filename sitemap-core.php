@@ -1729,7 +1729,7 @@ final class GoogleSitemapGenerator {
 			//	? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 			if($type === 'misc') return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			else if($type === 'main') return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? get_option('sm_options')['sm_b_sitemap_name'] . '.xml' : '.html' ) . ( $zip ? '.gz' : '' );
+			else if($type === 'main') return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? '.html' : '.html' ) . ( $zip ? '.gz' : '' );
 			else return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html
 				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 		} else {
@@ -2335,18 +2335,18 @@ final class GoogleSitemapGenerator {
 			$pings = array();
 
 			if ( $this->get_option( 'b_ping' ) ) {
-				$pings['google'] = array(
-					'name'  => 'Google',
-					'url'   => 'http://www.google.com/webmasters/sitemaps/ping?sitemap=%s',
+				$pings['bing'] = array(
+					'name'  => 'Bing',
 					'check' => 'successfully',
 				);
 			}
 
 			foreach ( $pings as $service_id => $service ) {
-				$url = str_replace( '%s', rawurlencode( $ping_url ), $service['url'] );
+				$url = rawurlencode( $ping_url );
 				$status->start_ping( $service_id, $url, $service['name'] );
 
-				$pingres = $this->remote_open( $url );
+				$newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
+				$pingres = $newUrlToIndex->start( $url );
 
 				if ( null === $pingres || false === $pingres || false === strpos( $pingres, $service['check'] ) ) {
 					$status->end_ping( $service_id, false );
