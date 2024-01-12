@@ -785,6 +785,12 @@ class GoogleSitemapGeneratorLoader {
 					$postType[1] = $arrayType[1];
 				}
 				else $postType = explode('-sitemap', $currentUrl);
+
+				if (strpos($postType[0], '/') !== false){
+					$newType = explode('/', $postType[0]);
+					$postType[0] = end($newType);
+				}
+
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
