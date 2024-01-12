@@ -1171,7 +1171,7 @@ class GoogleSitemapGeneratorUI {
 												echo '<li>' . esc_html__( 'Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.', 'google-sitemap-generator' ) . '</li>';
 											} else {
 
-												$services = $status->get_used_ping_services();
+												$services = (null !== $status) ? $status->get_used_ping_services() : array();
 
 												foreach ( $services as $service ) {
 													$name = $status->get_service_name( $service );
@@ -1192,7 +1192,7 @@ class GoogleSitemapGeneratorUI {
 														}
 													} else {
 														/* translators: %s: search term */
-														echo '<li class=\'sm_error\'>' . wp_kses( str_replace( array( '%s', '%name%' ), array( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_service=' . $service . '&noheader=true', 'sitemap' ), $name ), __( 'There was a problem while notifying %name%. <a href=\'%s\' target=\'_blank\'>View result</a>', 'google-sitemap-generator' ) ), $arr ) . '</li>';
+														//echo '<li class=\'sm_error\'>' . wp_kses( str_replace( array( '%s', '%name%' ), array( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_service=' . $service . '&noheader=true', 'sitemap' ), $name ), __( 'There was a problem while notifying %name%. <a href=\'%s\' target=\'_blank\'>View result</a>', 'google-sitemap-generator' ) ), $arr ) . '</li>';
 													}
 												}
 											}

@@ -12,7 +12,8 @@ class GoogleSitemapGeneratorIndexNow {
 		$this->siteUrl = get_home_url();
 		$this->version = $this->getVersion();
 		$apiKey = $this->getApiKey();
-		$this->sendToIndex($this->siteUrl, $indexUrl, $apiKey, false);
+		
+		return $this->sendToIndex($this->siteUrl, $indexUrl, $apiKey, false);
     }
 
     private function getApiKey(){
