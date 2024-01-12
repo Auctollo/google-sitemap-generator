@@ -599,7 +599,7 @@ class GoogleSitemapGeneratorLoader {
 		if ( ! is_array( $auto_update_plugins ) ) {
 			$auto_update_plugins = array();
 		}
-		if ( ! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && 'google-sitemap-generator/sitemap.php' === $current_page && 'yes' !== $hide_auto_update_banner ) {
+		if ( (! in_array( 'google-sitemap-generator/sitemap.php', $auto_update_plugins, true ) && ('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/') && 'yes' !== $hide_auto_update_banner) ) {
 			?>
 			<style>
 				.justify-content{
