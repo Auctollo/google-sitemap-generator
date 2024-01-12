@@ -699,7 +699,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 			foreach ( $terms as $term ) {
 				$term_array[] = $term->name;
 				$url          = get_term_link( $term );
-				$gsg->add_url( $url, $term->_mod_date, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $term->ID, array(), array(), '' );
+				//$gsg->add_url( $url, $term->_mod_date, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $term->ID, array(), array(), '' );
+				$gsg->add_url( $url, $this->getProductUpdatedDate($term->term_id, 'product_tag'), $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $term->ID, array(), array(), '' );
 			}
 		}
 	}
@@ -740,10 +741,38 @@ class GoogleSitemapGeneratorStandardBuilder {
 				if ( $cat && wp_count_terms( $cat->name, array( 'hide_empty' => true ) ) > 0 ) {
 					$step++;
 					$url = get_term_link( $cat );
-					$gsg->add_url( $url, $cat->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $cat->ID, array(), array(), '' );
+					$gsg->add_url( $url, $this->getProductUpdatedDate($cat->term_id, 'product_cat'), $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $cat->ID, array(), array(), '' );
 				}
 			}
 		}
+	}
+
+	/* Get last product updated date by tag ID */
+	private function getProductUpdatedDate($term_id, $taxonomy){
+		$args = array(
+			'post_type' => 'product',
+			'posts_per_page' => 1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $taxonomy,
+					'field' => 'id',
+					'terms' => $term_id,
+				),
+			),
+			'orderby' => 'modified',
+			'order' => 'DESC',
+		);
+	
+		$products = new WC_Product_Query($args);
+		$product_results = $products->get_products();
+
+		if ($product_results) {
+			$product = array_shift($product_results);
+			$updated_date = strtotime($product->get_date_modified()->date('Y-m-d H:i:s'));
+	
+			return $updated_date;
+		}
+		return false;
 	}
 
 	/**
