@@ -780,13 +780,13 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if (in_array($arrayType[1], array('xml', 'html'))){
-				if( strpos($arrayType[0], 'sitemap-misc') !== false ) {
+				if (isset($arrayType[0]) && preg_match('/sitemap-misc/', $arrayType[0])){
 					$postType[0] = 'sitemap';
 					$postType[1] = $arrayType[1];
 				}
 				else $postType = explode('-sitemap', $currentUrl);
 
-				if (strpos($postType[0], '/') !== false){
+				if (isset($postType[0]) && preg_match('~/~', $postType[0])){
 					$newType = explode('/', $postType[0]);
 					$postType[0] = end($newType);
 				}
@@ -850,7 +850,7 @@ class GoogleSitemapGeneratorLoader {
 
 			$time = abs( intval( ini_get( 'max_execution_time' ) ) );
 			if ( 0 !== $time && 120 > $time ) {
-				if ( strpos( $disable_functions, 'set_time_limit' ) === false ) {
+				if (!preg_match('/\bset_time_limit\b/', $disable_functions)) {
 					set_time_limit( 120 );
 				}
 			}
@@ -1048,10 +1048,10 @@ class GoogleSitemapGeneratorLoader {
 		$plugins          = get_plugins();
 		foreach ( $plugins as $key => $value ) {
 			$plug = array();
-			if ( strpos( $key, 'google-sitemap-generator' ) !== false ) {
+			if (preg_match('/google-sitemap-generator/', $key)) {
 				continue;
 			}
-			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false || $jetpack_sm_enabled ) && is_plugin_active( ( $key ) ) ) {
+			if ( ( preg_match('/sitemap/', $key) || preg_match('/seo/', $key) || $jetpack_sm_enabled ) && is_plugin_active( ( $key ) ) ) {
 				array_push( $plug, $key );
 				foreach ( $value as $k => $v ) {
 					if ( 'Name' === $k ) {

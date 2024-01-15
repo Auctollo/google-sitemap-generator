@@ -1982,12 +1982,18 @@ final class GoogleSitemapGenerator {
 			$type       = null;
 			$params     = null;
 
-			if ( strpos( $all_params, '-' ) !== false ) {
-				$type   = substr( $all_params, 0, strpos( $all_params, '-' ) );
-				if($type === 'pt' && explode("-", $all_params)[1] === 'externals' ) $type = 'externals';
-				$params = substr( $all_params, strpos( $all_params, '-' ) + 1 );
+			if (isset($all_params) && strpos($all_params, '-') !== false) {
+				$parts = explode('-', $all_params, 2);
+				$type = $parts[0];
+			
+				if ($type === 'pt' && isset($parts[1]) && $parts[1] === 'externals') {
+					$type = 'externals';
+				}
+			
+				$params = isset($parts[1]) ? $parts[1] : '';
 			} else {
 				$type = $all_params;
+				$params = '';
 			}
 
 			$this->build_sitemap_header( 'sitemap' );

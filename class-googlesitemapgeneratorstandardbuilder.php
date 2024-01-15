@@ -33,7 +33,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @param String                 $params Parameters for the sitemap.
 	 */
 	public function content( $gsg, $type, $params ) {
-		if (strpos($params, '/') !== false){
+		if (isset($params) && preg_match('~/~', $params)){
             $newType = explode('/', $params);
             $params = end($newType);
         }
@@ -551,7 +551,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int) 1000;
 		}
-		if ( strpos( $taxonomy, '-' ) !== false ) {
+		if (preg_match('/-/', $taxonomy)) {
 			$offset   = substr( $taxonomy, strrpos( $taxonomy, '-' ) + 1 );
 			$taxonomy = str_replace( '-' . $offset, '', $taxonomy );
 		} else {
