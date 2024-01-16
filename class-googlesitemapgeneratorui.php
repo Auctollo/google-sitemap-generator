@@ -653,6 +653,17 @@ class GoogleSitemapGeneratorUI {
 
 			$this->sg->send_ping();    
 			$message = __( 'Ping was executed, please see below for the result.', 'google-sitemap-generator' );
+		} elseif ( ! empty( $_GET['sm_ping_all_subsitemaps'] ) ) {
+			check_admin_referer( 'sitemap' );
+
+				// Check again, just for the case that something went wrong before.
+			if ( ! current_user_can( 'administrator' ) ) {
+				echo '<p>Please log in as admin</p>';
+				return;
+			}
+
+			$this->sg->send_ping_all();    
+			$message = __( 'Ping was executed, please see below for the result.', 'google-sitemap-generator' );
 		} elseif ( get_option( 'sm_beta_opt_in' ) ) {
 			delete_option( 'sm_beta_opt_in' );
 			$message = __( 'Thanks for for supporting the project. We will reach out by email shortly.', 'google-sitemap-generator' );
@@ -1109,7 +1120,7 @@ class GoogleSitemapGeneratorUI {
 
 									if ( null !== $status && 0 < $status->get_start_time() && $this->sg->get_option('b_indexnow') ) {
 										$opt = get_option( 'gmt_offset' );
-										$st  = $status->get_start_time() + ( $opt * 3600 );
+										$st = intval($status->get_start_time() + ( $opt * 3600 ));
 										/* translators: %s: search term */
 										$head = str_replace( '%date%', date_i18n( get_option( 'date_format' ), $st ) . ' ' . date_i18n( get_option( 'time_format' ), $st ), esc_html__( 'Result of the last ping, started on %date%.', 'google-sitemap-generator' ) );
 									} else esc_html__( '“Search engines have not been notified yet. Publish or update a post to update your sitemap modification dates and notify IndexNow-compatible search engines.”', 'google-sitemap-generator' );
@@ -1200,7 +1211,7 @@ class GoogleSitemapGeneratorUI {
 											?>
 											<?php if ($this->sg->get_option('b_indexnow')) : ?>
 												<li>
-													Notify Search Engines about <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
+													Notify Search Engines about <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_main=true', 'sitemap' ) ); ?>'>your sitemap </a> or <a id="ping_google" href='<?php echo esc_url( wp_nonce_url( $this->sg->get_back_link() . '&sm_ping_all_subsitemaps=true', 'sitemap' ) ); ?>'>your main sitemap and all sub-sitemaps</a> now.
 												</li>
 											<?php endif; ?>
 											<?php
