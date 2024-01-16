@@ -776,7 +776,7 @@ class GoogleSitemapGeneratorLoader {
 	public static function change_url_to_required(){
 		global $wp;
 		$current_url = parse_url(home_url(add_query_arg(array(), $wp->request)));
-		if(strlen($current_url['path']) > 1){
+		if( isset($current_url['path']) && strlen($current_url['path']) > 1){
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if (in_array($arrayType[1], array('xml', 'html'))){
