@@ -1109,7 +1109,7 @@ class GoogleSitemapGeneratorUI {
 
 									if ( null !== $status && 0 < $status->get_start_time() && $this->sg->get_option('b_indexnow') ) {
 										$opt = get_option( 'gmt_offset' );
-										$st  = $status->get_start_time() + ( $opt * 3600 );
+										$st = intval($status->get_start_time() + ( $opt * 3600 ));
 										/* translators: %s: search term */
 										$head = str_replace( '%date%', date_i18n( get_option( 'date_format' ), $st ) . ' ' . date_i18n( get_option( 'time_format' ), $st ), esc_html__( 'Result of the last ping, started on %date%.', 'google-sitemap-generator' ) );
 									} else esc_html__( '“Search engines have not been notified yet. Publish or update a post to update your sitemap modification dates and notify IndexNow-compatible search engines.”', 'google-sitemap-generator' );
