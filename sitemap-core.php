@@ -2300,6 +2300,10 @@ final class GoogleSitemapGenerator {
 		$this->load_options();
 
 		$ping_url = $this->get_xml_url();
+				
+		$baseUrl = substr($ping_url, 0, -4);
+		$kind = substr($ping_url, -4);
+		$ping_url = $baseUrl . $this->get_options()['sm_b_sitemap_name'] . $kind;
 
 		$result = $this->execute_ping( $ping_url, true );
 
@@ -2348,7 +2352,8 @@ final class GoogleSitemapGenerator {
 			}
 
 			foreach ( $pings as $service_id => $service ) {
-				$url = rawurlencode( $ping_url );
+				//$url = rawurlencode( $ping_url );
+				$url = $ping_url;
 				$status->start_ping( $service_id, $url, $service['name'] );
 
 				$newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
@@ -2387,7 +2392,11 @@ final class GoogleSitemapGenerator {
 
 		$urls = array();
 
-		$urls[] = $this->get_xml_url();
+		$ping_url = $this->get_xml_url();
+		$baseUrl = substr($ping_url, 0, -4);
+		$kind = substr($ping_url, -4);
+		$urls[] = $baseUrl . $this->get_options()['sm_b_sitemap_name'] . $kind;
+		//$urls[] = $this->get_xml_url();
 
 		foreach ( $sitemaps as $sitemap ) {
 
