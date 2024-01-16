@@ -33,6 +33,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @param String                 $params Parameters for the sitemap.
 	 */
 	public function content( $gsg, $type, $params ) {
+		$params = strval($params);
 		if (strpos($params, '/') !== false){
             $newType = explode('/', $params);
             $params = end($newType);
