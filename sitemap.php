@@ -61,7 +61,7 @@ define( 'SM_SUPPORTFEED_URL', 'https://wordpress.org/support/plugin/google-sitem
 define( 'SM_BETA_USER_INFO_URL', 'https://api.auctollo.com/beta/consent' );
 define( 'SM_LEARN_MORE_API_URL', 'https://api.auctollo.com/lp' );
 define( 'SM_BANNER_HIDE_DURATION_IN_DAYS', 7 );
-define( 'SM_CONFLICT_PLUGIN_LIST', 'All in One SEO,Yoast SEO, Jetpack' );
+define( 'SM_CONFLICT_PLUGIN_LIST', 'All in One SEO,Yoast SEO, Jetpack, Wordpress Sitemap' );
 add_action( 'admin_init', 'register_consent', 1 );
 add_action( 'admin_head', 'ga_header' );
 add_action( 'admin_footer', 'ga_footer' );
@@ -451,6 +451,13 @@ function disable_plugins_callback(){
 					}
 				}
             }
+			if ($plugin === 'wordpress-sitemap') {
+                /* Wordpress sitemap deactivation */
+                $options = get_option('sm_options', array());
+				if (isset($options['sm_wp_sitemap_status'])) $options['sm_wp_sitemap_status'] = false;
+				else $options['sm_wp_sitemap_status'] = false;
+				update_option('sm_options', $options);
+            }
         }
 
         echo 'Plugins sitemaps disabled successfully';
@@ -477,7 +484,12 @@ function indexnow_after_post_save( $post_ID, $post, $update ) {
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
 	sm_setup();
-	add_filter( 'wp_sitemaps_enabled', '__return_false' );
+	
+	if(isset(get_option('sm_options')['sm_wp_sitemap_status']) ) $wp_sitemap_status = get_option('sm_options')['sm_wp_sitemap_status'];
+	else $wp_sitemap_status = true;
+	if($wp_sitemap_status = true) $wp_sitemap_status = '__return_true';
+	else $wp_sitemap_status = '__return_false';
+	add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
 	
 	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
 

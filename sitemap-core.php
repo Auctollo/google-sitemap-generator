@@ -1397,6 +1397,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_i_supportfeed_cache'] = 0; // Last refresh of support feed .
 		$this->options['sm_links_page']          = 1000; // Link per page support with default value 1000. .
 		$this->options['sm_user_consent']        = false;
+		$this->options['sm_wp_sitemap_status']   = true;
 	}
 
 	/**

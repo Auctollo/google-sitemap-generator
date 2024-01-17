@@ -84,7 +84,11 @@ class GoogleSitemapGeneratorLoader {
 		}
 
 		// Disable the WP core XML sitemaps .
-		add_filter( 'wp_sitemaps_enabled', '__return_false' );
+		if(isset(get_option('sm_options')['sm_wp_sitemap_status']) ) $wp_sitemap_status = get_option('sm_options')['sm_wp_sitemap_status'];
+		else $wp_sitemap_status = true;
+		if($wp_sitemap_status === true) $wp_sitemap_status = '__return_true';
+		else $wp_sitemap_status = '__return_false';
+		add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
 
 	}
 
@@ -1044,6 +1048,13 @@ class GoogleSitemapGeneratorLoader {
             }
         }
 
+		if(isset(get_option('sm_options')['sm_wp_sitemap_status']) ) $wordpress_options = get_option('sm_options')['sm_wp_sitemap_status'];
+		else $wordpress_options = true;
+		$wordpress_sm_enabled = 0;
+		if($wordpress_options) {
+            $wordpress_sm_enabled = 1;
+        }
+
 		$sitemap_plugins  = array();
 		$plugins          = get_plugins();
 		foreach ( $plugins as $key => $value ) {
@@ -1051,7 +1062,7 @@ class GoogleSitemapGeneratorLoader {
 			if ( strpos( $key, 'google-sitemap-generator' ) !== false ) {
 				continue;
 			}
-			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false || $jetpack_sm_enabled ) && is_plugin_active( ( $key ) ) ) {
+			if ( ( strpos( $key, 'sitemap' ) !== false || strpos( $key, 'seo' ) !== false || $jetpack_sm_enabled || $wordpress_sm_enabled) && is_plugin_active( ( $key ) ) ) {
 				array_push( $plug, $key );
 				foreach ( $value as $k => $v ) {
 					if ( 'Name' === $k ) {
@@ -1074,7 +1085,7 @@ class GoogleSitemapGeneratorLoader {
 			}
 		}
 
-		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled || 0 !== $jetpack_sm_enabled ) && count($plugin_name) > 0){
+		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled || 0 !== $jetpack_sm_enabled || 0 !== $jetpack_sm_enabled) && count($plugin_name) > 0){
 			$plug_name = [];
 			$plug_title = [];
 			if($yoast_options = get_option('wpseo')){
@@ -1100,6 +1111,11 @@ class GoogleSitemapGeneratorLoader {
 			if($jetpack_sm_enabled){
 				$plug_name[] = 'Jetpack Sitemap';
 				$plug_title[] = 'jetpack/jetpack.php';
+			}
+
+			if($wordpress_sm_enabled){
+				$plug_name[] = 'Wordpress Sitemap';
+				$plug_title[] = 'wordpress-sitemap';
 			}
 
 			if(count($plug_name) > 0){
