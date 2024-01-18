@@ -354,6 +354,8 @@ function register_consent() {
 								add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
 								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
 							}
+							GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+							GoogleSitemapGeneratorLoader::activate_rewrite();
 						} else {
 							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 						}
