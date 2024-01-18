@@ -129,11 +129,17 @@ class GoogleSitemapGeneratorLoader {
 	 * @return Array An array containing the new rewrite rules
 	 */
 	public static function add_rewrite_rules( $wp_rules ) {
+		if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
+		if(!isset($sm_sitemap_name)) $sm_sitemap_name = 'sitemap';
 		$sm_rules = array(
 			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
 			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
 			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
 			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 		);
 		return array_merge( $sm_rules, $wp_rules );
 	}
