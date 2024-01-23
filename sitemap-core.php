@@ -1921,7 +1921,7 @@ final class GoogleSitemapGenerator {
 		// Do not index the actual XML pages, only process them.
 		// This avoids that the XML sitemaps show up in the search results.
 		if ( ! headers_sent() ) {
-			header( 'X-Robots-Tag: noindex, follow', true, 200 );
+			header( 'X-Robots-Tag: noindex', true, 200 );
 		}
 
 		$this->initate();
@@ -2176,7 +2176,7 @@ final class GoogleSitemapGenerator {
 		}
 		$end_time = microtime( true );
 		$end_time = round( $end_time - $start_time, 2 );
-		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . '; Seconds: $end_time; Memory for sitemap: ' . ( ( memory_get_peak_usage( true ) - $start_memory ) / 1024 / 1024 ) . 'MB; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
+		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . "; Seconds: $end_time; Memory for sitemap: " . ( ( memory_get_peak_usage( true ) - $start_memory ) / 1024 / 1024 ) . 'MB; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
 	}
 
 	/**
