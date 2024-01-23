@@ -683,7 +683,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int) 1000;
 		}
-		$offset         = ( --$offset ) * $links_per_page;
+		$offset = (intval(--$offset)) * $links_per_page;
 
 		add_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
 		$terms = get_terms(
@@ -718,7 +718,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int) 1000;
 		}
-		$offset         = ( --$offset ) * $links_per_page;
+		$offset = (intval(--$offset)) * $links_per_page;
 		$excludes       = array();
 		$excl_cats      = $gsg->get_option( 'b_exclude_cats' ); // Excluded cats.
 		if ( $excl_cats ) {
