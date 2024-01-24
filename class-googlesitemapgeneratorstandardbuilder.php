@@ -892,12 +892,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 
 		$pages = $gsg->get_pages();
-		if ( count( $pages ) > 0 ) {
-			foreach ( $pages as $page ) {
-				$url = ! empty( $page->get_url() ) ? $page->get_url() : ( property_exists( $page, '_url' ) ? $page->_url : '' );
-				if ( $page instanceof GoogleSitemapGeneratorPage && $url ) {
-					$gsg->add_sitemap( 'externals-sitemap', null, $blog_update );
-					break;
+		if ($pages) {
+			if ( count( $pages ) > 0 ) {
+				foreach ( $pages as $page ) {
+					$url = ! empty( $page->get_url() ) ? $page->get_url() : ( property_exists( $page, '_url' ) ? $page->_url : '' );
+					if ( $page instanceof GoogleSitemapGeneratorPage && $url ) {
+						$gsg->add_sitemap( 'externals-sitemap', null, $blog_update );
+						break;
+					}
 				}
 			}
 		}
