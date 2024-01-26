@@ -891,7 +891,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			}
 		}
 
-		$pages = $gsg->get_pages();
+		$pages = (array)$gsg->get_pages();
 		if ( count( $pages ) > 0 ) {
 			foreach ( $pages as $page ) {
 				$url = ! empty( $page->get_url() ) ? $page->get_url() : ( property_exists( $page, '_url' ) ? $page->_url : '' );
