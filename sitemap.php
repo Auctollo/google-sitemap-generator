@@ -416,6 +416,13 @@ function register_consent() {
 		}
 		
 	}
+	if(isset($updateUrlRules['sm_links_page'] )){
+		$sm_links_page = intval($updateUrlRules['sm_links_page']);
+		if($sm_links_page < 1000) {
+			$updateUrlRules['sm_links_page'] = 1000;
+			update_option('sm_options', $updateUrlRules);
+		}
+	}
 }
 
 function disable_plugins_callback(){
