@@ -1340,7 +1340,7 @@ final class GoogleSitemapGenerator {
 		$this->options['sm_b_style_default'] = true; // Use default style .
 		$this->options['sm_b_style']         = ''; // Include a stylesheet in the XML .
 		$this->options['sm_b_baseurl']       = ''; // The base URL of the sitemap .
-		$this->options['sm_b_rewrites']		 = false; //status updating url rules
+		$this->options['sm_b_rewrites2']	 = false; //status updating url rules
 		$this->options['sm_b_indexnow']		 = true; //On indexnow functionality
 		$this->options['sm_b_index_date'] = ''; //On indexnow date
 		$this->options['sm_b_robots']        = true; // Add sitemap location to WordPress' virtual robots.txt file .

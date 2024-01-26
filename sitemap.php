@@ -401,16 +401,16 @@ function register_consent() {
 		}
 	}
 	$updateUrlRules = get_option('sm_options');
-	if(!isset($updateUrlRules['sm_b_rewrites']) || $updateUrlRules['sm_b_rewrites'] == false){
+	if(!isset($updateUrlRules['sm_b_rewrites2']) || $updateUrlRules['sm_b_rewrites2'] == false){
 		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
 		GoogleSitemapGeneratorLoader::activate_rewrite();
 		GoogleSitemapGeneratorLoader::activation_indexnow_setup();
 
-		if (isset($updateUrlRules['sm_b_rewrites'])) {
-			$updateUrlRules['sm_b_rewrites'] = true;
+		if (isset($updateUrlRules['sm_b_rewrites2'])) {
+			$updateUrlRules['sm_b_rewrites2'] = true;
 			update_option('sm_options', $updateUrlRules);
 		} else {
-			$updateUrlRules['sm_b_rewrites'] = true;
+			$updateUrlRules['sm_b_rewrites2'] = true;
 			add_option('sm_options', $updateUrlRules);
 			update_option('sm_options', $updateUrlRules);
 		}
