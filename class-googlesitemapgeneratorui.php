@@ -529,6 +529,8 @@ class GoogleSitemapGeneratorUI {
 				$this->sg->set_pages( $this->html_apply_pages() );
 			}
 
+			if(!$this->sg->get_option('sm_b_activate_indexnow')) $this->sg->set_option('sm_b_activate_indexnow', true);
+
 			if ( $this->sg->save_options() ) {
 				$message .= __( 'Configuration updated', 'google-sitemap-generator' ) . '<br />';
 			} else {
