@@ -423,6 +423,13 @@ function register_consent() {
 			update_option('sm_options', $updateUrlRules);
 		}
 	}
+
+	if(!isset($updateUrlRules['sm_b_activate_indexnow']) || $updateUrlRules['sm_b_activate_indexnow'] == false){
+		$updateUrlRules['sm_b_activate_indexnow'] = true;
+		$updateUrlRules['sm_b_indexnow'] = true;
+		update_option('sm_options', $updateUrlRules);
+	}
+	
 }
 
 function disable_plugins_callback(){
