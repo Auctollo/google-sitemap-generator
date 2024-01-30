@@ -795,7 +795,9 @@ class GoogleSitemapGeneratorLoader {
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
 			if (in_array($arrayType[1], array('xml', 'html'))){
-				if( strpos($arrayType[0], 'sitemap-misc') !== false ) {
+				if(isset(get_option('sm_options')['sm_b_sitemap_name']) && $arrayType[0] === get_option('sm_options')['sm_b_sitemap_name']){
+					$postType[0] = $arrayType[0] . '.' . $arrayType[1];
+				}else if( strpos($arrayType[0], '-misc') !== false ) {
 					$postType[0] = 'sitemap';
 					$postType[1] = $arrayType[1];
 				}
@@ -805,11 +807,10 @@ class GoogleSitemapGeneratorLoader {
 					$newType = explode('/', $postType[0]);
 					$postType[0] = end($newType);
 				}
-
+				
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
-
 					if($postType[0] === 'sitemap') return 'params=misc';
 					else if($postType[0] === 'post_tag' || $postType[0] === 'category' || taxonomy_exists($postType[0])) return 'params=tax-' . $postType[0] . '-' . $matches[0];
 					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];

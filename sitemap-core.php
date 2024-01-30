@@ -1751,7 +1751,8 @@ final class GoogleSitemapGenerator {
 		$html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
 		$zip  = ( isset( $build_options['zip'] ) ? $build_options['zip'] : false );
 		$base_url = get_bloginfo( 'url' );
-		return trailingslashit( $base_url ) . 'sitemap' . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+		if($this->get_options()['sm_b_sitemap_name']) $file_name = $this->get_options()['sm_b_sitemap_name'];
+		return trailingslashit( $base_url ) . ($file_name?$file_name:'sitemap') . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
 	}
 
 	/**
