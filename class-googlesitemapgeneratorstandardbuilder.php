@@ -651,24 +651,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @return array
 	 */
 	public function get_enabled_taxonomies( GoogleSitemapGenerator $gsg ) {
-
 		$enabled_taxonomies = $gsg->get_option( 'in_tax' );
 		if ( $gsg->get_option( 'in_tags' ) ) {
 			$enabled_taxonomies[] = 'post_tag';
 		}
-
 		if ( $gsg->get_option( 'in_cats' ) ) {
 			$enabled_taxonomies[] = 'category';
 		}
-
-		$tax_list = array();
-		foreach ( $enabled_taxonomies as $tax_name ) {
-			$taxonomy = get_taxonomy( $tax_name );
-			if ( $taxonomy && wp_count_terms( $taxonomy->name, array( 'hide_empty' => true ) ) > 0 ) {
-				$tax_list[] = $taxonomy->name;
-			}
-		}
-		return $tax_list;
+		return $enabled_taxonomies;
 	}
 
 	/**
@@ -825,28 +815,29 @@ class GoogleSitemapGeneratorStandardBuilder {
 		else if ($links_per_page > $this->maxLinksPerPage) $links_per_page = $this->maxLinksPerPage;
 		$gsg->add_sitemap( 'misc', null, $blog_update );
 
-		$taxonomies            = $this->get_enabled_taxonomies( $gsg );
 		$taxonomies_to_exclude = array( 'product_tag', 'product_cat' );
-		$excludes              = array();
-		$excl_cats             = $gsg->get_option( 'b_exclude_cats' ); // Excluded cats.
-
-		if ( $excl_cats ) {
-			$excludes = $excl_cats;
-		}
-
-		foreach ( $taxonomies as $taxonomy ) {
+		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );	
+		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
+		$excludes = $excl_cats ? $excl_cats : array();	
+		$terms_by_taxonomy = array();
+		
+		foreach ( $enabled_taxonomies as $taxonomy ) {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
-				$step = 1;
-				$taxs = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
-				$i    = 0;
-				foreach ( $taxs as $tax ) {
-					if ( 0 === ( $i % $links_per_page ) && '' !== $tax->taxonomy ) {
-						//$gsg->add_sitemap( 'tax-' . $tax->taxonomy, $step, $blog_update );
-						$gsg->add_sitemap( $tax->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
-						$step = ++$step;
-					}
-					$i++;
+				$terms = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
+				$terms_by_taxonomy[ $taxonomy ] = $terms;
+			}
+		}
+		
+		$step = 1;
+		
+		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
+			$i = 0;
+			foreach ( $terms as $term ) {
+				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy ) {
+					$gsg->add_sitemap( $term->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
+					$step++;
 				}
+				$i++;
 			}
 		}
 
