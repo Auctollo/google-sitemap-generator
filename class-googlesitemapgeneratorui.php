@@ -564,6 +564,7 @@ class GoogleSitemapGeneratorUI {
 			else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) $options['sm_wp_sitemap_status'] = true;
 			update_option('sm_options', $options);
 
+			/*
 			$auto_update_plugins = get_option( 'auto_update_plugins' );
 			if ( is_array( $auto_update_plugins ) ) {
 				$newArr = [];
@@ -572,6 +573,7 @@ class GoogleSitemapGeneratorUI {
 				}
 				update_option( 'auto_update_plugins', $newArr );
 			}
+			*/
 
 			$message .= __( 'The default configuration was restored.', 'google-sitemap-generator' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
