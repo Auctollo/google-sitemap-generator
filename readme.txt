@@ -2,8 +2,8 @@
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woocommerce, robots.txt, site kit, schema, bing, baidu, yandex
 Requires at least: 4.6
-Tested up to: 6.4.2
-Stable tag: 4.1.18
+Tested up to: 6.4.3
+Stable tag: 4.1.19
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,14 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.1.19 (2024-01-31) =
+* Fixed "Links per page" bug causing sitemaps to not include all posts depending on the setting. Following Search Engine guidance is minimum links per sitemap is 1,000 pages.
+* Fixed various Google Search Console errors including "Fetch error" and "noindex" header
+* Fixed the issue with "null" sitemaps
+* Improved generation performance by optimizing queries
+* Improved IndexNow implementation
+* Added WordPress' sitemap to the list of detected sitemaps for deactivation
 
 = 4.1.18 (2024-01-12) =
 * Resolved functionality regressions since v4.1.13
