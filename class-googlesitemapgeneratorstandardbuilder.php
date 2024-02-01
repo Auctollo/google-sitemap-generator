@@ -842,8 +842,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 		
 		$step = 1;
-		//var_dump($terms_by_taxonomy);
-		//die();
 		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
 			$i = 0;
 			foreach ( $terms as $term ) {
