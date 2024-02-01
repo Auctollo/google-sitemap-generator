@@ -1136,7 +1136,8 @@ class GoogleSitemapGeneratorUI {
 										$st = intval($status->get_start_time() + ( $opt * 3600 ));
 										/* translators: %s: search term */
 										$head = str_replace( '%date%', date_i18n( get_option( 'date_format' ), $st ) . ' ' . date_i18n( get_option( 'time_format' ), $st ), esc_html__( 'Result of the last ping, started on %date%.', 'google-sitemap-generator' ) );
-									} else esc_html__( '“Search engines have not been notified yet. Publish or update a post to update your sitemap modification dates and notify IndexNow-compatible search engines.”', 'google-sitemap-generator' );
+									}
+									else esc_html__( '“Search engines have not been notified yet. Publish or update a post to update your sitemap modification dates and notify IndexNow-compatible search engines.”', 'google-sitemap-generator' );
 
 									$this->html_print_box_header( 'sm_rebuild', $head );
 									?>
@@ -1192,7 +1193,7 @@ class GoogleSitemapGeneratorUI {
 											/* translators: %s: search term */
 											echo '<li>' . wp_kses( str_replace( array( '%1$s', '%2$s' ), $this->sg->get_base_sitemap_url(), __( 'The URL to your sitemap index file is: <a href=\'%1$s\'>%2$s</a>.', 'google-sitemap-generator' ) ), $arr ) . '</li>';
 											if ( !$this->sg->get_option('b_indexnow') ) {
-												echo '<li>' . esc_html__( 'Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.', 'google-sitemap-generator' ) . '</li>';
+												//echo '<li>' . esc_html__( 'Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.', 'google-sitemap-generator' ) . '</li>';
 											} else {
 
 												$services = (null !== $status) ? $status->get_used_ping_services() : array();
