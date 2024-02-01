@@ -553,11 +553,20 @@ class GoogleSitemapGeneratorUI {
 			delete_option( 'sm_user_consent' );
 			delete_option( 'sm_hide_auto_update_banner' );
 			delete_option( 'sm_disabe_other_plugin' );
+
+			$options = get_option('sm_options', array());
+			if(isset($options['sm_wp_sitemap_status'])) $wp_sitemap_status = $options['sm_wp_sitemap_status'];
+			
 			$this->sg->init_options();
 			$this->sg->save_options();
 
+			if (isset($wp_sitemap_status) && $wp_sitemap_status === false) $options['sm_wp_sitemap_status'] = false;
+			else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) $options['sm_wp_sitemap_status'] = true;
+			update_option('sm_options', $options);
+
 			$auto_update_plugins = get_option( 'auto_update_plugins' );
 			if ( is_array( $auto_update_plugins ) ) {
+				$newArr = [];
 				foreach( $auto_update_plugins as $one_plugin){
 					if($one_plugin != 'google-sitemap-generator/sitemap.php') $newArr[] = $one_plugin;
 				}

@@ -550,7 +550,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$offset         = $taxonomy;
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 1000;
+			$links_per_page = (int)1000;
 		}
 		if ( strpos( $taxonomy, '-' ) !== false ) {
 			$offset   = substr( $taxonomy, strrpos( $taxonomy, '-' ) + 1 );
@@ -588,11 +588,23 @@ class GoogleSitemapGeneratorStandardBuilder {
 				)
 			);
 			*/
+			if (preg_match('/post_tag/',$taxonomy)) {
+				$queryArr = array(
+					'number'       => $links_per_page,
+					'offset'       => $offset,
+					'hide_empty'   => true,
+					'hierarchical' => false,
+					'exclude'      => $excludes,
+				);
+			} else $queryArr = [];
 			$terms = array_values(
 				array_unique(
-					array_filter(get_terms(), function ($term) use ($taxonomy) {
-						return $term->taxonomy === $taxonomy;
-					}),
+					array_filter(
+						get_terms($queryArr),
+						function ($term) use ($taxonomy) {
+							return $term->taxonomy === $taxonomy;
+						}
+					),
 					SORT_REGULAR
 				)
 			);
@@ -706,7 +718,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 	public function build_product_categories( GoogleSitemapGenerator $gsg, $offset ) {
 		$links_per_page = $gsg->get_option( 'links_page' );
 		if ( gettype( $links_per_page ) !== 'integer' ) {
-			$links_per_page = (int) 1000;
+			//$links_per_page = (int) 1000;
+			$links_per_page = (int)$links_per_page;
 		}
 		$offset = (intval(--$offset)) * $links_per_page;
 		$excludes       = array();
@@ -829,15 +842,25 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 		
 		$step = 1;
-		
+		//var_dump($terms_by_taxonomy);
+		//die();
 		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
 			$i = 0;
 			foreach ( $terms as $term ) {
-				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy ) {
+				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy && 'post_tag' === $term->taxonomy ) {
 					$gsg->add_sitemap( $term->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
 					$step++;
 				}
 				$i++;
+			}
+			$n = 0;
+			$step = 1;
+			foreach ( $terms as $term ) {
+				if ( 0 === ( $n % $links_per_page ) && '' !== $term->taxonomy && 'category' === $term->taxonomy ) {
+					$gsg->add_sitemap( $term->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
+					$step++;
+				}
+				$n++;
 			}
 		}
 
