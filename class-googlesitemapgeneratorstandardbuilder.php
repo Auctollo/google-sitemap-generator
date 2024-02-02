@@ -6,7 +6,6 @@
  * @author  Arne Brachhold
  * @since   4.0
  */
-
 /**
  * Class
  */
