@@ -6,9 +6,6 @@
  * @author  Arne Brachhold
  * @since   4.0
  */
-
-use function PHPSTORM_META\type;
-
 /**
  * Class
  */
