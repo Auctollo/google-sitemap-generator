@@ -523,6 +523,8 @@ class GoogleSitemapGeneratorUI {
 					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				}
 			}
+			GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+			GoogleSitemapGeneratorLoader::activate_rewrite();
 
 			// Apply page changes from POST.
 			if ( is_super_admin() ) {
@@ -545,6 +547,11 @@ class GoogleSitemapGeneratorUI {
 				}
 			}
 		} elseif ( ! empty( $_POST['sm_reset_config'] ) ) { // Pressed Button: Reset Config.
+
+			$options = get_option('sm_options', array());
+			$custom_sitemap_name['sm_b_sitemap_name'] = $options['sm_b_sitemap_name'];
+			$custom_sitemap_name['sm_b_baseurl'] = $options['sm_b_baseurl'];
+
 			check_admin_referer( 'sitemap' );
 			delete_option( 'sm_show_beta_banner' );
 			delete_option( 'sm_beta_banner_discarded_on' );
@@ -554,15 +561,18 @@ class GoogleSitemapGeneratorUI {
 			delete_option( 'sm_hide_auto_update_banner' );
 			delete_option( 'sm_disabe_other_plugin' );
 
-			$options = get_option('sm_options', array());
 			if(isset($options['sm_wp_sitemap_status'])) $wp_sitemap_status = $options['sm_wp_sitemap_status'];
 			
 			$this->sg->init_options();
 			$this->sg->save_options();
 
-			if (isset($wp_sitemap_status) && $wp_sitemap_status === false) $options['sm_wp_sitemap_status'] = false;
-			else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) $options['sm_wp_sitemap_status'] = true;
-			update_option('sm_options', $options);
+			$options_new = get_option('sm_options', array());
+			$options_new['sm_b_sitemap_name'] = $custom_sitemap_name['sm_b_sitemap_name'];
+			$options_new['sm_b_baseurl'] = $custom_sitemap_name['sm_b_baseurl'];
+
+			if (isset($wp_sitemap_status) && $wp_sitemap_status === false) $options_new['sm_wp_sitemap_status'] = false;
+			else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) $options_new['sm_wp_sitemap_status'] = true;
+			update_option('sm_options', $options_new);
 
 			/*
 			$auto_update_plugins = get_option( 'auto_update_plugins' );
@@ -1191,7 +1201,7 @@ class GoogleSitemapGeneratorUI {
 												'strong' => array(),
 											);
 											/* translators: %s: search term */
-											echo '<li>' . wp_kses( str_replace( array( '%1$s', '%2$s' ), $this->sg->get_base_sitemap_url(), __( 'The URL to your sitemap index file is: <a href=\'%1$s\'>%2$s</a>.', 'google-sitemap-generator' ) ), $arr ) . '</li>';
+											echo '<li>' . wp_kses( str_replace( array( '%1$s', '%2$s' ), isset($custom_sitemap_name['sm_b_sitemap_name'])?home_url() .'/'. $custom_sitemap_name['sm_b_sitemap_name'] . '.xml':$this->sg->get_base_sitemap_url(), __( 'The URL to your sitemap index file is: <a href=\'%1$s\'>%2$s</a>.', 'google-sitemap-generator' ) ), $arr ) . '</li>';
 											if ( !$this->sg->get_option('b_indexnow') ) {
 												//echo '<li>' . esc_html__( 'Search engines haven\'t been notified yet. Write a post to let them know about your sitemap.', 'google-sitemap-generator' ) . '</li>';
 											} else {
@@ -1360,11 +1370,11 @@ class GoogleSitemapGeneratorUI {
 													<label for='sm_b_style_default'><input <?php echo ( $use_def_style ? 'checked=\'checked\' ' : '' ); ?> type='checkbox' id='sm_b_style_default' name='sm_b_style_default' onclick='document.getElementById("sm_b_style").disabled = this.checked;' /> <?php esc_html_e( 'Use default', 'google-sitemap-generator' ); ?></label> <?php endif; ?>
 											</li>
 											<li>
-												<label for='sm_b_baseurl'><?php esc_html_e( 'Override the base URL of the sitemap:', 'google-sitemap-generator' ); ?> <input type='text' name='sm_b_baseurl' id='sm_b_baseurl' value='<?php echo esc_attr( $this->sg->get_option( 'b_baseurl' ) ); ?>' /></label><br />
+												<label for='sm_b_baseurl'><?php esc_html_e( 'Override the base URL of the sitemap:', 'google-sitemap-generator' ); ?> <input type='text' name='sm_b_baseurl' id='sm_b_baseurl' value='<?php echo esc_attr( isset($custom_sitemap_name['sm_b_baseurl'])?$custom_sitemap_name['sm_b_baseurl']:$this->sg->get_option( 'b_baseurl' ) ); ?>' /></label><br />
 												<small><?php esc_html_e( 'Use this if your site is in a sub-directory, but you want the sitemap be located in the root. Requires .htaccess modification.', 'google-sitemap-generator' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'redir/sitemap-help-options-adv-baseurl' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'google-sitemap-generator' ); ?></a></small>
 											</li>
 											<li>
-												<label for='sm_b_sitemap_name'><?php esc_html_e( 'Override the file name of the sitemap:', 'google-sitemap-generator' ); ?> <input type='text' name='sm_b_sitemap_name' id='sm_b_sitemap_name' value='<?php echo esc_attr( $this->sg->get_option( 'b_sitemap_name' ) ); ?>' /></label><br />
+												<label for='sm_b_sitemap_name'><?php esc_html_e( 'Override the file name of the sitemap:', 'google-sitemap-generator' ); ?> <input type='text' name='sm_b_sitemap_name' id='sm_b_sitemap_name' value='<?php echo esc_attr( isset($custom_sitemap_name['sm_b_sitemap_name'])?$custom_sitemap_name['sm_b_sitemap_name']:$this->sg->get_option( 'b_sitemap_name' ) ); ?>' /></label><br />
 												<small><?php esc_html_e( 'Use this if you want to change the sitemap file name', 'google-sitemap-generator' ); ?> <a href='<?php echo esc_url( $this->sg->get_redirect_link( 'sitemap-help-options-adv-baseurl' ) ); ?>' target='_blank'><?php esc_html_e( 'Learn more', 'google-sitemap-generator' ); ?></a></small>
 											</li>
 											<li>
