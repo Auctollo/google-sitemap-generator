@@ -2181,8 +2181,8 @@ final class GoogleSitemapGenerator {
 		$spent_memory = intval((memory_get_peak_usage( true ) - $start_memory) / 1024);
 		if($spent_memory > 1023) $spent_memory = intval($spent_memory / 1024) . 'MB';
 		else $spent_memory .= 'KB';
-		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . "; Seconds: $end_time; Memory for sitemap: " . ( ( memory_get_peak_usage( true ) - $start_memory ) / 1024 / 1024 ) . 'MB; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
-		//$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . "; Seconds: $end_time; Memory for sitemap: " . $spent_memory. '; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
+		//$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . "; Seconds: $end_time; Memory for sitemap: " . ( ( memory_get_peak_usage( true ) - $start_memory ) / 1024 / 1024 ) . 'MB; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
+		$this->add_element( new GoogleSitemapGeneratorDebugEntry( 'Request ID: ' . md5( microtime() ) . '; Queries for sitemap: ' . ( $GLOBALS['wpdb']->num_queries - $start_queries ) . '; Total queries: ' . $GLOBALS['wpdb']->num_queries . "; Seconds: $end_time; Memory for sitemap: " . $spent_memory. '; Total memory: ' . ( memory_get_peak_usage( true ) / 1024 / 1024 ) . 'MB' ) );
 	}
 
 	/**
