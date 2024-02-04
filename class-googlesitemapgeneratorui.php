@@ -549,8 +549,6 @@ class GoogleSitemapGeneratorUI {
 		} elseif ( ! empty( $_POST['sm_reset_config'] ) ) { // Pressed Button: Reset Config.
 
 			$options = get_option('sm_options', array());
-			$custom_sitemap_name['sm_b_sitemap_name'] = $options['sm_b_sitemap_name'];
-			$custom_sitemap_name['sm_b_baseurl'] = $options['sm_b_baseurl'];
 
 			check_admin_referer( 'sitemap' );
 			delete_option( 'sm_show_beta_banner' );
@@ -567,23 +565,12 @@ class GoogleSitemapGeneratorUI {
 			$this->sg->save_options();
 
 			$options_new = get_option('sm_options', array());
-			$options_new['sm_b_sitemap_name'] = $custom_sitemap_name['sm_b_sitemap_name'];
-			$options_new['sm_b_baseurl'] = $custom_sitemap_name['sm_b_baseurl'];
-
-			if (isset($wp_sitemap_status) && $wp_sitemap_status === false) $options_new['sm_wp_sitemap_status'] = false;
-			else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) $options_new['sm_wp_sitemap_status'] = true;
-			update_option('sm_options', $options_new);
-
-			/*
-			$auto_update_plugins = get_option( 'auto_update_plugins' );
-			if ( is_array( $auto_update_plugins ) ) {
-				$newArr = [];
-				foreach( $auto_update_plugins as $one_plugin){
-					if($one_plugin != 'google-sitemap-generator/sitemap.php') $newArr[] = $one_plugin;
-				}
-				update_option( 'auto_update_plugins', $newArr );
+			if (isset($wp_sitemap_status) && $wp_sitemap_status === false) {
+				$options_new['sm_wp_sitemap_status'] = false;
+			} else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) {
+				$options_new['sm_wp_sitemap_status'] = true;
 			}
-			*/
+			update_option('sm_options', $options_new);
 
 			$message .= __( 'The default configuration was restored.', 'google-sitemap-generator' );
 		} elseif ( ! empty( $_GET['sm_delete_old'] ) ) { // Delete old sitemap files.
