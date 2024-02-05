@@ -3,7 +3,6 @@
 
 class GoogleSitemapGeneratorIndexNow {
 
-    private $checkboxStatus;
     private $siteUrl;
     private $version;
     private $prefix = "gsg_indexnow-";
@@ -16,11 +15,12 @@ class GoogleSitemapGeneratorIndexNow {
 		return $this->sendToIndex($this->siteUrl, $indexUrl, $apiKey, false);
     }
 
-    private function getApiKey(){
-        $apiKey = get_option( $this->prefix . "admin_api_key" );
-        if($apiKey){
-            return $apiKey;
-        }
+    public function getApiKey() {
+		$meta_key = $this->prefix . "admin_api_key";
+        $apiKey = is_multisite() ? get_site_option($meta_key) : get_option($meta_key);
+        if ($apiKey) return base64_decode($apiKey);
+
+		return false;
     }
 
     private function sendToIndex($site_url, $url, $api_key, $is_manual_submission){
@@ -55,10 +55,7 @@ class GoogleSitemapGeneratorIndexNow {
 			return 'error:RequestFailed';
 		}
 		try {
-			if ( 200 === $response['response']['code'] || 202 === $response['response']['code'] ) {
-				//$updateUrlRules['sm_b_index_date'] = time();
-				//update_option('sm_options', $updateUrlRules);
-
+			if (in_array($response['response']['code'], [200, 202])) {
 				return 'success';
 			} else {
 				if ( 400 === $response['response']['code'] ) {
