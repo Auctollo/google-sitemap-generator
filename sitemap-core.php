@@ -2692,7 +2692,7 @@ final class GoogleSitemapGenerator {
 				require_once $path . $file_name;
 			}
 
-			$this->ui = new $class_name( $this );
+			$this->ui = new $class_name( $this, new GoogleSitemapGeneratorIndexNow() );
 		}
 
 		return $this->ui;

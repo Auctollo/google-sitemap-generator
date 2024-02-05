@@ -17,6 +17,7 @@ class GoogleSitemapGeneratorUI {
 	 * @var GoogleSitemapGenerator
 	 */
 	private $sg = null;
+	private $index_now = null;
 	/**
 	 * Check if woo commerce is active or not .
 	 *
@@ -32,8 +33,9 @@ class GoogleSitemapGeneratorUI {
 	 *
 	 * @param GoogleSitemapGenerator $sitemap_builder s .
 	 */
-	public function __construct( GoogleSitemapGenerator $sitemap_builder ) {
+	public function __construct( GoogleSitemapGenerator $sitemap_builder, GoogleSitemapGeneratorIndexNow $index_now) {
 		$this->sg = $sitemap_builder;
+		$this->index_now = $index_now;
 	}
 	/**
 	 * Constructor function.
@@ -1314,6 +1316,11 @@ class GoogleSitemapGeneratorUI {
 												),
 												'strong' => array(),
 											);
+											if ($this->sg->get_option('b_indexnow') && 
+												$api_key = $this->index_now->getApiKey()) {
+												esc_html_e(sprintf(__('Api Key: %s', 'google-sitemap-generator'), $api_key));
+												echo '<br/>';
+											}
 											/* translators: %s: search term */
 											echo wp_kses( str_replace( '%s', $this->sg->get_redirect_link( 'redir/sitemap-gwb/' ), __( 'No registration required, however, you can join the <a href=\'%s\' target=\'_blank\'>Microsoft Bing Webmaster Tools</a> for more crawling details.', 'google-sitemap-generator' ) ), $arr );
 											?>

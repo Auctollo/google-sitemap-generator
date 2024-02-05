@@ -71,7 +71,7 @@ add_action( 'plugins_loaded', function() {
 
 });
 
-add_action( 'save_post', 'indexnow_after_post_save', 10, 3 ); //send to indexNow
+add_action( 'transition_post_status', 'indexnow_after_post_save', 10, 3 ); //send to indexNow
 
 /**
  * Google analytics .
@@ -486,15 +486,27 @@ function conflict_plugins_admin_notice(){
 }
 
  /* send to index updated url */
-function indexnow_after_post_save( $post_ID, $post, $update ) {
+function indexnow_after_post_save($new_status, $old_status, $post) {
 	$indexnow = get_option('sm_options');
-	$indexNowStatus = false;
-	if(isset($indexnow['sm_b_indexnow'])) $indexNowStatus = $indexnow['sm_b_indexnow'];
-	if($indexNowStatus === true){
+	$indexNowStatus = isset($indexnow['sm_b_indexnow']) ? $indexnow['sm_b_indexnow'] : false;
+	if ($indexNowStatus === true) {
 	    $newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
-        $newUrlToIndex->start( get_permalink( $post_ID ) );
+		$is_changed = false;
+		$type = "add";
+		if ($old_status === 'publish' && $new_status === 'publish') {
+			$is_changed = true;
+			$type = "update";
+		}
+		else if ($old_status != 'publish' && $new_status === 'publish') {
+			$is_changed = true;
+			$type = "add";
+		}
+		else if ($old_status === 'publish' && $new_status === 'trash') {
+			$is_changed = true;
+			$type = "delete";
+		}
+		if ($is_changed) $newUrlToIndex->start(get_permalink($post));
     }
-
 }
 
 // Don't do anything if this file was called directly.
