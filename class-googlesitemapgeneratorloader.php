@@ -90,6 +90,18 @@ class GoogleSitemapGeneratorLoader {
 		else $wp_sitemap_status = '__return_false';
 		add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
 
+		// Create dynamically generated robots.txt
+		if (get_option('sm_options')['sm_b_robots']) {
+			add_filter('robots_txt', function($output, $public) {
+				$output = "User-agent: *\n";
+				if ('0' == $public ) {
+					$output .= "Disallow: /\nDisallow: /*\nDisallow: /*?\n";
+				} else {
+					$output .= "Disallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
+				}
+				return $output;
+			}, 99, 2);
+		}
 	}
 
 	/**
