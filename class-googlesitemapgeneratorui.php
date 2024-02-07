@@ -205,6 +205,14 @@ class GoogleSitemapGeneratorUI {
 		}
 		return $pages;
 	}
+
+	public function get_max_input_vars() {
+		$form_inputs = 40;
+		$max_input_vars = ini_get('max_input_vars');
+
+		return $max_input_vars - $form_inputs - (count($this->sg->get_pages())*5);
+	}
+
 	/**
 	 * Escape.
 	 *
@@ -797,6 +805,14 @@ class GoogleSitemapGeneratorUI {
 					</small></a></p>
 					</strong>
 					<div style='clear:right;'></div>
+				</div>
+				<?php
+			}
+
+			if ($this->get_max_input_vars() <= 0) {
+				?>
+				<div class="error">
+					<p><?php echo __('You can\'t add more external pages the limit of max_input_vars has been exceeded, please increase the value of max_input_vars', 'google-sitemap-generator'); ?></p>
 				</div>
 				<?php
 			}
