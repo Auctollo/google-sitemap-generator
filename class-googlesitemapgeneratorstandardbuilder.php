@@ -587,7 +587,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				)
 			);
 			*/
-			if (preg_match('/post_tag/',$taxonomy)) {
+			if (preg_match('/(post_tag|category)/', $taxonomy)) {
 				$queryArr = array(
 					'number'       => $links_per_page,
 					'offset'       => $offset,
