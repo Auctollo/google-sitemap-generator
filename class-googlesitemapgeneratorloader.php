@@ -152,10 +152,10 @@ class GoogleSitemapGeneratorLoader {
 			'.*-misc\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
 			'.*-misc\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
 			'.*-misc\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-			'-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
+			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
 			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
 			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
 			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
@@ -176,10 +176,10 @@ class GoogleSitemapGeneratorLoader {
 			'rewrite ^/.*-misc?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
 			'rewrite ^/.*-misc?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
 
-			'rewrite ^/-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			'rewrite ^/-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			'rewrite ^/-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			'rewrite ^/-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
+			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
+			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
+			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
+			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
 		);
 
 	}
