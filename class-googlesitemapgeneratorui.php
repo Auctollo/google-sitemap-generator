@@ -812,7 +812,7 @@ class GoogleSitemapGeneratorUI {
 			if ($this->get_max_input_vars() <= 0) {
 				?>
 				<div class="error">
-					<p><?php echo __('You can\'t add more external pages the limit of max_input_vars has been exceeded, please increase the value of max_input_vars', 'google-sitemap-generator'); ?></p>
+					<p><?php echo __('More external pages cannot be added: The max_input_vars value in the PHP configuration has been exceeded, please increase the value and try again.', 'google-sitemap-generator'); ?></p>
 				</div>
 				<?php
 			}
