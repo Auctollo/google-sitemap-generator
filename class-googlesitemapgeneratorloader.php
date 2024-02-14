@@ -91,7 +91,7 @@ class GoogleSitemapGeneratorLoader {
 		add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
 
 		// Create dynamically generated robots.txt
-		if (get_option('sm_options')['sm_b_robots']) {
+		if (isset(get_option('sm_options')['sm_b_robots']) && get_option('sm_options')['sm_b_robots'] === true) {
 			add_filter('robots_txt', function($output, $public) {
 				$output = "User-agent: *\n";
 				if ('0' == $public ) {
