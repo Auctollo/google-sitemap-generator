@@ -838,7 +838,7 @@ class GoogleSitemapGeneratorLoader {
 					$postType[0] = end($newType);
 				}
 
-				if (strpos($postType[0], '-') !== false) {
+				if (strpos($postType[0], 'authors') !== false && strpos($postType[0], '-') !== false) {
 					$array = explode('-', $postType[0]);
 					$postType[0] = end($array);
 				}
