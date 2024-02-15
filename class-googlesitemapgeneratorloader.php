@@ -91,7 +91,7 @@ class GoogleSitemapGeneratorLoader {
 		add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
 
 		// Create dynamically generated robots.txt
-		if (get_option('sm_options')['sm_b_robots']) {
+		if (isset(get_option('sm_options')['sm_b_robots']) && get_option('sm_options')['sm_b_robots'] === true) {
 			add_filter('robots_txt', function($output, $public) {
 				$output = "User-agent: *\n";
 				if ('0' == $public ) {
@@ -837,7 +837,12 @@ class GoogleSitemapGeneratorLoader {
 					$newType = explode('/', $postType[0]);
 					$postType[0] = end($newType);
 				}
-				
+
+				if (strpos($postType[0], 'authors') !== false && strpos($postType[0], '-') !== false) {
+					$array = explode('-', $postType[0]);
+					$postType[0] = end($array);
+				}
+
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
@@ -1130,9 +1135,10 @@ class GoogleSitemapGeneratorLoader {
 		if(('google-sitemap-generator/sitemap.php' === $current_page || $_SERVER['REQUEST_URI'] === '/wp-admin/index.php' || $_SERVER['REQUEST_URI'] === '/wp-admin/' ) && count( $sitemap_plugins ) > 0 && ( 0 !== $yoast_sm_enabled || 0 !== $aio_seo_sm_enabled || 0 !== $jetpack_sm_enabled || 0 !== $jetpack_sm_enabled) && count($plugin_name) > 0){
 			$plug_name = [];
 			$plug_title = [];
+
 			if($yoast_options = get_option('wpseo')){
 				$yoast_options = get_option('wpseo');
-				if (isset($yoast_options['enable_xml_sitemap'])) {
+				if (in_array('wordpress-seo/wp-seo.php', $plugin_title) && isset($yoast_options['enable_xml_sitemap'])) {
 					$sitemap_enabled = $yoast_options['enable_xml_sitemap'];
 					if ($sitemap_enabled) {
 						$plug_name[] = 'Yoast SEO';
@@ -1144,7 +1150,7 @@ class GoogleSitemapGeneratorLoader {
 			$aioseo_option_key = 'aioseo_options';
 			if($aioseo_options = get_option($aioseo_option_key)){
 				$aioseo_options = json_decode($aioseo_options, true);
-				if($aioseo_options['sitemap']['general']['enable']){
+				if(in_array('all-in-one-seo-pack/all_in_one_seo_pack.php', $plugin_title) && $aioseo_options['sitemap']['general']['enable']){
 					$plug_name[] = 'All in One SEO';
 					$plug_title[] = 'all-in-one-seo-pack/all_in_one_seo_pack.php';
 				}
