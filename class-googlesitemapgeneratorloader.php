@@ -837,7 +837,12 @@ class GoogleSitemapGeneratorLoader {
 					$newType = explode('/', $postType[0]);
 					$postType[0] = end($newType);
 				}
-				
+
+				if (strpos($postType[0], '-') !== false) {
+					$array = explode('-', $postType[0]);
+					$postType[0] = end($array);
+				}
+
 				if(count($postType) > 1 ){
 					preg_match('/\d+/', $postType[1], $matches);
 					if(empty($matches)) $matches[0] = 1;
