@@ -73,6 +73,20 @@ add_action( 'plugins_loaded', function() {
 
 add_action( 'transition_post_status', 'indexnow_after_post_save', 10, 3 ); //send to indexNow
 
+add_action('wpmu_new_blog', 'disable_conflict_sitemaps_on_new_blog', 10, 6);
+
+function disable_conflict_sitemaps_on_new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta) {
+    switch_to_blog($blog_id);
+    $aioseo_option_key = 'aioseo_options';
+    if (get_option($aioseo_option_key) !== null) {
+        $aioseo_options = get_option($aioseo_option_key);
+        $aioseo_options = json_decode($aioseo_options, true);
+        $aioseo_options['sitemap']['general']['enable'] = false;
+        update_option($aioseo_option_key, json_encode($aioseo_options));
+    }
+    restore_current_blog();
+}
+
 /**
  * Google analytics .
  */
