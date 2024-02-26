@@ -2356,21 +2356,20 @@ final class GoogleSitemapGenerator {
 				);
 			}
 
-			foreach ( $pings as $service_id => $service ) {
-				//$url = rawurlencode( $ping_url );
-				$url = $ping_url;
-				$status->start_ping( $service_id, $url, $service['name'] );
-
-				$newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
-				$pingres = $newUrlToIndex->start( $url );
-
-				if ( null === $pingres || false === $pingres || false === strpos( $pingres, $service['check'] ) ) {
-					$status->end_ping( $service_id, false );
-					// phpcs:disable WordPress.PHP.DevelopmentFunctions
-					trigger_error( 'Failed to ping $service_id: ' . esc_html( htmlspecialchars( wp_strip_all_tags( $pingres ) ) ), E_USER_NOTICE );
-					// phpcs:enable
-				} else {
-					$status->end_ping( $service_id, true );
+			if ($pings) {
+				foreach ( $pings as $service_id => $service ) {
+					//$url = rawurlencode( $ping_url );
+					$url = $ping_url;
+					$status->start_ping( $service_id, $url, $service['name'] );
+	
+					$newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
+					$pingres = $newUrlToIndex->start( $url );
+	
+					if ( null === $pingres || false === $pingres || false === strpos( $pingres, $service['check'] ) ) {
+						$status->end_ping( $service_id, false );
+					} else {
+						$status->end_ping( $service_id, true );
+					}
 				}
 			}
 
