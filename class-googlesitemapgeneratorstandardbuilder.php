@@ -789,10 +789,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 			foreach ( $pages as $page ) {
 				// Disabled phpcs for backward compatibility .
 				// phpcs:disable
-				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->_url;
-				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->_changeFreq;
-				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->_priority;
-				$last_mod    = ! empty( $page->_lastMod ) ? $page->_lastMod : $page->last_mod;
+				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->url;
+				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->change_freq;
+				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->priority;
+				$last_mod    = ! empty( $page->get_last_mod() ) ? $page->get_last_mod() : $page->last_mod;
 				// phpcs:enable
 				/**
 				 * Description for $page variable.
