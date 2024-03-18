@@ -824,35 +824,39 @@ class GoogleSitemapGeneratorLoader {
 		if( isset($current_url['path']) && strlen($current_url['path']) > 1){
 			$currentUrl = substr($current_url['path'], 1);
 			$arrayType = explode('.', $currentUrl);
-			if (in_array($arrayType[1], array('xml', 'html'))){
-				if(isset(get_option('sm_options')['sm_b_sitemap_name']) && $arrayType[0] === get_option('sm_options')['sm_b_sitemap_name']){
-					$postType[0] = $arrayType[0] . '.' . $arrayType[1];
-				}else if( strpos($arrayType[0], '-misc') !== false ) {
-					$postType[0] = 'sitemap';
-					$postType[1] = $arrayType[1];
-				}
-				else $postType = explode('-sitemap', $currentUrl);
+			if (isset($arrayType) && is_array($arrayType) && count($arrayType) > 1) {
+				if (isset($arrayType[1]) && is_string($arrayType[1])) {
+					if (in_array($arrayType[1], array('xml', 'html'))){
+						if(isset(get_option('sm_options')['sm_b_sitemap_name']) && $arrayType[0] === get_option('sm_options')['sm_b_sitemap_name']){
+							$postType[0] = $arrayType[0] . '.' . $arrayType[1];
+						}else if( strpos($arrayType[0], '-misc') !== false ) {
+							$postType[0] = 'sitemap';
+							$postType[1] = $arrayType[1];
+						}
+						else $postType = explode('-sitemap', $currentUrl);
 
-				if (strpos($postType[0], '/') !== false){
-					$newType = explode('/', $postType[0]);
-					$postType[0] = end($newType);
-				}
+						if (strpos($postType[0], '/') !== false){
+							$newType = explode('/', $postType[0]);
+							$postType[0] = end($newType);
+						}
 
-				if (strpos($postType[0], 'authors') !== false && strpos($postType[0], '-') !== false) {
-					$array = explode('-', $postType[0]);
-					$postType[0] = end($array);
-				}
+						if (strpos($postType[0], 'authors') !== false && strpos($postType[0], '-') !== false) {
+							$array = explode('-', $postType[0]);
+							$postType[0] = end($array);
+						}
 
-				if(count($postType) > 1 ){
-					preg_match('/\d+/', $postType[1], $matches);
-					if(empty($matches)) $matches[0] = 1;
-					if($postType[0] === 'sitemap') return 'params=misc';
-					else if($postType[0] === 'post_tag' || $postType[0] === 'category' || taxonomy_exists($postType[0])) return 'params=tax-' . $postType[0] . '-' . $matches[0];
-					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
-					else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
-					else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
-					else if($postType[0] === 'producttags') return 'params=producttags-' . $matches[0];
-					else return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
+						if(count($postType) > 1 ){
+							preg_match('/\d+/', $postType[1], $matches);
+							if(empty($matches)) $matches[0] = 1;
+							if($postType[0] === 'sitemap') return 'params=misc';
+							else if($postType[0] === 'post_tag' || $postType[0] === 'category' || taxonomy_exists($postType[0])) return 'params=tax-' . $postType[0] . '-' . $matches[0];
+							else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
+							else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
+							else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
+							else if($postType[0] === 'producttags') return 'params=producttags-' . $matches[0];
+							else return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
+						}
+					}
 				}
 			}
 		}
