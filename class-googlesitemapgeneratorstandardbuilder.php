@@ -844,7 +844,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
 			$i = 0;
 			foreach ( $terms as $term ) {
-				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy && 'post_tag' === $term->taxonomy ) {
+				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy && ! is_taxonomy_hierarchical( $term->taxonomy ) && ( 'post_tag' === $term->taxonomy || taxonomy_exists( $term->taxonomy ) ) ) {
 					$gsg->add_sitemap( $term->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
 					$step++;
 				}
