@@ -276,13 +276,18 @@ class GoogleSitemapGeneratorStandardBuilder {
 							}
 						}
 
-						if($index){
-							if($postLinkArr[$index] !== $defaultLanguageCode){
-								$key = array_search('%postname%', $structurekArr);
-								if($structurekArr[$key] === '%postname%') $postLinkArr[$index + $key] = $post->post_name;
-								$permalink = implode('/', $postLinkArr);
-							}
-						}
+                        if ($index !== null) {
+                            if ($postLinkArr[$index] !== $defaultLanguageCode) {
+                                $custom_post_type_name = get_post_type($post);
+                                if (!in_array($custom_post_type_name, $postLinkArr)) {
+                                    $key = array_search('%postname%', $structurekArr);
+                                    if ($structurekArr[$key] === '%postname%') {
+                                        $postLinkArr[$index + $key] = $post->post_name;
+                                    }
+                                }
+                                $permalink = implode('/', $postLinkArr);
+                            }
+                        }
 					}
 
 					// Exclude the home page and placeholder items by some plugins. Also include only internal links.
@@ -443,8 +448,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 
 		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
+			if(is_multisite()) {
+				if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
+					$sm_sitemap_name = get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'];
+				}
+			} else if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
+			if(!isset($sm_sitemap_name)) $sm_sitemap_name = 'sitemap';
 			$gsg->add_url(
-				str_replace('.html', 'sitemap.html', $gsg->get_xml_url( 'main', '', array( 'html' => true ) ) ),
+				str_replace('.html', $sm_sitemap_name . '.html', $gsg->get_xml_url( 'main', '', array( 'html' => true ) ) ),
 				( $lm ? $gsg->get_timestamp_from_my_sql( $lm ) : time() )
 			);
 		}
