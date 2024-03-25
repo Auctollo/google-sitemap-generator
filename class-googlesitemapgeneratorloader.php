@@ -205,20 +205,10 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function remove_rewrite_rules( $wp_rules ) {
 		$sm_rules = array(
-			'.*-misc\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*-misc\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*-misc\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*-misc\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-
-			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*sitemap.*(-+([a-zA-Z0-9_-]+))?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-
-			'.*sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
+			'.*\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
+			'.*\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
+			'.*\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
+			'.*\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',		
 		);
 		foreach ( $wp_rules as $key => $value ) {
 			if ( array_key_exists( $key, $sm_rules ) ) {
