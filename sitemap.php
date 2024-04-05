@@ -87,6 +87,22 @@ function disable_conflict_sitemaps_on_new_blog($blog_id, $user_id, $domain, $pat
     restore_current_blog();
 }
 
+add_action('parse_request', 'plugin_check_sitemap_request');
+function plugin_check_sitemap_request($wp) {
+	if(is_multisite()) {
+		if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
+			$sm_sitemap_name = get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'];
+		}
+	} else if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
+	
+    if(isset($wp->request) && $wp->request === 'wp-sitemap.xml' && $sm_sitemap_name !== 'sitemap') {
+        status_header(404);
+        nocache_headers();
+        include( get_query_template( '404' ) );
+        exit;
+    }
+}
+
 /**
  * Google analytics .
  */

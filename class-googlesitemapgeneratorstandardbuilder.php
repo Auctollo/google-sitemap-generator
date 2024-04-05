@@ -276,13 +276,18 @@ class GoogleSitemapGeneratorStandardBuilder {
 							}
 						}
 
-						if($index){
-							if($postLinkArr[$index] !== $defaultLanguageCode){
-								$key = array_search('%postname%', $structurekArr);
-								if($structurekArr[$key] === '%postname%') $postLinkArr[$index + $key] = $post->post_name;
-								$permalink = implode('/', $postLinkArr);
-							}
-						}
+                        if ($index !== null) {
+                            if ($postLinkArr[$index] !== $defaultLanguageCode) {
+                                $custom_post_type_name = get_post_type($post);
+                                if (!in_array($custom_post_type_name, $postLinkArr)) {
+                                    $key = array_search('%postname%', $structurekArr);
+                                    if ($structurekArr[$key] === '%postname%') {
+                                        $postLinkArr[$index + $key] = $post->post_name;
+                                    }
+                                }
+                                $permalink = implode('/', $postLinkArr);
+                            }
+                        }
 					}
 
 					// Exclude the home page and placeholder items by some plugins. Also include only internal links.
@@ -443,8 +448,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 
 		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
+			if(is_multisite()) {
+				if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
+					$sm_sitemap_name = get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'];
+				}
+			} else if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
+			if(!isset($sm_sitemap_name)) $sm_sitemap_name = 'sitemap';
 			$gsg->add_url(
-				str_replace('.html', 'sitemap.html', $gsg->get_xml_url( 'main', '', array( 'html' => true ) ) ),
+				str_replace('.html', $sm_sitemap_name . '.html', $gsg->get_xml_url( 'main', '', array( 'html' => true ) ) ),
 				( $lm ? $gsg->get_timestamp_from_my_sql( $lm ) : time() )
 			);
 		}
@@ -789,10 +800,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 			foreach ( $pages as $page ) {
 				// Disabled phpcs for backward compatibility .
 				// phpcs:disable
-				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->_url;
-				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->_changeFreq;
-				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->_priority;
-				$last_mod    = ! empty( $page->_lastMod ) ? $page->_lastMod : $page->last_mod;
+				$url         = ! empty( $page->get_url() ) ? $page->get_url() : $page->url;
+				$change_freq = ! empty( $page->get_change_freq() ) ? $page->get_change_freq() : $page->change_freq;
+				$priority    = ! empty( $page->get_priority() ) ? $page->get_priority() : $page->priority;
+				$last_mod    = ! empty( $page->get_last_mod() ) ? $page->get_last_mod() : $page->last_mod;
 				// phpcs:enable
 				/**
 				 * Description for $page variable.
@@ -844,7 +855,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
 			$i = 0;
 			foreach ( $terms as $term ) {
-				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy && 'post_tag' === $term->taxonomy ) {
+				if ( 0 === ( $i % $links_per_page ) && '' !== $term->taxonomy && ! is_taxonomy_hierarchical( $term->taxonomy ) && ( 'post_tag' === $term->taxonomy || taxonomy_exists( $term->taxonomy ) ) ) {
 					$gsg->add_sitemap( $term->taxonomy,'-sitemap' . ($step === 1? '' : $step), $blog_update );
 					$step++;
 				}
