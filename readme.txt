@@ -2,8 +2,8 @@
 Contributors: auctollo
 Tags: sitemap, seo, xml sitemap, indexnow, google sitemaps, google search console, news sitemap, image sitemap, image seo, video sitemap, video seo, woocommerce, robots.txt, site kit, schema, bing, baidu, yandex
 Requires at least: 4.6
-Tested up to: 6.4.3
-Stable tag: 4.1.19
+Tested up to: 6.5
+Stable tag: 4.1.20
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,15 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.1.20 (2024-03-23) =
+* Fixed empty ping error
+* Fixed response code issue with index sitemap
+* Fixed interoperability with existing robots.txt file
+* Fixed URL for guest authors
+* Fixed uninstalled plugin error
+* Improved multi-site support
+* Improved SEO plugin interoperability
 
 = 4.1.19 (2024-01-31) =
 * Fixed "Links per page" bug causing sitemaps to not include all posts depending on the setting. Following Search Engine guidance is minimum links per sitemap is 1,000 pages.
