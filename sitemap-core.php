@@ -1922,7 +1922,7 @@ final class GoogleSitemapGenerator {
 
 		// Do not index the actual XML pages, only process them.
 		// This avoids that the XML sitemaps show up in the search results.
-		if ( ! headers_sent() ) {
+		if ( ! headers_sent() && $this->build_options['html'] == "true" ) {
 			header( 'X-Robots-Tag: index, follow', true, 200 );
 		}
 
@@ -2200,12 +2200,20 @@ final class GoogleSitemapGenerator {
 		if ( $this->get_option( 'b_robots' ) === true ) {
 
 			//$sm_url = $this->get_xml_url();
-			$html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
+			// $html = ( isset( $build_options['html'] ) ? $build_options['html'] : false );
 			$zip  = ( isset( $build_options['zip'] ) ? $build_options['zip'] : false );
-			if($this->get_option( 'b_sitemap_name' )) $sm_url = trailingslashit( get_bloginfo( 'url' ) ) . ( '' === $this->get_option( 'b_sitemap_name' ) ? '' : $this->get_option( 'b_sitemap_name' ) ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			else $sm_url = get_bloginfo( 'url' ) . '/sitemap.xml';
+			$b_html = ( null !== $this->get_option('b_html') ? $this->get_option('b_html') : false );
+			if ( $this->get_option( 'b_sitemap_name' ) ) {
+				$sm_url = trailingslashit( get_bloginfo( 'url' ) ) . ( '' === $this->get_option( 'b_sitemap_name' ) ? '' : $this->get_option( 'b_sitemap_name' ) ) . '.xml' . ( $zip ? '.gz' : '' );
+				$sm_html_url = trailingslashit( get_bloginfo( 'url' ) ) . ( '' === $this->get_option( 'b_sitemap_name' ) ? '' : $this->get_option( 'b_sitemap_name' ) ) . '.html' . ( $zip ? '.gz' : '' );
+			}
+			else {
+				$sm_url = get_bloginfo( 'url' ) . '/sitemap.xml';
+				$sm_html_url = get_bloginfo( 'url' ) . '/sitemap.html';
+			}
 
 			echo "\nSitemap: " . esc_url( $sm_url ) . "\n";
+			if ( $b_html ) echo "Sitemap: " . esc_url( $sm_html_url ) . "\n";
 		}
 	}
 
