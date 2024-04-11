@@ -1922,8 +1922,10 @@ final class GoogleSitemapGenerator {
 
 		// Do not index the actual XML pages, only process them.
 		// This avoids that the XML sitemaps show up in the search results.
-		if ( ! headers_sent() && $this->build_options['html'] == "true" ) {
-			header( 'X-Robots-Tag: index, follow', true, 200 );
+		if ( ! headers_sent() && isset( $this->build_options['html'] ) ) {
+			if ( $this->build_options['html'] == "true" ) {
+				header( 'X-Robots-Tag: index, follow', true, 200 );
+			}
 		}
 
 		$this->initate();
