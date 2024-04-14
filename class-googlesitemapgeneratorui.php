@@ -1807,6 +1807,26 @@ class GoogleSitemapGeneratorUI {
 												<?php esc_html_e( 'Product Categories', 'google-sitemap-generator' ); ?>
 											</label>
 										</li>
+										<?php 
+										// Custom Taxonomies
+										if ( $this->sg->is_taxonomy_supported() ) {
+											$in_tax = $this->sg->get_option( 'in_tax' );
+											if( ! empty( $in_tax ) ) {
+												foreach( $in_tax as $tax_name ) {
+													$taxonomy = get_taxonomy( $tax_name );
+													$field_name = "cf_" . $tax_name;
+													?>
+													<li>
+														<label for='sm_<?php echo $field_name; ?>'>
+															<select id='sm_<?php echo $field_name; ?>' name='sm_<?php echo $field_name; ?>'><?php $this->html_get_freq_names( $this->sg->get_option( $field_name ) ); ?></select>
+															<?php esc_html_e( $taxonomy->label, 'google-sitemap-generator' ); ?>
+														</label>
+													</li>
+													<?php
+												}
+											}
+										}
+										?>
 										<li>
 											<label for='sm_cf_arch_curr'>
 												<select id='sm_cf_arch_curr' name='sm_cf_arch_curr'><?php $this->html_get_freq_names( $this->sg->get_option( 'cf_arch_curr' ) ); ?></select>
@@ -1879,6 +1899,26 @@ class GoogleSitemapGeneratorUI {
 												<?php esc_html_e( 'Product Categories', 'google-sitemap-generator' ); ?>
 											</label>
 										</li>
+										<?php 
+										// Custom Taxonomies
+										if ( $this->sg->is_taxonomy_supported() ) {
+											$in_tax = $this->sg->get_option( 'in_tax' );
+											if( ! empty( $in_tax ) ) {
+												foreach( $in_tax as $tax_name ) {
+													$taxonomy = get_taxonomy( $tax_name );
+													$field_name = "pr_" . $tax_name;
+													?>
+													<li>
+														<label for='sm_<?php echo $field_name; ?>'>
+															<select id='sm_<?php echo $field_name; ?>' name='sm_<?php echo $field_name; ?>'><?php $this->html_get_priority_values( $this->sg->get_option( $field_name ) ); ?></select>
+															<?php esc_html_e( $taxonomy->label, 'google-sitemap-generator' ); ?>
+														</label>
+													</li>
+													<?php
+												}
+											}
+										}
+										?>
 										<li>
 											<label for='sm_pr_arch'>
 												<select id='sm_pr_arch' name='sm_pr_arch'><?php $this->html_get_priority_values( $this->sg->get_option( 'pr_arch' ) ); ?></select>

@@ -1418,6 +1418,14 @@ final class GoogleSitemapGenerator {
 		// values with an update which get stored by the next edit.
 		$stored_options = get_option( 'sm_options' );
 
+		// Custom Taxonomies
+		if ( !empty( $stored_options['sm_in_tax'] ) ) {
+			foreach ( $stored_options['sm_in_tax'] as $custom_tax ) {
+				$this->options[ "sm_cf_" . $custom_tax ] = 'weekly'; // Change frequency of custom taxonomy .
+				$this->options[ "sm_pr_" . $custom_tax ] = 0.3; // Priority of custom taxonomy .
+			}
+		}
+
 		if ( $stored_options && is_array( $stored_options ) ) {
 			foreach ( $stored_options as $k => $v ) {
 				if ( array_key_exists( $k, $this->options ) ) {
