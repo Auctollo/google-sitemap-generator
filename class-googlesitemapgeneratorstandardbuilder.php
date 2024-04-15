@@ -928,6 +928,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		$enabled_post_types = $gsg->get_active_post_types();
 
+		//checking for products enabled
+		if($gsg->get_option( 'in_product_assortment' ) !== null && $gsg->get_option( 'in_product_assortment' ) !== true){
+			$enabled_post_types = array_filter($enabled_post_types, function($value) {
+				return $value !== 'product';
+			});
+		}
+
 		$has_enabled_post_types_posts = false;
 		$has_posts                    = false;
 
