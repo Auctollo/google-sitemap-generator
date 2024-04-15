@@ -1561,6 +1561,12 @@ class GoogleSitemapGeneratorUI {
 											</label>
 										</li>
 										<li>
+											<label for='sm_in_product_assortment'>
+												<input type='checkbox' id='sm_in_product_assortment' name='sm_in_product_assortment' <?php echo ( $this->sg->get_option( 'in_product_assortment' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+												<?php esc_html_e( 'Include products', 'google-sitemap-generator' ); ?>
+											</label>
+										</li>
+										<li>
 											<label for='sm_in_pages'>
 												<input type='checkbox' id='sm_in_pages' name='sm_in_pages' <?php echo ( $this->sg->get_option( 'in_pages' ) === true ? 'checked=\'checked\'' : '' ); ?> />
 												<?php esc_html_e( 'Include static pages', 'google-sitemap-generator' ); ?>
