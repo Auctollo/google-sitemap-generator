@@ -1484,6 +1484,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function save_options() {
 		$oldvalue = get_option( 'sm_options' );
+		add_filter('pre_update_option_sm_options', [$this,'modify_excluded_sitemap_ids'], 10, 2);
 		if ( $oldvalue === $this->options ) {
 			return true;
 		} else {
@@ -1491,6 +1492,20 @@ final class GoogleSitemapGenerator {
 		}
 	}
 
+
+	/**
+	 * Excluded posts via code 
+	 */
+	public function modify_excluded_sitemap_ids($new_value, $old_value) {
+		$hidden_product_ids = $this->exclude_hidden_products_from_sitemap();
+		$new_value['sm_b_exclude'] = array_unique($hidden_product_ids);
+		return $new_value;
+	}
+	
+	public function exclude_hidden_products_from_sitemap(){
+		$excludedArray = []; // here array of posts ID
+		return $excludedArray;
+	}
 	/**
 	 * Returns the additional pages
 	 *
