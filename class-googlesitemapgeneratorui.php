@@ -580,6 +580,7 @@ class GoogleSitemapGeneratorUI {
 			} else if(isset($wp_sitemap_status) && $wp_sitemap_status === true) {
 				$options_new['sm_wp_sitemap_status'] = true;
 			}
+			
 			update_option('sm_options', $options_new);
 
 			$message .= __( 'The default configuration was restored.', 'google-sitemap-generator' );
