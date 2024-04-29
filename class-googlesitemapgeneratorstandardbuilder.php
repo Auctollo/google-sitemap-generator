@@ -848,7 +848,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		
 		foreach ( $enabled_taxonomies as $taxonomy ) {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
-				$terms = get_terms( $taxonomy, array( 'exclude' => $excludes ) );
+				$terms = $this->get_terms( $taxonomy, array( 'exclude' => $excludes ) );
 				$terms_by_taxonomy[ $taxonomy ] = $terms;
 			}
 		}
@@ -1028,6 +1028,32 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 
 		return $urls;
+	}
+
+	public function get_terms( $taxonomy, $args = [] ) {
+		global $wpdb;
+
+		$sql = 'SELECT DISTINCT * 
+				FROM '.$wpdb->prefix.'terms t 
+				INNER JOIN '.$wpdb->prefix.'term_taxonomy tax 
+				ON `tax`.term_id = `t`.term_id
+				WHERE ( `tax`.taxonomy = \'' . $taxonomy . '\')';
+
+		if ( ! empty( $args ) ) {
+			foreach ( $args as $arg_key => $arg_values ) {
+				switch ( $arg_key ) {
+					case 'exclude':
+						foreach ( $arg_values as $term_id ) {
+							$sql .= ' AND `tax`.term_id != ' . $term_id;
+						}
+						break;
+				}
+			}
+		}
+
+		$result =  $wpdb->get_results($sql);
+		
+		return $result; 
 	}
 }
 
