@@ -93,17 +93,26 @@ class GoogleSitemapGeneratorLoader {
 		// Create dynamically generated robots.txt
 		if (isset(get_option('sm_options')['sm_b_robots'])) {
 			if (get_option('sm_options')['sm_b_robots'] === true) {
-				add_filter('robots_txt', function($output, $public) {
-					$output = "User-agent: *\n";
-					if ('0' == $public ) {
-						$output .= "Disallow: /\nDisallow: /*\nDisallow: /*?\n";
-					} else {
-						$output .= "Disallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
-					}
-					return $output;
-				}, 99, 2);
+				add_filter('robots_txt', array( __CLASS__, 'filter_robots' ), 99, 2);
 			}
 		}
+	}
+
+	/**
+	 * Overwriting all existing robots.txt contents
+	 *
+	 * @param [type] $output
+	 * @param [type] $public
+	 * @return void
+	 */
+	public static function filter_robots($output, $public) {
+		$output = "User-agent: *\n";
+		if ('0' == $public ) {
+			$output .= "Disallow: /\nDisallow: /*\nDisallow: /*?\n";
+		} else {
+			$output .= "Disallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
+		}
+		return $output;
 	}
 
 	/**
