@@ -262,33 +262,38 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 					$permalink = get_permalink( $post );
 
-					// if(count($siteLanguages) > 0){
+					if(count($siteLanguages) > 0){
 
-					// 	$structurekArr = explode('/', get_option('permalink_structure'));
-					// 	$postLinkArr = explode('/', $permalink);
+						$structurekArr = explode('/', get_option('permalink_structure'));
+						$postLinkArr = explode('/', $permalink);
 
-					// 	$index = null;
-					// 	if(is_array($structurekArr) && is_array($postLinkArr)){
-					// 		foreach ($siteLanguages as $lang){
-					// 			if (in_array($lang, $postLinkArr)) {
-					// 				$index = array_search($lang, $postLinkArr);
-					// 			}
-					// 		}
-					// 	}
+						$index = null;
+						if(is_array($structurekArr) && is_array($postLinkArr)){
+							foreach ($siteLanguages as $lang){
+								if (in_array($lang, $postLinkArr)) {
+									$index = array_search($lang, $postLinkArr);
+								}
+							}
+						}
 
-                    //     if ($index !== null) {
-                    //         if ($postLinkArr[$index] !== $defaultLanguageCode) {
-                    //             $custom_post_type_name = get_post_type($post);
-                    //             if (!in_array($custom_post_type_name, $postLinkArr)) {
-                    //                 $key = array_search('%postname%', $structurekArr);
-                    //                 if ($structurekArr[$key] === '%postname%') {
-                    //                     $postLinkArr[$index + $key] = $post->post_name;
-                    //                 }
-                    //             }
-                    //             $permalink = implode('/', $postLinkArr);
-                    //         }
-                    //     }
-					// }
+                        if ($index !== null) {
+							if ($postLinkArr[$index] !== $defaultLanguageCode) {
+								$custom_post_type_name = get_post_type($post);
+								if (!in_array($custom_post_type_name, $postLinkArr)) {
+									foreach($structurekArr as $key => $value) {
+										if ($value == '%postname%') {
+											$current_key = array_search($post->post_name, $postLinkArr);
+											unset($postLinkArr[$current_key]);
+											$postLinkArr[$index + $key] = $post->post_name;
+											ksort($postLinkArr);
+										}
+									}
+								}
+								$permalink = implode('/', $postLinkArr);
+								$permalink = user_trailingslashit($permalink);
+							}
+						}
+					}
 
 					// Exclude the home page and placeholder items by some plugins. Also include only internal links.
 					if (
