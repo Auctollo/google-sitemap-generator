@@ -158,7 +158,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				ORDER BY
 					p.post_date_gmt DESC
 				LIMIT
-					{$limit}
+					%d, %d
 			";
 			// Query for counting all relevant posts for this post type.
 			$qsc = "
@@ -173,12 +173,15 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$ex_post_s_q_l}
 					{$ex_cat_s_q_l}
 			";
+
+			// Calculate the offset based on the limit and links_per_page
+			$offset = max( 0, ( $limit - $links_per_page ) );
+
 			// phpcs:disable
-			$q = $wpdb->prepare( $qs, $post_type );
+			$q = $wpdb->prepare( $qs, $post_type, $offset, $links_per_page );
 
 			// phpcs:enable
 			$posts      = $wpdb->get_results( $q ); // phpcs:ignore
-			$posts      = array_slice( $posts, ( $limit - $links_per_page ) );
 			$post_count = count( $posts );
 			if ( ( $post_count ) > 0 ) {
 				/**
