@@ -156,7 +156,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$ex_post_s_q_l}
 					{$ex_cat_s_q_l}
 				ORDER BY
-					p.post_date_gmt DESC
+					p.post_date_gmt ASC
 				LIMIT
 					%d, %d
 			";
