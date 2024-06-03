@@ -507,17 +507,39 @@ class GoogleSitemapGeneratorStandardBuilder {
 						u.user_nicename";
 		$query   = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $enabled_post_types ) );
 		$authors = $wpdb->get_results( $query ); // phpcs:ignore
+
 		if ( $authors && is_array( $authors ) ) {
-			foreach ( $authors as $author ) {
-				$url = get_author_posts_url( $author->ID, $author->user_nicename );
-				$gsg->add_url(
-					$url,
-					$gsg->get_timestamp_from_my_sql( $author->last_post ),
-					$gsg->get_option( 'cf_auth' ),
-					$gsg->get_option( 'pr_auth' )
-				);
-			}
+			$authors = $this->exclude_authors( $authors );
+			
+			if ( ! empty( $authors ) ) {
+				foreach ( $authors as $author ) {
+					$url = get_author_posts_url( $author->ID, $author->user_nicename );
+					$gsg->add_url(
+						$url,
+						$gsg->get_timestamp_from_my_sql( $author->last_post ),
+						$gsg->get_option( 'cf_auth' ),
+						$gsg->get_option( 'pr_auth' )
+					);
+				}
+			}	
 		}
+	}
+
+	/**
+	 * Wrap legacy filter to deduplicate calls.
+	 *
+	 * @param array $users Array of user objects to filter.
+	 *
+	 * @return array
+	 */
+	protected function exclude_authors( $authors ) {
+
+		/**
+		 * Filter the authors, included in XML sitemap.
+		 *
+		 * @param array $authors Array of user objects to filter.
+		 */
+		return apply_filters( 'sm_sitemap_exclude_author', $authors );
 	}
 
 	/**
