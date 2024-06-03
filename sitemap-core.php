@@ -1159,11 +1159,17 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b11
 	 * @return int[] Array with excluded post IDs
 	 */
-	public function get_excluded_post_i_ds() {
+	public function get_excluded_post_ids() {
 
 		$excludes = (array) $this->get_option( 'b_exclude' );
 
-		return array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+		$excluded_posts_ids = array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+
+		$excluded_posts_ids_from_filter = apply_filters( 'sm_exclude_from_sitemap_by_post_ids', $excluded_posts_ids );
+		
+		$excluded_posts_ids = array_merge( $excluded_posts_ids, $excluded_posts_ids_from_filter );
+
+		return array_unique( $excluded_posts_ids );
 	}
 
 	/**

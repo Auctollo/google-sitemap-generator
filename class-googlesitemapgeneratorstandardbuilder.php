@@ -117,7 +117,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$month = $matches[2];
 
 			// Excluded posts by ID.
-			$excluded_post_ids = $gsg->get_excluded_post_i_ds( $gsg );
+			$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
 			$not_allowed_slugs = $gsg->robots_disallowed();
 			$excluded_post_ids = array_unique( array_merge( $excluded_post_ids, $not_allowed_slugs ), SORT_REGULAR );
 			$gsg->set_option( 'b_exclude', $excluded_post_ids );
@@ -950,7 +950,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		if ( count( $enabled_post_types ) > 0 ) {
 
-			$excluded_post_ids = $gsg->get_excluded_post_i_ds( $gsg );
+			$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
 			$not_allowed_slugs = $gsg->robots_disallowed();
 			$excluded_post_ids = array_unique( array_merge( $excluded_post_ids, $not_allowed_slugs ), SORT_REGULAR );
 			$gsg->set_option( 'b_exclude', $excluded_post_ids );
