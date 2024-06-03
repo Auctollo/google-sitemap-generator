@@ -847,7 +847,19 @@ class GoogleSitemapGeneratorStandardBuilder {
 		else if ($links_per_page > $this->maxLinksPerPage) $links_per_page = $this->maxLinksPerPage;
 		$gsg->add_sitemap( 'misc', null, $blog_update );
 
-		$taxonomies_to_exclude = array( 'product_tag', 'product_cat' );
+		/**
+		 * Filter: 'sm_sitemap_exclude_taxonomy' - Allow extending and modifying the taxonomies to exclude.
+		 *
+		 * @param array $taxonomies_to_exclude The taxonomies to exclude.
+		 */
+		$taxonomies_to_exclude = [];
+		$default_taxonomies_to_exclude = [ 'product_tag', 'product_cat' ];
+		$taxonomies_to_exclude = apply_filters( 'sm_sitemap_exclude_taxonomy', $taxonomies_to_exclude );
+		if ( ! is_array( $taxonomies_to_exclude ) || empty( $taxonomies_to_exclude ) ) {
+			$taxonomies_to_exclude = $default_taxonomies_to_exclude;
+		} else {
+			$taxonomies_to_exclude = array_merge( $taxonomies_to_exclude, $default_taxonomies_to_exclude );
+		}
 		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );	
 		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
 		$excludes = $excl_cats ? $excl_cats : array();	
