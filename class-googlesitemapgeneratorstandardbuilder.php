@@ -653,10 +653,23 @@ class GoogleSitemapGeneratorStandardBuilder {
 	
 			//$terms = array_values(array_unique($terms, SORT_REGULAR));
 
+			/**
+			 * Filter: 'sm_exclude_from_sitemap_by_term_ids' - Allow excluding terms by ID.
+			 *
+			 * @param array $terms_to_exclude The terms to exclude.
+			 */
+			$terms_to_exclude = apply_filters( 'sm_exclude_from_sitemap_by_term_ids', [] );
+
 			$step          = 1;
 			$size_of_terms = count( $terms );
 			for ( $tax_count = 0; $tax_count < $size_of_terms; $tax_count++ ) {
 				$term = $terms[ $tax_count ];
+
+				if ( in_array( $term->term_id, $terms_to_exclude ) ) {
+					$step++;
+					continue;
+				}
+
 				switch ( $term->taxonomy ) {
 					case 'category':
 						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
