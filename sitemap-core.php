@@ -1131,6 +1131,7 @@ final class GoogleSitemapGenerator {
 		$active_post_types = wp_cache_get( $cache_key, 'sitemap' );
 
 		if ( false === $active_post_types ) {
+			$post_types_to_exclude = [];
 			$all_post_types     = get_post_types();
 			$enabled_post_types = $this->get_option( 'in_customtypes' );
 			if ( $this->get_option( 'in_posts' ) ) {
@@ -1147,6 +1148,23 @@ final class GoogleSitemapGenerator {
 				}
 			}
 
+			/**
+			 * Filter: 'sm_sitemap_exclude_post_type' - Allow extending and modifying the post types to exclude.
+			 *
+			 * @param array $post_types_to_exclude The post types to exclude.
+			 */
+			$post_types_to_exclude = apply_filters( 'sm_sitemap_exclude_post_types', $post_types_to_exclude );
+			if ( ! is_array( $post_types_to_exclude ) ) {
+				$post_types_to_exclude = [];
+			}
+			if ( ! empty( $post_types_to_exclude ) ) {
+				foreach ( $active_post_types as $key => $active_post_type ) {
+					if ( in_array( $active_post_type, $post_types_to_exclude ) ) {
+						unset( $active_post_types[ $key ] );
+					}
+				}
+			}
+
 			wp_cache_set( $cache_key, $active_post_types, 'sitemap', 20 );
 		}
 
@@ -1160,7 +1178,7 @@ final class GoogleSitemapGenerator {
 	 * @return int[] Array with excluded post IDs
 	 */
 	public function get_excluded_post_ids() {
-		$excluded_posts_ids_from_filter = [];
+		$posts_to_exclude = [];
 
 		$excludes = (array) $this->get_option( 'b_exclude' );
 
@@ -1171,12 +1189,12 @@ final class GoogleSitemapGenerator {
 		 *
 		 * @param array $posts_to_exclude The posts to exclude.
 		 */
-		$excluded_posts_ids_from_filter = apply_filters( 'sm_exclude_from_sitemap_by_post_ids', $excluded_posts_ids_from_filter );
-		if ( ! is_array( $excluded_posts_ids_from_filter ) ) {
-			$excluded_posts_ids_from_filter = [];
+		$posts_to_exclude = apply_filters( 'sm_exclude_from_sitemap_by_post_ids', $posts_to_exclude );
+		if ( ! is_array( $posts_to_exclude ) ) {
+			$posts_to_exclude = [];
 		}
 		
-		$excluded_posts_ids = array_merge( $excluded_posts_ids, $excluded_posts_ids_from_filter );
+		$excluded_posts_ids = array_merge( $excluded_posts_ids, $posts_to_exclude );
 
 		return array_unique( $excluded_posts_ids );
 	}
