@@ -265,6 +265,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 					$permalink = get_permalink( $post );
 
+					$permalink = apply_filters( 'sm_xml_sitemap_post_url', $permalink, $post );
+
 					if(count($siteLanguages) > 0){
 
 						$structurekArr = explode('/', get_option('permalink_structure'));
