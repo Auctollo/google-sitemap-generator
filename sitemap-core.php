@@ -1131,7 +1131,6 @@ final class GoogleSitemapGenerator {
 		$active_post_types = wp_cache_get( $cache_key, 'sitemap' );
 
 		if ( false === $active_post_types ) {
-			$post_types_to_exclude = [];
 			$all_post_types     = get_post_types();
 			$enabled_post_types = $this->get_option( 'in_customtypes' );
 			if ( $this->get_option( 'in_posts' ) ) {
@@ -1153,6 +1152,7 @@ final class GoogleSitemapGenerator {
 			 *
 			 * @param array $post_types_to_exclude The post types to exclude.
 			 */
+			$post_types_to_exclude = [];
 			$post_types_to_exclude = apply_filters( 'sm_sitemap_exclude_post_types', $post_types_to_exclude );
 			if ( ! is_array( $post_types_to_exclude ) ) {
 				$post_types_to_exclude = [];
@@ -1163,6 +1163,21 @@ final class GoogleSitemapGenerator {
 						unset( $active_post_types[ $key ] );
 					}
 				}
+			}
+
+			/**
+			 * Filter: 'sm_sitemap_include_post_type' - Allow extending and modifying the post types to include.
+			 *
+			 * @param array $post_types_to_include The post types to include.
+			 */
+			$post_types_to_include = [];
+			$post_types_to_include = apply_filters( 'sm_sitemap_include_post_type', $post_types_to_include );
+			if ( ! is_array( $post_types_to_include ) ) {
+				$post_types_to_include = [];
+			}
+			if ( ! empty( $post_types_to_include ) ) {
+				$active_post_types = array_merge( $active_post_types, $post_types_to_include );
+				$active_post_types = array_unique( $active_post_types );
 			}
 
 			wp_cache_set( $cache_key, $active_post_types, 'sitemap', 20 );
