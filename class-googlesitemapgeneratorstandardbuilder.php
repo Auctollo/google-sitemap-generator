@@ -1064,6 +1064,26 @@ class GoogleSitemapGeneratorStandardBuilder {
 		if ( $gsg->get_option( 'in_arch' ) && $has_posts ) {
 			$gsg->add_sitemap( 'archives-sitemap', null, $blog_update );
 		}
+
+		/**
+		 * Filter: 'sm_sitemap_index' - Allow extending and modifying the xml links to include.
+		 *
+		 * @param array $sitemap_custom_items The custom xml link to include.
+		 */
+		$sitemap_custom_items = [];
+		$sitemap_custom_items = apply_filters( 'sm_sitemap_index', $sitemap_custom_items );
+		if ( ! is_array( $sitemap_custom_items ) ) {
+			$sitemap_custom_items = [];
+		}
+		if ( ! empty( $sitemap_custom_items ) ) {
+			foreach ( $sitemap_custom_items as $sitemap_custom_item ) {
+				$title = ( isset( $sitemap_custom_item['title'] ) ) ? $sitemap_custom_item['title'] : '';
+				$modified = ( isset( $sitemap_custom_item['modified'] ) ) ? strtotime( $sitemap_custom_item['modified'] ) : '';
+				if ( $title != '' && $modified != '' ) {
+					$gsg->add_sitemap( $title, null, $modified );
+				}
+			}
+		}
 	}
 
 	/**
