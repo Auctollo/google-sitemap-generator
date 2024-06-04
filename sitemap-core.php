@@ -1215,6 +1215,8 @@ final class GoogleSitemapGenerator {
 			}
 		}
 
+		$rules = apply_filters( 'sm_robots_disallowed_ids', array_unique( $rules ) );
+		
 		return $rules;
 	}
 	/**
