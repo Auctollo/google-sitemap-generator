@@ -94,7 +94,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		}
 		$limit          = $type[count($type)-1];
 		$limits         = substr( $limit, 1 );
-		$links_per_page = $gsg->get_option( 'links_page' );
+		$links_per_page = $gsg->get_entries_per_page();
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int) 1000;
 		}
@@ -585,7 +585,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	public function build_taxonomies( $gsg, $taxonomy ) {
 
 		$offset         = $taxonomy;
-		$links_per_page = $gsg->get_option( 'links_page' );
+		$links_per_page = $gsg->get_entries_per_page();
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int)1000;
 		}
@@ -737,7 +737,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @return void
 	 */
 	public function build_product_tags( GoogleSitemapGenerator $gsg, $offset ) {
-		$links_per_page = $gsg->get_option( 'links_page' );
+		$links_per_page = $gsg->get_entries_per_page();
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			$links_per_page = (int) 1000;
 		}
@@ -772,7 +772,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @return void
 	 */
 	public function build_product_categories( GoogleSitemapGenerator $gsg, $offset ) {
-		$links_per_page = $gsg->get_option( 'links_page' );
+		$links_per_page = $gsg->get_entries_per_page();
 		if ( gettype( $links_per_page ) !== 'integer' ) {
 			//$links_per_page = (int) 1000;
 			$links_per_page = (int)$links_per_page;
@@ -874,13 +874,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 		 */
 		global $wpdb;
 		$blog_update    = strtotime( get_lastpostmodified( 'gmt' ) );
-		$links_per_page = $gsg->get_option( 'links_page' );
-		$links_per_page = (int) $links_per_page;
+		$links_per_page = $gsg->get_entries_per_page();
 		if ( 0 === $links_per_page || is_nan( $links_per_page ) ) {
 			$links_per_page = $this->linkPerPage;
 			$gsg->set_option( 'links_page', $this->linkPerPage );
 		}
-		else if($links_per_page < $this->linkPerPage) $links_per_page = $this->linkPerPage;
 		else if ($links_per_page > $this->maxLinksPerPage) $links_per_page = $this->maxLinksPerPage;
 		$gsg->add_sitemap( 'misc', null, $blog_update );
 
@@ -906,7 +904,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
 				$terms = $this->get_terms( array( 
 					'taxonomy' => $taxonomy,
-					'exclude' => $excludes
+					'exclude' => $excludes,
+					'hide_empty' => true
 				) );
 				$terms_by_taxonomy[ $taxonomy ] = $terms;
 			}

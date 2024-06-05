@@ -1623,6 +1623,22 @@ final class GoogleSitemapGenerator {
 		}
 	}
 
+	/**
+	 * Get the maximum number of entries per XML sitemap.
+	 *
+	 * @return int The maximum number of entries.
+	 */
+	public function get_entries_per_page() {
+		/**
+		 * Filter the maximum number of entries per XML sitemap.
+		 *
+		 * @param int $entries The maximum number of entries per XML sitemap.
+		 */
+		$entries = (int) apply_filters( 'sm_sitemap_entries_per_page', $this->get_option( 'links_page' ) );
+
+		return $entries;
+	}
+
 
 	/*************************************** URL AND PATH FUNCTIONS ***************************************/
 
