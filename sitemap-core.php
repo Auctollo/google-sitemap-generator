@@ -1147,6 +1147,39 @@ final class GoogleSitemapGenerator {
 				}
 			}
 
+			/**
+			 * Filter: 'sm_sitemap_exclude_post_type' - Allow extending and modifying the post types to exclude.
+			 *
+			 * @param array $post_types_to_exclude The post types to exclude.
+			 */
+			$post_types_to_exclude = [];
+			$post_types_to_exclude = apply_filters( 'sm_sitemap_exclude_post_types', $post_types_to_exclude );
+			if ( ! is_array( $post_types_to_exclude ) ) {
+				$post_types_to_exclude = [];
+			}
+			if ( ! empty( $post_types_to_exclude ) ) {
+				foreach ( $active_post_types as $key => $active_post_type ) {
+					if ( in_array( $active_post_type, $post_types_to_exclude ) ) {
+						unset( $active_post_types[ $key ] );
+					}
+				}
+			}
+
+			/**
+			 * Filter: 'sm_sitemap_include_post_type' - Allow extending and modifying the post types to include.
+			 *
+			 * @param array $post_types_to_include The post types to include.
+			 */
+			$post_types_to_include = [];
+			$post_types_to_include = apply_filters( 'sm_sitemap_include_post_type', $post_types_to_include );
+			if ( ! is_array( $post_types_to_include ) ) {
+				$post_types_to_include = [];
+			}
+			if ( ! empty( $post_types_to_include ) ) {
+				$active_post_types = array_merge( $active_post_types, $post_types_to_include );
+				$active_post_types = array_unique( $active_post_types );
+			}
+
 			wp_cache_set( $cache_key, $active_post_types, 'sitemap', 20 );
 		}
 
@@ -1159,11 +1192,26 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b11
 	 * @return int[] Array with excluded post IDs
 	 */
-	public function get_excluded_post_i_ds() {
+	public function get_excluded_post_ids() {
+		$posts_to_exclude = [];
 
 		$excludes = (array) $this->get_option( 'b_exclude' );
 
-		return array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+		$excluded_posts_ids = array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+
+		/**
+		 * Filter: 'sm_exclude_from_sitemap_by_post_ids' - Allow extending and modifying the posts to exclude.
+		 *
+		 * @param array $posts_to_exclude The posts to exclude.
+		 */
+		$posts_to_exclude = apply_filters( 'sm_exclude_from_sitemap_by_post_ids', $posts_to_exclude );
+		if ( ! is_array( $posts_to_exclude ) ) {
+			$posts_to_exclude = [];
+		}
+		
+		$excluded_posts_ids = array_merge( $excluded_posts_ids, $posts_to_exclude );
+
+		return array_unique( $excluded_posts_ids );
 	}
 
 	/**
@@ -1575,6 +1623,22 @@ final class GoogleSitemapGenerator {
 			add_option( 'sm_cpages', $this->pages, '', 'no' );
 			return true;
 		}
+	}
+
+	/**
+	 * Get the maximum number of entries per XML sitemap.
+	 *
+	 * @return int The maximum number of entries.
+	 */
+	public function get_entries_per_page() {
+		/**
+		 * Filter the maximum number of entries per XML sitemap.
+		 *
+		 * @param int $entries The maximum number of entries per XML sitemap.
+		 */
+		$entries = (int) apply_filters( 'sm_sitemap_entries_per_page', $this->get_option( 'links_page' ) );
+
+		return $entries;
 	}
 
 
@@ -2147,10 +2211,13 @@ final class GoogleSitemapGenerator {
 
 		switch ( $format ) {
 			case 'sitemap':
-				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<urlset xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
+				$urlset = '<urlset xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
+				$urlset = apply_filters( 'sm_sitemap_urlset', $urlset );
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 			case 'index':
-				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
+				$urlset = '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 		}
 	}
