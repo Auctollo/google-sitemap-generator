@@ -1335,7 +1335,7 @@ class GoogleSitemapGeneratorUI {
 											);
 											if ($this->sg->get_option('b_indexnow') && 
 												$api_key = $this->index_now->getApiKey()) {
-												esc_html_e(sprintf(__('Api Key: %s', 'google-sitemap-generator'), $api_key));
+												esc_html_e(sprintf(__('Microsoft Bing Api Key: %s', 'google-sitemap-generator'), $api_key));
 												echo '<br/>';
 											}
 											/* translators: %s: search term */

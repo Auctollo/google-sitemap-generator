@@ -101,14 +101,26 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 == Changelog ==
 
-= 4.1.20 (2024-03-23) =
+= 4.1.20 (2024-04-10) =
 * Fixed empty ping error
 * Fixed response code issue with index sitemap
 * Fixed interoperability with existing robots.txt file
 * Fixed URL for guest authors
 * Fixed uninstalled plugin error
-* Improved multi-site support
+* Fixed sitemap indexation
+* Fixed "Trying to access array offset on value of type bool..." warning
+* Fixed setting of custom taxonomy change frequency and priority
+* Fixed missing custom taxonomies issue
+* Fixed missing categories issue
+* Fixed sort order of URLs (changed from descending to ascending)
+* Improved WooCommerce support
+* Improved WPML support (added products sitemap)
+* Improved multisite support
 * Improved SEO plugin interoperability
+* Improved Nginx configuration
+* Improved sitemap generation performance for large sites
+* Added [filter support](https://auctollo.com/products/google-xml-sitemap-generator/help/#:~:text=not%20be%20useful.-,Filters,-Customize%20the%20behavior) for behavior/settings customization 
+* Added latest Microsoft Bing API Key to settings page
 
 = 4.1.19 (2024-01-31) =
 * Fixed "Links per page" bug causing sitemaps to not include all posts depending on the setting. Following Search Engine guidance is minimum links per sitemap is 1,000 pages.
