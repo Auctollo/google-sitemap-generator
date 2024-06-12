@@ -1176,6 +1176,8 @@ class GoogleSitemapGeneratorUI {
 													foreach ( $support_items as $item ) {
 														$url   = esc_url( $item->get_permalink() );
 														$title = esc_html( $item->get_title() );
+														$title = html_entity_decode( $title );
+														$title = strip_tags( $title );
 														echo '<li><a rel=\'external\' target=\'_blank\' href=' . esc_url( $url ) . '>' . esc_html( $title ) . '</a></li>';
 													}
 													echo '</ul>';
