@@ -626,18 +626,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 			);
 			*/
 			$queryArr = [
-				'taxonomy' => $taxonomy,
-				'hide_empty' => true
+				'taxonomy'		=> $taxonomy,
+				'number'		=> $links_per_page,
+				'offset'		=> $offset,
+				'hide_empty'	=> true,
+				'exclude'		=> $excludes,
 			];
 			if (preg_match('/(post_tag|category)/', $taxonomy)) {
-				$queryArr = array(
-					'taxonomy'     => $taxonomy,
-					'number'       => $links_per_page,
-					'offset'       => $offset,
-					'hide_empty'   => true,
-					'hierarchical' => false,
-					'exclude'      => $excludes,
-				);
+				$queryArr['hierarchical'] = false;
 			}
 			$terms = array_values(
 				array_unique(
