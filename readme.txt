@@ -101,7 +101,7 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 == Changelog ==
 
-= 4.1.20 (2024-04-10) =
+= 4.1.20 (2024-04-14) =
 * Fixed empty ping error
 * Fixed response code issue with index sitemap
 * Fixed interoperability with existing robots.txt file
@@ -111,10 +111,10 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 * Fixed "Trying to access array offset on value of type bool..." warning
 * Fixed setting of custom taxonomy change frequency and priority
 * Fixed missing custom taxonomies issue
+* Fixed issue with hierarchical taxonomies
 * Fixed missing categories issue
 * Fixed sort order of URLs (changed from descending to ascending)
-* Improved WooCommerce support
-* Improved WPML support (added products sitemap)
+* Improved WooCommerce support (added products sitemap)
 * Improved multisite support
 * Improved SEO plugin interoperability
 * Improved Nginx configuration
