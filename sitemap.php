@@ -23,7 +23,7 @@
  * Domain Path: /lang
 
 
- * Copyright 2019 - 2023 AUCTOLLO
+ * Copyright 2019 - 2024 AUCTOLLO
  * Copyright 2005 - 2018 ARNE BRACHHOLD
 
  * This program is free software; you can redistribute it and/or modify
