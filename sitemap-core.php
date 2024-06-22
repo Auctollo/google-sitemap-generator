@@ -1534,7 +1534,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function save_options() {
 		$oldvalue = get_option( 'sm_options' );
-		add_filter('pre_update_option_sm_options', [$this,'modify_excluded_sitemap_ids'], 10, 2);
+		// add_filter('pre_update_option_sm_options', [$this,'modify_excluded_sitemap_ids'], 10, 2);
 		if ( $oldvalue === $this->options ) {
 			return true;
 		} else {
