@@ -3,7 +3,7 @@ Contributors: auctollo
 Tags: sitemaps, video sitemap, news sitemap, html sitemap, image sitemap
 Requires at least: 4.6
 Tested up to: 6.5
-Stable tag: 4.1.20
+Stable tag: 4.1.21
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,10 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.1.21 (2024-04-21) =
+* Fixed a regression with saving post/page exclusions.
+* Fixed an issue with post/tag priority settings.
 
 = 4.1.20 (2024-04-14) =
 * Fixed empty ping error
