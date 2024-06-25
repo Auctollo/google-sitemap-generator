@@ -451,6 +451,14 @@ class GoogleSitemapGeneratorUI {
 								}
 							}
 						}
+						if ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input']['post_tag'] ) ) {
+							$post_tag = array_map( 'sanitize_text_field', ( wp_unslash( $_POST['tax_input']['post_tag'] ) ) );
+							foreach ( (array) $post_tag as $vv ) {
+								if ( ! empty( $vv ) && is_numeric( $vv ) ) {
+									$ex_cats[] = intval( $vv );
+								}
+							}
+						}
 						if ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input']['product_cat'] ) ) {
 							$prod_cat = array_map( 'sanitize_text_field', ( wp_unslash( $_POST['tax_input']['product_cat'] ) ) );
 							foreach ( (array) $prod_cat as $vv ) {
@@ -1710,65 +1718,60 @@ class GoogleSitemapGeneratorUI {
 									<?php $this->html_print_box_header( 'sm_excludes', __( 'Excluded Items', 'google-sitemap-generator' ) ); ?>
 
 									<b><?php esc_html_e( 'Excluded categories', 'google-sitemap-generator' ); ?>:</b>
-
 									<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
 										<ul>
 											<?php wp_category_checklist( 0, 0, $this->sg->get_option( 'b_exclude_cats' ), false ); ?>
 										</ul>
-										<ul>
-											<?php
-											$defaults = array();
-											if ( $this->has_woo_commerce ) {
-												$defaults = array(
-													'descendants_and_self' => 0,
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'popular_cats' => false,
-													'walker' => null,
-													'taxonomy' => 'product_cat',
-													'checked_ontop' => true,
-													'echo' => true,
-												);
-											} else {
-												$defaults = array(
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'echo' => true,
-												);
-											}
-
-											wp_terms_checklist( 0, $defaults );
-											?>
-										</ul>
-										<?php
-										$taxonomies = $this->sg->get_custom_taxonomies();
-										foreach ( $taxonomies as $key => $taxonomy ) {
-											?>
-											<ul>
-												<?php
-												$defaults = array();
-												if ( $this->has_woo_commerce ) {
-													$defaults = array(
-														'descendants_and_self' => 0,
-														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-														'popular_cats' => false,
-														'walker' => null,
-														'taxonomy' => $taxonomy,
-														'checked_ontop' => true,
-														'echo' => true,
-													);
-												} else {
-													$defaults = array(
-														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-														'echo'     => true,
-													);
-												}
-												wp_terms_checklist( 0, $defaults );
-												?>
-											</ul>
-											<?php
-
-										}
-										?>
 									</div>
+
+									<b><?php esc_html_e( 'Excluded post tags', 'google-sitemap-generator' ); ?>:</b>
+									<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+										<?php $defaults = array(
+											'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+											'taxonomy' 		=> 'post_tag',
+											'echo' 			=> true,
+										); ?>
+										<ul>
+											<?php wp_terms_checklist( 0, $defaults ); ?>
+										</ul>
+									</div>
+
+									<?php $taxonomies = $this->sg->get_custom_taxonomies();
+									if ( $taxonomies ) : ?>
+										<b><?php esc_html_e( 'Excluded custom taxonomies', 'google-sitemap-generator' ); ?>:</b>
+										<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+											<?php foreach ( $taxonomies as $key => $taxonomy ) :
+												$defaults = array(
+													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+													'taxonomy' 		=> $taxonomy,
+													'echo'     		=> true,
+												); ?>
+												<ul>
+													<li><b><i><?php echo $taxonomy; ?></i></b></li>
+													<?php wp_terms_checklist( 0, $defaults ); ?>
+												</ul>
+											<?php endforeach; ?>
+										</div>
+									<?php endif; ?>
+
+									<?php if ( $this->has_woo_commerce ) : ?>
+										<b><?php esc_html_e( 'Excluded products categories', 'google-sitemap-generator' ); ?>:</b>
+										<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+											<?php $defaults = array(
+												'descendants_and_self' 	=> 0,
+												'selected_cats' 		=> $this->sg->get_option( 'b_exclude_cats' ),
+												'popular_cats' 			=> false,
+												'walker' 				=> null,
+												'taxonomy' 				=> 'product_cat',
+												'checked_ontop' 		=> true,
+												'echo' 					=> true,
+											); ?>
+											<ul>
+												<?php wp_terms_checklist( 0, $defaults ); ?>
+											</ul>
+										</div>
+									<?php endif; ?>
+
 									<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
 									<div style='margin:5px 0 13px 40px;'>
 										<label for='sm_b_exclude'><?php esc_html_e( 'Exclude the following posts or pages:', 'google-sitemap-generator' ); ?> <small><?php esc_html_e( 'List of IDs, separated by comma', 'google-sitemap-generator' ); ?></small><br />
