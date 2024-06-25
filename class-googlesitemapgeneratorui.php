@@ -1715,57 +1715,37 @@ class GoogleSitemapGeneratorUI {
 										<ul>
 											<?php wp_category_checklist( 0, 0, $this->sg->get_option( 'b_exclude_cats' ), false ); ?>
 										</ul>
-										<ul>
-											<?php
-											$defaults = array();
-											if ( $this->has_woo_commerce ) {
-												$defaults = array(
-													'descendants_and_self' => 0,
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'popular_cats' => false,
-													'walker' => null,
-													'taxonomy' => 'product_cat',
-													'checked_ontop' => true,
-													'echo' => true,
-												);
-											} else {
-												$defaults = array(
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'echo' => true,
-												);
-											}
 
-											wp_terms_checklist( 0, $defaults );
-											?>
-										</ul>
-										<?php
-										$taxonomies = $this->sg->get_custom_taxonomies();
-										foreach ( $taxonomies as $key => $taxonomy ) {
-											?>
-											<ul>
-												<?php
-												$defaults = array();
-												if ( $this->has_woo_commerce ) {
-													$defaults = array(
-														'descendants_and_self' => 0,
-														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-														'popular_cats' => false,
-														'walker' => null,
-														'taxonomy' => $taxonomy,
-														'checked_ontop' => true,
-														'echo' => true,
-													);
-												} else {
-													$defaults = array(
-														'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-														'echo'     => true,
-													);
-												}
+										<?php // Products Categories
+										if ( $this->has_woo_commerce ) {
+											$defaults = array(
+												'descendants_and_self' => 0,
+												'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+												'popular_cats' => false,
+												'walker' => null,
+												'taxonomy' => 'product_cat',
+												'checked_ontop' => true,
+												'echo' => true,
+											);
+											echo "<ul>";
 												wp_terms_checklist( 0, $defaults );
-												?>
-											</ul>
-											<?php
+											echo "</ul>";
+										}
+										?>
 
+										<?php // Custom Taxonomies
+										$taxonomies = $this->sg->get_custom_taxonomies();
+										if ($taxonomies) {
+											foreach ( $taxonomies as $key => $taxonomy ) {
+												$defaults = array(
+													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
+													'taxonomy' => $taxonomy,
+													'echo'     => true,
+												);
+												echo "<ul>";
+													wp_terms_checklist( 0, $defaults );
+												echo "</ul>";
+											}
 										}
 										?>
 									</div>
