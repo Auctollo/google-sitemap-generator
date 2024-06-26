@@ -554,3 +554,34 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
 }
+
+add_action('wp_ajax_posts_list_search' , 'posts_list_search');
+add_action('wp_ajax_nopriv_posts_list_search','posts_list_search');
+function posts_list_search(){
+	$response = [];
+	$s = esc_attr( $_POST['s'] );
+	$excluded_posts_ids = wp_unslash( $_POST['excluded_posts_ids'] );
+	
+	if ( '' != $s ) {
+		$the_query = new WP_Query( [
+			'posts_per_page' => -1,
+			'post_type' => 'any',
+			'post__not_in' => $excluded_posts_ids,
+			's' => $s
+		] );
+	  
+		if ( $the_query->have_posts() ) {
+			while( $the_query->have_posts() ){ $the_query->the_post();
+				$response['html'] .= '<li class="posts_list_item">';
+				$response['html'] .= 	'<label class="selectit">';
+				$response['html'] .= 		'<input value="'.get_the_ID().'" type="checkbox"> '.get_the_title();
+				$response['html'] .= 	'</label>';
+				$response['html'] .= '</li>';
+			}
+			wp_reset_postdata(); 
+		}
+	}
+
+	wp_send_json($response);
+    wp_die();
+}

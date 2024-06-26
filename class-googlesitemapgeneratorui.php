@@ -433,7 +433,7 @@ class GoogleSitemapGeneratorUI {
 						}
 					} elseif ( 'sm_b_exclude' === $k ) {
 						$id_ss = array();
-						$id_s  = explode( ',', sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
+						$id_s = ( !is_array( $_POST[ $k ] ) ) ? explode( ',', sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) : wp_unslash( $_POST[ $k ] );
 						$len   = count( $id_s );
 						for ( $x = 0; $x < $len; $x++ ) {
 							$id = intval( trim( $id_s[ $x ] ) );
@@ -966,15 +966,15 @@ class GoogleSitemapGeneratorUI {
 			}
 
 			.modal-container {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: white;
-			padding: 1rem 1.5rem;
-			width: 35rem;
-			border-radius: 0.5rem;
-			z-index: 100;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: white;
+				padding: 1rem 1.5rem;
+				width: 35rem;
+				border-radius: 0.5rem;
+				z-index: 100;
 			}
 			.allow_consent {
 				color: #ffffff;
@@ -1026,9 +1026,7 @@ class GoogleSitemapGeneratorUI {
 				height: 20px;
 				width: 20px;
 			}
-			<?php
-			if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) .
-				?>
+			<?php if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) . ?>
 			.inner-sidebar #side-sortables,
 			.columns-2 .inner-sidebar #side-sortables {
 				min-height: 300px;
@@ -1056,7 +1054,6 @@ class GoogleSitemapGeneratorUI {
 				width: auto !important;
 				float: none !important;
 			}
-
 			<?php endif; ?>
 		</style>
 		<div class='wrap' id='sm_div'>
@@ -1772,11 +1769,230 @@ class GoogleSitemapGeneratorUI {
 										</div>
 									<?php endif; ?>
 
-									<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
-									<div style='margin:5px 0 13px 40px;'>
-										<label for='sm_b_exclude'><?php esc_html_e( 'Exclude the following posts or pages:', 'google-sitemap-generator' ); ?> <small><?php esc_html_e( 'List of IDs, separated by comma', 'google-sitemap-generator' ); ?></small><br />
-										<input name="sm_b_exclude" id="sm_b_exclude" type="text" style="width:400px;" value="<?php echo esc_attr( implode( ',', $this->sg->get_option( 'b_exclude' ) ) ); ?>" /></label><br />
-										<cite><?php esc_html_e( 'Note', 'google-sitemap-generator' ); ?>: <?php esc_html_e( 'Child posts won\'t be excluded automatically!', 'google-sitemap-generator' ); ?></cite>
+									<div id="sm_posts_excludes">
+										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
+										<div style="margin:5px 0 13px 40px;">
+											<div id="posts_list_search_container">
+												<input id="posts_list_keyword" type="text"><span id="posts_list_close" class="close">x</span><span class="spinner"></span>
+												<ul id="posts_list_search_result"></ul>
+											</div>
+											<div id="posts_list_container">
+												<?php 
+												$excluded_posts_ids = '';
+												$excluded_posts_html = '';
+												$b_exclude = $this->sg->get_option( 'b_exclude' );
+												if ( ! empty( $b_exclude ) ) {
+													$the_query = new WP_Query([
+														'posts_per_page' => -1,
+														'post__in' => $b_exclude,
+														'post_type' => 'any'
+													]);
+													if( $the_query->have_posts() ) {
+														while( $the_query->have_posts() ) { $the_query->the_post();
+															$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
+															$excluded_posts_ids .= ( $excluded_posts_ids == '' ) ? get_the_ID() : ',' . get_the_ID();
+
+															$excluded_posts_html .= '<li>';
+															$excluded_posts_html .= 	'<label class="selectit">';
+															$excluded_posts_html .= 		'<input value="'. get_the_ID() .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. get_the_ID() .'" '. $checked .'> '. get_the_title();
+															$excluded_posts_html .= 	'</label>';
+															$excluded_posts_html .= '</li>';
+														}
+													} else {
+														$excluded_posts_html .= '<li>';
+														$excluded_posts_html .= 	'<label class="selectit">';
+														$excluded_posts_html .= 		'<input value="" type="checkbox" name="sm_b_exclude[]">';
+														$excluded_posts_html .= 	'</label>';
+														$excluded_posts_html .= '</li>';
+													}
+													wp_reset_postdata();
+												} ?>
+												<ul id="posts_list" data-excluded_posts_ids="<?php echo $excluded_posts_ids; ?>">
+													<?php echo $excluded_posts_html; ?>
+												</ul>
+											</div>
+											<style>
+												.exclude-section {
+													border-color: #CEE1EF;
+													border-style: solid;
+													border-width: 2px;
+													height: 10em;
+													margin: 5px 0px 5px 40px;
+													overflow: auto;
+													padding: 0.5em 0.5em;
+												}
+												#posts_list_search_container {
+													position: relative;
+													max-width: 400px;
+													width: 100%;
+												}
+												#posts_list_keyword {
+													width: calc(100% - 40px);
+													padding: 0 8px;
+												}
+												#posts_list_close {
+													display: none;
+													width: 30px;
+													height: 30px;
+													right: 40px;
+													position: absolute;
+													text-align: center;
+													align-items: center;
+													justify-content: center;
+													cursor: pointer;
+													font-weight: bold;
+													color: #2271b1;
+													font-size: 1em;
+													user-select: none;
+												}
+												#posts_list_search_result {
+													display: none;
+													position: absolute;
+													border-color: #c1c1c1;
+													border-style: solid;
+													border-width: 2px;
+													height: 10em;
+													width: 100%;
+													margin: 0px 0px 5px 0px;
+													overflow: auto;
+													padding: 0.5em 0.5em;
+													background-color: #fff;
+												}
+												#posts_list_container {
+													border-color: #CEE1EF;
+													border-style: solid;
+													border-width: 2px;
+													height: 10em;
+													width: 100%;
+													margin: 5px 0px 5px 0px;
+													overflow: auto;
+													padding: 0.5em 0.5em;
+												}
+											</style>
+											<script type="text/javascript">
+												(function($) {
+													var api;
+
+													api = window.postsSearch = {
+
+														lastSearch: '',
+														
+														// Functions that run on init.
+														init : function() {
+															this.attachQuickSearchListeners();
+														},
+
+														attachQuickSearchListeners : function() {
+															var searchTimer,
+																result_container = $('#posts_list_search_result');
+
+															// Prevent form submission.
+															$( '#posts_list_keyword' ).on( 'keydown', function( event ) {
+																if( event.keyCode == 13 ) {
+																	event.preventDefault();
+																}
+															});
+
+															$( '#posts_list_keyword' ).on( 'keyup', function() {
+																var $this = $( this );
+
+																if ( searchTimer ) {
+																	clearTimeout( searchTimer );
+																}
+
+																searchTimer = setTimeout( function() {
+																	api.updateQuickSearchResults( $this );
+																}, 500 );
+															}).on( 'blur', function() {
+																api.lastSearch = '';
+															});
+
+															$(document).on('change', '#posts_list_search_result .posts_list_item input[type="checkbox"]', function() {
+																if(this.checked) {
+																	let $posts_list = $('#posts_list');
+																	let posts_list_data = $posts_list.data('excluded_posts_ids').toString();
+																	let excluded_posts_ids = posts_list_data.split(',');
+																	let value = $(this).val();
+																	let posts_list_item = $(this).closest('.posts_list_item').clone(true);
+																		// Modify cloned element
+																		posts_list_item.find('input').attr('name', 'sm_b_exclude[]').attr('id', 'sm_b_exclude-' + value);
+
+																	if ( value in excluded_posts_ids ) {
+																	} else {
+																		$posts_list.append(posts_list_item);
+																		if ( posts_list_data !== '' ) {
+																			$posts_list.data('excluded_posts_ids', posts_list_data + ',' + value );
+																		} else {
+																			$posts_list.data('excluded_posts_ids', value );
+																		}
+																	}
+																	
+																}
+															});
+
+															$('#posts_list_close').on('click', function(e){
+																result_container.hide();
+																$('#posts_list_keyword').val('');
+																$(this).css('display', 'none');
+															});
+														},
+
+														updateQuickSearchResults : function(input) {
+															var data,
+																minSearchLength = 2,
+																s = input.val(),
+																result_container = $('#posts_list_search_result'),
+																excluded_posts_ids = $('#posts_list').data('excluded_posts_ids').toString().split(','),
+																spiner = $(input).siblings('.spinner');
+
+															if ( s.length < minSearchLength || api.lastSearch == s ) {
+																result_container.hide();
+																return;
+															}
+
+															api.lastSearch = s;
+
+															data = {
+																'action': 'posts_list_search',
+																'excluded_posts_ids' : excluded_posts_ids,
+																's': s
+															};
+
+															$.ajax({
+																url: '<?php echo admin_url('admin-ajax.php'); ?>',
+																type: 'post',
+																data: data,
+																beforeSend: function() {
+																	$('#posts_list_close').css('display', 'none');
+																	spiner.addClass('is-active');
+																	result_container.hide();
+																},
+																success: function(response) {
+																	spiner.removeClass('is-active');
+																	$('#posts_list_close').css('display', 'inline-flex');
+																	api.processQuickSearchQueryResponse(response, data, result_container);
+																}
+															});
+														},
+														
+														processQuickSearchQueryResponse : function(response, data, result_container) {
+															if ( typeof response.html === 'undefined' ){
+																result_container.hide();
+															} else {
+																if ( result_container.is(":hidden") ) {
+																	result_container.show();
+																}
+																result_container.html(response.html);
+															}
+														},
+													}
+
+													$( function() {
+														postsSearch.init();
+													});
+												})(jQuery);
+											</script>
+										</div>
 									</div>
 
 									<?php $this->html_print_box_footer(); ?>
