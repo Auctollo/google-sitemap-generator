@@ -789,6 +789,10 @@ msgstr ""
 msgid "Exclude posts"
 msgstr ""
 
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1776
+msgid "Search by title"
+msgstr ""
+
 # C:\Inetpub\wwwroot\wp\wp-content\plugins\sitemap_beta/sitemap.php:3206
 #: C:\Inetpub\wwwroot\wp_svn\wp-content\plugins\sitemap_beta/sitemap-ui.php:1154
 msgid "Exclude the following posts or pages:"

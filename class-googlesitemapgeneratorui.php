@@ -1773,7 +1773,7 @@ class GoogleSitemapGeneratorUI {
 										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
 										<div style="margin:5px 0 13px 40px;">
 											<div id="posts_list_search_container">
-												<input id="posts_list_keyword" type="text"><span id="posts_list_close" class="close">x</span><span class="spinner"></span>
+												<input id="posts_list_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>"><span id="posts_list_close" class="close">x</span><span class="spinner"></span>
 												<ul id="posts_list_search_result"></ul>
 											</div>
 											<div id="posts_list_container">
