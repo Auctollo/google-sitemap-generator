@@ -539,24 +539,6 @@ function indexnow_after_post_save($new_status, $old_status, $post) {
     }
 }
 
-// Don't do anything if this file was called directly.
-if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
-	sm_setup();
-	
-	if(isset(get_option('sm_options')['sm_wp_sitemap_status']) ) $wp_sitemap_status = get_option('sm_options')['sm_wp_sitemap_status'];
-	else $wp_sitemap_status = true;
-	if($wp_sitemap_status = true) $wp_sitemap_status = '__return_true';
-	else $wp_sitemap_status = '__return_false';
-	add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
-	
-	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
-
-	add_action('admin_notices', 'conflict_plugins_admin_notice');
-
-}
-
-add_action('wp_ajax_posts_list_search' , 'posts_list_search');
-add_action('wp_ajax_nopriv_posts_list_search','posts_list_search');
 function posts_list_search(){
 	$response = [];
 	$s = esc_attr( $_POST['s'] );
@@ -584,4 +566,22 @@ function posts_list_search(){
 
 	wp_send_json($response);
     wp_die();
+}
+
+// Don't do anything if this file was called directly.
+if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
+	sm_setup();
+	
+	if(isset(get_option('sm_options')['sm_wp_sitemap_status']) ) $wp_sitemap_status = get_option('sm_options')['sm_wp_sitemap_status'];
+	else $wp_sitemap_status = true;
+	if($wp_sitemap_status = true) $wp_sitemap_status = '__return_true';
+	else $wp_sitemap_status = '__return_false';
+	add_filter( 'wp_sitemaps_enabled', $wp_sitemap_status );
+	
+	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
+
+	add_action('admin_notices', 'conflict_plugins_admin_notice');
+
+	add_action('wp_ajax_posts_list_search' , 'posts_list_search');
+
 }
