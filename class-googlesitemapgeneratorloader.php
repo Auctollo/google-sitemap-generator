@@ -36,6 +36,9 @@ class GoogleSitemapGeneratorLoader {
 		// Register the sitemap creator to WordPress...
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_page' ) );
 
+		// Add meta box for CPT and Taxonomies.
+		add_action( 'init', array( __CLASS__, 'add_meta_box' ), 16, 0 );
+
 		// Add a widget to the dashboard.
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'wp_dashboard_setup' ) );
 
@@ -309,6 +312,24 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function register_admin_page() {
 		add_options_page( __( 'XML-Sitemap Generator', 'google-sitemap-generator' ), __( 'XML-Sitemap', 'google-sitemap-generator' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
+	}
+
+	public static function add_meta_box() {
+		if ( self::load_plugin() ) {
+			$gsg = GoogleSitemapGenerator::get_instance();
+			$gsg->initate();
+
+			$enabled_post_types = $gsg->get_active_post_types();
+			if ( ! empty( $enabled_post_types ) ) {
+				foreach ( $enabled_post_types as $enabled_post_type ) {
+					add_action( 'add_meta_boxes_' . $enabled_post_type , array( __CLASS__, 'add_meta_boxes_for_enabled_post_types' ) );
+				}
+			}
+		}
+	}
+
+	public static function add_meta_boxes_for_enabled_post_types( $post ) {
+		add_meta_box( 'sm_meta_box_for_' . $post->post_type, __( 'XML Sitemap Generator for Google', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_meta_box' ), null, 'side', 'default', null );
 	}
 
 	/**
@@ -763,6 +784,12 @@ class GoogleSitemapGeneratorLoader {
 	public static function call_html_show_options_page() {
 		if ( self::load_plugin() ) {
 			GoogleSitemapGenerator::get_instance()->html_show_options_page();
+		}
+	}
+
+	public static function call_html_meta_box() {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_meta_box();
 		}
 	}
 

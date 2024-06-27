@@ -2818,6 +2818,17 @@ final class GoogleSitemapGenerator {
 		return false;
 	}
 
+	public function html_show_meta_box() {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_meta_box();
+			return true;
+		}
+
+		return false;
+	}
+
 	/*************************************** HELPERS ***************************************/
 
 	/**

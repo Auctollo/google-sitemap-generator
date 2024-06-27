@@ -2223,4 +2223,16 @@ class GoogleSitemapGeneratorUI {
 		</div>
 		<?php
 	}
+
+	public function html_show_meta_box() {
+
+		?>
+
+		<div class='wrap' id='sm_div'>
+			<b><?php _e( 'Exclude this post from sitemap', 'google-sitemap-generator' ); ?></b>
+			<input type="hidden" name="sm" value="">
+		</div>
+
+		<?php
+	}
 }
