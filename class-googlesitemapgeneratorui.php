@@ -2224,13 +2224,14 @@ class GoogleSitemapGeneratorUI {
 		<?php
 	}
 
-	public function html_show_meta_box() {
-
+	public function html_show_meta_box( $post, $metabox ) {
 		?>
 
 		<div class='wrap' id='sm_div'>
-			<b><?php _e( 'Exclude this post from sitemap', 'google-sitemap-generator' ); ?></b>
-			<input type="hidden" name="sm" value="">
+			<label>
+				<input type="checkbox" name="sm_b_exclude" value="<?php echo $post->ID; ?>" <?php if ( in_array( $post->ID, $metabox['args']['excluded_post_ids'] ) ) echo 'checked="checked"'; ?>>
+				<?php _e( 'Exclude this post from sitemap', 'google-sitemap-generator' ); ?>
+			</label>
 		</div>
 
 		<?php

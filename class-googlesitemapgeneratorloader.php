@@ -322,14 +322,46 @@ class GoogleSitemapGeneratorLoader {
 			$enabled_post_types = $gsg->get_active_post_types();
 			if ( ! empty( $enabled_post_types ) ) {
 				foreach ( $enabled_post_types as $enabled_post_type ) {
-					add_action( 'add_meta_boxes_' . $enabled_post_type , array( __CLASS__, 'add_meta_boxes_for_enabled_post_types' ) );
+					// Add meta box
+					add_action( 'add_meta_boxes_' . $enabled_post_type , function ( $post ) {
+						$gsg = GoogleSitemapGenerator::get_instance();
+						$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
+						add_meta_box( 'sm_meta_box_for_' . $post->post_type, __( 'XML Sitemap Generator for Google', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_meta_box' ), null, 'side', 'default', [ 'excluded_post_ids' => $excluded_post_ids ] );
+					} );
+					// Save meta box data
+					add_action( 'save_post_' . $enabled_post_type, array( __CLASS__, 'save_meta_boxes_data' ), 10, 2 );
 				}
 			}
 		}
 	}
 
-	public static function add_meta_boxes_for_enabled_post_types( $post ) {
-		add_meta_box( 'sm_meta_box_for_' . $post->post_type, __( 'XML Sitemap Generator for Google', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_meta_box' ), null, 'side', 'default', null );
+	public static function save_meta_boxes_data( $post_id, $post ) {
+		// bail out if this is an autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
+		$changed_excluded_post_ids = false;
+		$is_excluded = in_array( $post_id, $excluded_post_ids );
+		$is_for_exclude = isset( $_REQUEST['sm_b_exclude'] );
+
+		if ( $is_for_exclude && ! $is_excluded ) {
+			// Add for excluded
+			$changed_excluded_post_ids = $excluded_post_ids;
+			array_push( $changed_excluded_post_ids, $post_id );
+
+		} elseif ( ! $is_for_exclude && $is_excluded ) {
+			// Remove from excluded
+			$changed_excluded_post_ids = array_diff( $excluded_post_ids, [ "$post_id" ] );
+		}
+
+		// Save changes
+		if ( $changed_excluded_post_ids !== false ) {
+			$gsg->set_option( 'b_exclude', $changed_excluded_post_ids );
+			$gsg->save_options();
+		}
 	}
 
 	/**
@@ -787,9 +819,9 @@ class GoogleSitemapGeneratorLoader {
 		}
 	}
 
-	public static function call_html_meta_box() {
+	public static function call_html_meta_box( $post, $metabox ) {
 		if ( self::load_plugin() ) {
-			GoogleSitemapGenerator::get_instance()->html_show_meta_box();
+			GoogleSitemapGenerator::get_instance()->html_show_meta_box( $post, $metabox );
 		}
 	}
 
