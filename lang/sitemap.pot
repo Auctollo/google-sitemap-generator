@@ -773,8 +773,24 @@ msgstr ""
 msgid "Excluded categories"
 msgstr ""
 
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1727
+msgid "Excluded post tags"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1741
+msgid "Excluded custom taxonomies"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1758
+msgid "Excluded products categories"
+msgstr ""
+
 #: C:\Inetpub\wwwroot\wp_svn\wp-content\plugins\sitemap_beta/sitemap-ui.php:1152
 msgid "Exclude posts"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1776
+msgid "Search by title"
 msgstr ""
 
 # C:\Inetpub\wwwroot\wp\wp-content\plugins\sitemap_beta/sitemap.php:3206

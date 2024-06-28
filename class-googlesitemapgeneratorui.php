@@ -433,7 +433,7 @@ class GoogleSitemapGeneratorUI {
 						}
 					} elseif ( 'sm_b_exclude' === $k ) {
 						$id_ss = array();
-						$id_s  = explode( ',', sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
+						$id_s = ( !is_array( $_POST[ $k ] ) ) ? explode( ',', sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ) : wp_unslash( $_POST[ $k ] );
 						$len   = count( $id_s );
 						for ( $x = 0; $x < $len; $x++ ) {
 							$id = intval( trim( $id_s[ $x ] ) );
@@ -966,15 +966,15 @@ class GoogleSitemapGeneratorUI {
 			}
 
 			.modal-container {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: white;
-			padding: 1rem 1.5rem;
-			width: 35rem;
-			border-radius: 0.5rem;
-			z-index: 100;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: white;
+				padding: 1rem 1.5rem;
+				width: 35rem;
+				border-radius: 0.5rem;
+				z-index: 100;
 			}
 			.allow_consent {
 				color: #ffffff;
@@ -1026,9 +1026,7 @@ class GoogleSitemapGeneratorUI {
 				height: 20px;
 				width: 20px;
 			}
-			<?php
-			if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) .
-				?>
+			<?php if ( version_compare( $wp_version, '3.4', '<' ) ) : // Fix style for WP 3.4 (dirty way for now..) . ?>
 			.inner-sidebar #side-sortables,
 			.columns-2 .inner-sidebar #side-sortables {
 				min-height: 300px;
@@ -1056,9 +1054,188 @@ class GoogleSitemapGeneratorUI {
 				width: auto !important;
 				float: none !important;
 			}
-
 			<?php endif; ?>
+
+			.inner-section {
+				border-color: #CEE1EF;
+				border-style: solid;
+				border-width: 2px;
+				height: 10em;
+				margin: 5px 0px 15px 15px;
+				overflow: auto;
+				padding: 0.5em 0.5em;
+			}
+			.exclude-section {
+				border-color: #CEE1EF;
+				border-style: solid;
+				border-width: 2px;
+				height: 10em;
+				margin: 5px 0px 5px 40px;
+				overflow: auto;
+				padding: 0.5em 0.5em;
+			}
+			.search_actions {
+				position: relative;
+				max-width: 400px;
+				width: 100%;
+				margin: 5px 0 0 15px;
+			}
+			#search_keyword {
+				width: calc(100% - 40px);
+				padding: 0 8px;
+			}
+			#search_close {
+				display: none;
+				width: 30px;
+				height: 30px;
+				right: 40px;
+				position: absolute;
+				text-align: center;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-weight: bold;
+				color: #2271b1;
+				font-size: 1em;
+				user-select: none;
+			}
+			#search_result {
+				display: none;
+				position: absolute;
+				border-color: #c1c1c1;
+				border-style: solid;
+				border-width: 2px;
+				height: 10em;
+				width: 100%;
+				margin: 0px 0px 5px 0px;
+				overflow: auto;
+				padding: 0.5em 0.5em;
+				background-color: #fff;
+			}
 		</style>
+		<script type="text/javascript">
+			(function($) {
+				var api;
+
+				api = window.postsSearch = {
+
+					lastSearch: '',
+					
+					// Functions that run on init.
+					init : function() {
+						this.attachQuickSearchListeners();
+					},
+
+					attachQuickSearchListeners : function() {
+						var searchTimer,
+							result_container = $('#search_result');
+
+						// Prevent form submission.
+						$( '#search_keyword' ).on( 'keydown', function( event ) {
+							if( event.keyCode == 13 ) {
+								event.preventDefault();
+							}
+						});
+
+						$( '#search_keyword' ).on( 'keyup', function() {
+							var $this = $( this );
+
+							if ( searchTimer ) {
+								clearTimeout( searchTimer );
+							}
+
+							searchTimer = setTimeout( function() {
+								api.updateQuickSearchResults( $this );
+							}, 500 );
+						}).on( 'blur', function() {
+							api.lastSearch = '';
+						});
+
+						$(document).on('change', '#search_result .posts_list_item input[type="checkbox"]', function() {
+							if(this.checked) {
+								let $posts_list = $('#posts_list');
+								let posts_list_data = $posts_list.data('excluded_posts_ids').toString();
+								let excluded_posts_ids = posts_list_data.split(',');
+								let value = $(this).val();
+								let posts_list_item = $(this).closest('.posts_list_item').clone(true);
+									// Modify cloned element
+									posts_list_item.find('input').attr('name', 'sm_b_exclude[]').attr('id', 'sm_b_exclude-' + value);
+
+								if ( value in excluded_posts_ids ) {
+								} else {
+									$posts_list.prepend(posts_list_item);
+									if ( posts_list_data !== '' ) {
+										$posts_list.data('excluded_posts_ids', posts_list_data + ',' + value );
+									} else {
+										$posts_list.data('excluded_posts_ids', value );
+									}
+								}
+								
+							}
+						});
+
+						$('#search_close').on('click', function(e){
+							result_container.hide();
+							$('#search_keyword').val('');
+							$(this).css('display', 'none');
+						});
+					},
+
+					updateQuickSearchResults : function(input) {
+						var data,
+							minSearchLength = 2,
+							s = input.val(),
+							result_container = $('#search_result'),
+							excluded_posts_ids = $('#posts_list').data('excluded_posts_ids').toString().split(','),
+							spiner = $(input).siblings('.spinner');
+
+						if ( s.length < minSearchLength || api.lastSearch == s ) {
+							result_container.hide();
+							return;
+						}
+
+						api.lastSearch = s;
+
+						data = {
+							'action': 'posts_list_search',
+							'excluded_posts_ids' : excluded_posts_ids,
+							's': s
+						};
+
+						$.ajax({
+							url: '<?php echo admin_url('admin-ajax.php'); ?>',
+							type: 'post',
+							data: data,
+							beforeSend: function() {
+								$('#search_close').css('display', 'none');
+								spiner.addClass('is-active');
+								result_container.hide();
+							},
+							success: function(response) {
+								spiner.removeClass('is-active');
+								$('#search_close').css('display', 'inline-flex');
+								api.processQuickSearchQueryResponse(response, data, result_container);
+							}
+						});
+					},
+					
+					processQuickSearchQueryResponse : function(response, data, result_container) {
+						if ( typeof response.html === 'undefined' ){
+							result_container.hide();
+						} else {
+							if ( result_container.is(":hidden") ) {
+								result_container.show();
+							}
+							result_container.html(response.html);
+						}
+					},
+				}
+
+				$( function() {
+					postsSearch.init();
+				});
+			})(jQuery);
+		</script>
 		<div class='wrap' id='sm_div'>
 			<?php
 			$user      = wp_get_current_user();
@@ -1546,145 +1723,125 @@ class GoogleSitemapGeneratorUI {
 									<!-- Includes -->
 									<?php $this->html_print_box_header( 'sm_includes', __( 'Sitemap Content', 'google-sitemap-generator' ) ); ?>
 									<b><?php esc_html_e( 'WordPress standard content', 'google-sitemap-generator' ); ?>:</b>
-									<ul>
-										<li>
-											<label for='sm_in_home'>
-												<input type='checkbox' id='sm_in_home' name='sm_in_home' <?php echo ( $this->sg->get_option( 'in_home' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include homepage', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_posts'>
-												<input type='checkbox' id='sm_in_posts' name='sm_in_posts' <?php echo ( $this->sg->get_option( 'in_posts' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include posts', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_product_cat'>
-												<input type='checkbox' id='sm_in_product_cat' name='sm_in_product_cat' <?php echo ( $this->sg->get_option( 'in_product_cat' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include product categories', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_product_tags'>
-												<input type='checkbox' id='sm_product_tags' name='sm_product_tags' <?php echo ( $this->sg->get_option( 'product_tags' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include product tags', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_product_assortment'>
-												<input type='checkbox' id='sm_in_product_assortment' name='sm_in_product_assortment' <?php echo ( $this->sg->get_option( 'in_product_assortment' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include products', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_pages'>
-												<input type='checkbox' id='sm_in_pages' name='sm_in_pages' <?php echo ( $this->sg->get_option( 'in_pages' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include static pages', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_cats'>
-												<input type='checkbox' id='sm_in_cats' name='sm_in_cats' <?php echo ( $this->sg->get_option( 'in_cats' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include categories', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_arch'>
-												<input type='checkbox' id='sm_in_arch' name='sm_in_arch' <?php echo ( $this->sg->get_option( 'in_arch' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include archives', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<li>
-											<label for='sm_in_auth'>
-												<input type='checkbox' id='sm_in_auth' name='sm_in_auth' <?php echo ( $this->sg->get_option( 'in_auth' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-												<?php esc_html_e( 'Include author pages', 'google-sitemap-generator' ); ?>
-											</label>
-										</li>
-										<?php if ( $this->sg->is_taxonomy_supported() ) : ?>
+									<div class="inner-section">
+										<ul>
 											<li>
-												<label for='sm_in_tags'>
-													<input type='checkbox' id='sm_in_tags' name='sm_in_tags' <?php echo ( $this->sg->get_option( 'in_tags' ) === true ? 'checked=\'checked\'' : '' ); ?> />
-													<?php esc_html_e( 'Include tag pages', 'google-sitemap-generator' ); ?>
+												<label for='sm_in_home'>
+													<input type='checkbox' id='sm_in_home' name='sm_in_home' <?php echo ( $this->sg->get_option( 'in_home' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include homepage', 'google-sitemap-generator' ); ?>
 												</label>
 											</li>
-										<?php endif; ?>
-									</ul>
-
-									<?php
-
-									if ( $this->sg->is_taxonomy_supported() ) {
-										$taxonomies = $this->sg->get_custom_taxonomies();
-
-										$enabled_taxonomies = $this->sg->get_option( 'in_tax' );
-
-										if ( count( $taxonomies ) > 0 ) {
-											?>
-											<b>
-											<?php
-											esc_html_e( 'Custom taxonomies', 'google-sitemap-generator' );
-											?>
-											:</b>
-											<ul>
-											<?php
-
-											foreach ( $taxonomies as $tax_name ) {
-
-												$taxonomy = get_taxonomy( $tax_name );
-												$selected = in_array( $taxonomy->name, $enabled_taxonomies, true );
-												?>
+											<li>
+												<label for='sm_in_posts'>
+													<input type='checkbox' id='sm_in_posts' name='sm_in_posts' <?php echo ( $this->sg->get_option( 'in_posts' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include posts', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_product_cat'>
+													<input type='checkbox' id='sm_in_product_cat' name='sm_in_product_cat' <?php echo ( $this->sg->get_option( 'in_product_cat' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include product categories', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_product_tags'>
+													<input type='checkbox' id='sm_product_tags' name='sm_product_tags' <?php echo ( $this->sg->get_option( 'product_tags' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include product tags', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_product_assortment'>
+													<input type='checkbox' id='sm_in_product_assortment' name='sm_in_product_assortment' <?php echo ( $this->sg->get_option( 'in_product_assortment' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include products', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_pages'>
+													<input type='checkbox' id='sm_in_pages' name='sm_in_pages' <?php echo ( $this->sg->get_option( 'in_pages' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include static pages', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_cats'>
+													<input type='checkbox' id='sm_in_cats' name='sm_in_cats' <?php echo ( $this->sg->get_option( 'in_cats' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include categories', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_arch'>
+													<input type='checkbox' id='sm_in_arch' name='sm_in_arch' <?php echo ( $this->sg->get_option( 'in_arch' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include archives', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<li>
+												<label for='sm_in_auth'>
+													<input type='checkbox' id='sm_in_auth' name='sm_in_auth' <?php echo ( $this->sg->get_option( 'in_auth' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+													<?php esc_html_e( 'Include author pages', 'google-sitemap-generator' ); ?>
+												</label>
+											</li>
+											<?php if ( $this->sg->is_taxonomy_supported() ) : ?>
 												<li>
-													<label for='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]'>
-														<input type='checkbox' id='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]' name='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]' <?php echo $selected ? 'checked=\'checked\'' : ''; ?> />
-												<?php /* translators: %s: search term */ ?>
-														<?php echo esc_html( str_replace( '%s', $taxonomy->label, __( 'Include taxonomy pages for %s', 'google-sitemap-generator' ) ) ); ?>
+													<label for='sm_in_tags'>
+														<input type='checkbox' id='sm_in_tags' name='sm_in_tags' <?php echo ( $this->sg->get_option( 'in_tags' ) === true ? 'checked=\'checked\'' : '' ); ?> />
+														<?php esc_html_e( 'Include tag pages', 'google-sitemap-generator' ); ?>
 													</label>
 												</li>
-												<?php
-											}
+											<?php endif; ?>
+										</ul>
+									</div>
 
-											?>
-											</ul>
-											<?php
+									<?php if ( $this->sg->is_taxonomy_supported() ) :
+										$taxonomies 		= $this->sg->get_custom_taxonomies();
+										$enabled_taxonomies = $this->sg->get_option( 'in_tax' );
+										?>
 
-										}
-									}
+										<?php if ( count( $taxonomies ) > 0 ) : ?>
+											<b><?php esc_html_e( 'Custom taxonomies', 'google-sitemap-generator' ); ?>:</b>
+											<div class="inner-section">
+												<ul>
+													<?php foreach ( $taxonomies as $tax_name ) {
+														$taxonomy = get_taxonomy( $tax_name );
+														$selected = in_array( $taxonomy->name, $enabled_taxonomies, true );
+														?>
+														<li>
+															<label for='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]'>
+																<input type='checkbox' id='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]' name='sm_in_tax[<?php echo esc_attr( $taxonomy->name ); ?>]' <?php echo $selected ? 'checked=\'checked\'' : ''; ?> />
+																<?php /* translators: %s: search term */ ?>
+																<?php echo esc_html( str_replace( '%s', $taxonomy->label, __( 'Include taxonomy pages for %s', 'google-sitemap-generator' ) ) ); ?>
+															</label>
+														</li>
+													<?php } ?>
+												</ul>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
 
-									if ( $this->sg->is_custom_post_types_supported() ) {
+									<?php if ( $this->sg->is_custom_post_types_supported() ) :
 										$custom_post_types  = $this->sg->get_custom_post_types();
 										$enabled_post_types = $this->sg->get_option( 'in_customtypes' );
+										?>
 
-										if ( count( $custom_post_types ) > 0 ) {
-											?>
-											<b>
-											<?php esc_html_e( 'Custom post types', 'google-sitemap-generator' ); ?>:</b>
-									<ul>
-											<?php
-
-											foreach ( $custom_post_types as $post_type ) {
-												$post_type_object = get_post_type_object( $post_type );
-												if ( is_array( $enabled_post_types ) ) {
-													$selected = in_array( $post_type_object->name, $enabled_post_types, true );
-												}
-
-												?>
-											<li>
-												<label for='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]'>
-													<input type='checkbox' id='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]' name='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]' <?php echo $selected ? 'checked=\'checked\'' : ''; ?> />
-													<?php /* translators: %s: search term */ ?>
-													<?php echo esc_html( str_replace( '%s', $post_type_object->label, __( 'Include custom post type %s', 'google-sitemap-generator' ) ) ); ?>
-												</label>
-											</li>
-												<?php
-											}
-
-											?>
-									</ul>
-											<?php
-										}
-									}
-
-									?>
+										<?php if ( count( $custom_post_types ) > 0 ) : ?>
+											<b><?php esc_html_e( 'Custom post types', 'google-sitemap-generator' ); ?>:</b>
+											<div class="inner-section">
+												<ul>
+													<?php foreach ( $custom_post_types as $post_type ) {
+														$post_type_object = get_post_type_object( $post_type );
+														if ( is_array( $enabled_post_types ) ) {
+															$selected = in_array( $post_type_object->name, $enabled_post_types, true );
+														} ?>
+														<li>
+															<label for='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]'>
+																<input type='checkbox' id='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]' name='sm_in_customtypes[<?php echo esc_html( $post_type_object->name ); ?>]' <?php echo $selected ? 'checked=\'checked\'' : ''; ?> />
+																<?php /* translators: %s: search term */ ?>
+																<?php echo esc_html( str_replace( '%s', $post_type_object->label, __( 'Include custom post type %s', 'google-sitemap-generator' ) ) ); ?>
+															</label>
+														</li>
+													<?php } ?>
+												</ul>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
 
 									<b><?php esc_html_e( 'Further options', 'google-sitemap-generator' ); ?>:</b>
 									<ul>
@@ -1718,14 +1875,14 @@ class GoogleSitemapGeneratorUI {
 									<?php $this->html_print_box_header( 'sm_excludes', __( 'Excluded Items', 'google-sitemap-generator' ) ); ?>
 
 									<b><?php esc_html_e( 'Excluded categories', 'google-sitemap-generator' ); ?>:</b>
-									<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+									<div class="inner-section">
 										<ul>
 											<?php wp_category_checklist( 0, 0, $this->sg->get_option( 'b_exclude_cats' ), false ); ?>
 										</ul>
 									</div>
 
 									<b><?php esc_html_e( 'Excluded post tags', 'google-sitemap-generator' ); ?>:</b>
-									<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+									<div class="inner-section">
 										<?php $defaults = array(
 											'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
 											'taxonomy' 		=> 'post_tag',
@@ -1739,7 +1896,7 @@ class GoogleSitemapGeneratorUI {
 									<?php $taxonomies = $this->sg->get_custom_taxonomies();
 									if ( $taxonomies ) : ?>
 										<b><?php esc_html_e( 'Excluded custom taxonomies', 'google-sitemap-generator' ); ?>:</b>
-										<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+										<div class="inner-section">
 											<?php foreach ( $taxonomies as $key => $taxonomy ) :
 												$defaults = array(
 													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
@@ -1756,7 +1913,7 @@ class GoogleSitemapGeneratorUI {
 
 									<?php if ( $this->has_woo_commerce ) : ?>
 										<b><?php esc_html_e( 'Excluded products categories', 'google-sitemap-generator' ); ?>:</b>
-										<div style='border-color:#CEE1EF; border-style:solid; border-width:2px; height:10em; margin:5px 0px 5px 40px; overflow:auto; padding:0.5em 0.5em;'>
+										<div class="inner-section">
 											<?php $defaults = array(
 												'descendants_and_self' 	=> 0,
 												'selected_cats' 		=> $this->sg->get_option( 'b_exclude_cats' ),
@@ -1772,11 +1929,50 @@ class GoogleSitemapGeneratorUI {
 										</div>
 									<?php endif; ?>
 
-									<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
-									<div style='margin:5px 0 13px 40px;'>
-										<label for='sm_b_exclude'><?php esc_html_e( 'Exclude the following posts or pages:', 'google-sitemap-generator' ); ?> <small><?php esc_html_e( 'List of IDs, separated by comma', 'google-sitemap-generator' ); ?></small><br />
-										<input name="sm_b_exclude" id="sm_b_exclude" type="text" style="width:400px;" value="<?php echo esc_attr( implode( ',', $this->sg->get_option( 'b_exclude' ) ) ); ?>" /></label><br />
-										<cite><?php esc_html_e( 'Note', 'google-sitemap-generator' ); ?>: <?php esc_html_e( 'Child posts won\'t be excluded automatically!', 'google-sitemap-generator' ); ?></cite>
+									<div id="sm_posts_excludes">
+										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
+										<div class="search_actions">
+											<input id="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>"><span id="search_close" class="close">x</span><span class="spinner"></span>
+											<ul id="search_result"></ul>
+										</div>
+										<div class="inner-section">
+											<?php 
+											$excluded_posts_ids = '';
+											$excluded_posts_html = '';
+											
+											$b_exclude = $this->sg->get_option( 'b_exclude' );
+											if ( ! empty( $b_exclude ) ) {
+												$the_query = new WP_Query([
+													'posts_per_page' => -1,
+													'post__in' => $b_exclude,
+													'post_type' => 'any'
+												]);
+
+												if ( $the_query->have_posts() ) {
+													while( $the_query->have_posts() ) { $the_query->the_post();
+														$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
+														$id = get_the_ID();
+														$excluded_posts_ids .= ( $excluded_posts_ids == '' ) ? $id : ',' . $id;
+
+														$excluded_posts_html .= '<li>';
+														$excluded_posts_html .= 	'<label class="selectit">';
+														$excluded_posts_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
+														$excluded_posts_html .= 	'</label>';
+														$excluded_posts_html .= '</li>';
+													}
+												} else {
+													$excluded_posts_html .= '<li>';
+													$excluded_posts_html .= 	'<label class="selectit">';
+													$excluded_posts_html .= 		'<input value="" type="checkbox" name="sm_b_exclude[]">';
+													$excluded_posts_html .= 	'</label>';
+													$excluded_posts_html .= '</li>';
+												}
+												wp_reset_postdata();
+											} ?>
+											<ul id="posts_list" data-excluded_posts_ids="<?php echo $excluded_posts_ids; ?>">
+												<?php echo $excluded_posts_html; ?>
+											</ul>
+										</div>
 									</div>
 
 									<?php $this->html_print_box_footer(); ?>
