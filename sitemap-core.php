@@ -1084,6 +1084,20 @@ final class GoogleSitemapGenerator {
 		return ( function_exists( 'get_taxonomy' ) && function_exists( 'get_terms' ) && function_exists( 'get_taxonomies' ) );
 	}
 
+	public function is_changed( $id, $excluded_ids, $is_for_exclude ) {
+		$changed_excluded_ids = false;
+		$is_excluded = in_array( $id, $excluded_ids );
+
+		if ( $is_for_exclude && ! $is_excluded ) {
+			$changed_excluded_ids = $excluded_ids;
+			array_push( $changed_excluded_ids, $id );
+		} elseif ( ! $is_for_exclude && $is_excluded ) {
+			$changed_excluded_ids = array_diff( $excluded_ids, [ "$id" ] );
+		}
+
+		return $changed_excluded_ids;
+	}
+
 	/**
 	 * Returns the list of custom taxonomies. These are basically all taxonomies without categories and post tags
 	 *
@@ -1093,6 +1107,33 @@ final class GoogleSitemapGenerator {
 	public function get_custom_taxonomies() {
 		$taxonomies = get_taxonomies( array( 'public' => 1 ) );
 		return array_diff( $taxonomies, array( 'category', 'product_cat', 'post_tag', 'nav_menu', 'link_category', 'post_format' ) );
+	}
+
+	public function get_active_taxonomies() {
+
+		$cache_key = __CLASS__ . '::get_active_taxonomies';
+
+		$active_taxonomies = wp_cache_get( $cache_key, 'sitemap' );
+
+		if ( false === $active_taxonomies ) {
+			$all_taxonomies = get_taxonomies( array( 'public' => 1 ) );
+			$enabled_taxonomies = $this->get_option( 'in_tax' );
+			if ( $this->get_option( 'in_cats' ) ) {
+				$enabled_taxonomies[] = 'category';
+			}
+			if ( $this->get_option( 'in_tags' ) ) {
+				$enabled_taxonomies[] = 'post_tag';
+			}
+
+			$active_taxonomies = array();
+			foreach ( $enabled_taxonomies as $taxonomy ) {
+				if ( ! empty( $taxonomy ) && in_array( $taxonomy, $all_taxonomies, true ) ) {
+					$active_taxonomies[] = $taxonomy;
+				}
+			}
+		}
+
+		return $active_taxonomies;
 	}
 
 	/**
@@ -1116,7 +1157,6 @@ final class GoogleSitemapGenerator {
 		$post_types = array_diff( $post_types, array( 'post', 'page', 'attachment' ) );
 		return $post_types;
 	}
-
 
 	/**
 	 * Returns the list of active post types, built-in and custom ones.
@@ -1267,6 +1307,7 @@ final class GoogleSitemapGenerator {
 		
 		return $rules;
 	}
+
 	/**
 	 * Returns an array with all excluded category IDs.
 	 *
@@ -2818,11 +2859,33 @@ final class GoogleSitemapGenerator {
 		return false;
 	}
 
-	public function html_show_meta_box( $post, $metabox ) {
+	public function html_show_post_types_meta_box( $post, $metabox ) {
 
 		$ui = $this->get_ui();
 		if ( $ui ) {
-			$ui->html_show_meta_box( $post, $metabox );
+			$ui->html_show_post_types_meta_box( $post, $metabox );
+			return true;
+		}
+
+		return false;
+	}
+
+	public function html_show_taxonomies_meta_box( $term ) {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_taxonomies_meta_box( $term );
+			return true;
+		}
+
+		return false;
+	}
+
+	public function html_show_terms_meta_box( $term ) {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_terms_meta_box( $term );
 			return true;
 		}
 

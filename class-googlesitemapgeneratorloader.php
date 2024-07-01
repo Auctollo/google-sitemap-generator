@@ -314,28 +314,63 @@ class GoogleSitemapGeneratorLoader {
 		add_options_page( __( 'XML-Sitemap Generator', 'google-sitemap-generator' ), __( 'XML-Sitemap', 'google-sitemap-generator' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
 	}
 
+	/**
+	 * Add meta boxe
+	 *
+	 * @return void
+	 */
 	public static function add_meta_box() {
 		if ( self::load_plugin() ) {
 			$gsg = GoogleSitemapGenerator::get_instance();
 			$gsg->initate();
 
+			// Meta Boxes for post types
 			$enabled_post_types = $gsg->get_active_post_types();
 			if ( ! empty( $enabled_post_types ) ) {
 				foreach ( $enabled_post_types as $enabled_post_type ) {
 					// Add meta box
-					add_action( 'add_meta_boxes_' . $enabled_post_type , function ( $post ) {
+					add_action( "add_meta_boxes_{$enabled_post_type}" , function ( $post ) {
 						$gsg = GoogleSitemapGenerator::get_instance();
 						$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
-						add_meta_box( 'sm_meta_box_for_' . $post->post_type, __( 'XML Sitemap Generator for Google', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_meta_box' ), null, 'side', 'default', [ 'excluded_post_ids' => $excluded_post_ids ] );
+						add_meta_box( "sm_meta_box_for_{$post->post_type}", __( 'Indexation', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_post_types_meta_box' ), null, 'side', 'default', [ 'excluded_post_ids' => $excluded_post_ids ] );
 					} );
 					// Save meta box data
-					add_action( 'save_post_' . $enabled_post_type, array( __CLASS__, 'save_meta_boxes_data' ), 10, 2 );
+					add_action( "save_post_{$enabled_post_type}", array( __CLASS__, 'save_meta_post_types_boxes_data' ), 10, 2 );
+				}
+			}
+
+			// Meta Boxes for taxonomies
+			$taxonomies = get_taxonomies( array( 'public' => 1 ) );
+			if ( ! empty( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+					// Add meta box
+					add_action( "{$taxonomy}_add_form_fields" , array( __CLASS__, 'call_html_taxonomies_meta_box' ), 10, 1 );
+					// Save meta box data
+					add_action( "create_{$taxonomy}", array( __CLASS__, 'save_taxonomies_meta_boxes_data' ), 10, 3 );
+				}
+			}
+
+			// Meta Boxes for terms
+			$taxonomies = $gsg->get_active_taxonomies();
+			if ( ! empty( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+					// Add meta box
+					add_action( "{$taxonomy}_edit_form_fields" , array( __CLASS__, 'call_html_terms_meta_box' ), 10, 2 );
+					// Save meta box data
+					add_action( "edited_{$taxonomy}", array( __CLASS__, 'save_taxonomies_meta_boxes_data' ), 10, 3 );
 				}
 			}
 		}
 	}
 
-	public static function save_meta_boxes_data( $post_id, $post ) {
+	/**
+	 * Save post types meta bboxes data
+	 *
+	 * @param [type] $post_id
+	 * @param [type] $post
+	 * @return void
+	 */
+	public static function save_meta_post_types_boxes_data( $post_id, $post ) {
 		// bail out if this is an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
@@ -343,23 +378,38 @@ class GoogleSitemapGeneratorLoader {
 
 		$gsg = GoogleSitemapGenerator::get_instance();
 		$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
-		$changed_excluded_post_ids = false;
-		$is_excluded = in_array( $post_id, $excluded_post_ids );
 		$is_for_exclude = isset( $_REQUEST['sm_b_exclude'] );
-
-		if ( $is_for_exclude && ! $is_excluded ) {
-			// Add for excluded
-			$changed_excluded_post_ids = $excluded_post_ids;
-			array_push( $changed_excluded_post_ids, $post_id );
-
-		} elseif ( ! $is_for_exclude && $is_excluded ) {
-			// Remove from excluded
-			$changed_excluded_post_ids = array_diff( $excluded_post_ids, [ "$post_id" ] );
-		}
+		$changed_excluded_post_ids = $gsg->is_changed( $post_id, $excluded_post_ids, $is_for_exclude );
 
 		// Save changes
 		if ( $changed_excluded_post_ids !== false ) {
 			$gsg->set_option( 'b_exclude', $changed_excluded_post_ids );
+			$gsg->save_options();
+		}
+	}
+
+	/**
+	 * Save taxonomies meta boxes data
+	 *
+	 * @param [type] $term_id
+	 * @param [type] $tt_id
+	 * @param [type] $args
+	 * @return void
+	 */
+	public static function save_taxonomies_meta_boxes_data( $term_id, $tt_id, $args ) {
+		// bail out if this is an autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
+		$is_for_exclude = isset( $args['sm_in_cats'] ) || isset( $args['sm_in_tags'] ) || isset( $args['sm_in_tax'] );
+		$changed_excl_cats = $gsg->is_changed( $term_id, $excl_cats, $is_for_exclude );
+
+		// Save changes
+		if ( $changed_excl_cats !== false ) {
+			$gsg->set_option( 'sm_b_exclude_cats', $changed_excl_cats );
 			$gsg->save_options();
 		}
 	}
@@ -819,9 +869,40 @@ class GoogleSitemapGeneratorLoader {
 		}
 	}
 
-	public static function call_html_meta_box( $post, $metabox ) {
+	/**
+	 * Invokes the HtmlShowOptionsPage method of the generator
+	 *
+	 * @param [type] $post
+	 * @param [type] $metabox
+	 * @return void
+	 */
+	public static function call_html_post_types_meta_box( $post, $metabox ) {
 		if ( self::load_plugin() ) {
-			GoogleSitemapGenerator::get_instance()->html_show_meta_box( $post, $metabox );
+			GoogleSitemapGenerator::get_instance()->html_show_post_types_meta_box( $post, $metabox );
+		}
+	}
+
+	/**
+	 * Invokes the HtmlShowTaxonomiesMetaBox method of the generator
+	 *
+	 * @param [type] $taxonomy
+	 * @return void
+	 */
+	public static function call_html_taxonomies_meta_box( $taxonomy ) {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_taxonomies_meta_box( $taxonomy );
+		}
+	}
+
+	/**
+	 * Invokes the HtmlShowTermsMetaBox method of the generator
+	 *
+	 * @param [type] $term
+	 * @return void
+	 */
+	public static function call_html_terms_meta_box( $term ) {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_terms_meta_box( $term );
 		}
 	}
 

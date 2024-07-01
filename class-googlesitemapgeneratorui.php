@@ -239,13 +239,13 @@ class GoogleSitemapGeneratorUI {
 		}
 	}
 
-		/**
-		 * Displays the option page
-		 *
-		 * @since 3.0
-		 * @access public
-		 * @author Arne Brachhold
-		 */
+	/**
+	 * Displays the option page
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @author Arne Brachhold
+	 */
 	public function html_show_options_page() {
 		$this->active_plugins();
 		global $wp_version;
@@ -1874,6 +1874,52 @@ class GoogleSitemapGeneratorUI {
 									<!-- Excluded Items -->
 									<?php $this->html_print_box_header( 'sm_excludes', __( 'Excluded Items', 'google-sitemap-generator' ) ); ?>
 
+									<div id="sm_posts_excludes">
+										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
+										<div class="search_actions">
+											<input id="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>"><span id="search_close" class="close">x</span><span class="spinner"></span>
+											<ul id="search_result"></ul>
+										</div>
+										<div class="inner-section">
+											<?php 
+											$excluded_posts_ids = '';
+											$excluded_posts_html = '';
+											
+											$b_exclude = $this->sg->get_option( 'b_exclude' );
+											if ( ! empty( $b_exclude ) ) {
+												$the_query = new WP_Query([
+													'posts_per_page' => -1,
+													'post__in' => $b_exclude,
+													'post_type' => 'any'
+												]);
+
+												if ( $the_query->have_posts() ) {
+													while( $the_query->have_posts() ) { $the_query->the_post();
+														$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
+														$id = get_the_ID();
+														$excluded_posts_ids .= ( $excluded_posts_ids == '' ) ? $id : ',' . $id;
+
+														$excluded_posts_html .= '<li>';
+														$excluded_posts_html .= 	'<label class="selectit">';
+														$excluded_posts_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
+														$excluded_posts_html .= 	'</label>';
+														$excluded_posts_html .= '</li>';
+													}
+												} else {
+													$excluded_posts_html .= '<li>';
+													$excluded_posts_html .= 	'<label class="selectit">';
+													$excluded_posts_html .= 		'<input value="" type="checkbox" name="sm_b_exclude[]">';
+													$excluded_posts_html .= 	'</label>';
+													$excluded_posts_html .= '</li>';
+												}
+												wp_reset_postdata();
+											} ?>
+											<ul id="posts_list" data-excluded_posts_ids="<?php echo $excluded_posts_ids; ?>">
+												<?php echo $excluded_posts_html; ?>
+											</ul>
+										</div>
+									</div>
+
 									<b><?php esc_html_e( 'Excluded categories', 'google-sitemap-generator' ); ?>:</b>
 									<div class="inner-section">
 										<ul>
@@ -1928,52 +1974,6 @@ class GoogleSitemapGeneratorUI {
 											</ul>
 										</div>
 									<?php endif; ?>
-
-									<div id="sm_posts_excludes">
-										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
-										<div class="search_actions">
-											<input id="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>"><span id="search_close" class="close">x</span><span class="spinner"></span>
-											<ul id="search_result"></ul>
-										</div>
-										<div class="inner-section">
-											<?php 
-											$excluded_posts_ids = '';
-											$excluded_posts_html = '';
-											
-											$b_exclude = $this->sg->get_option( 'b_exclude' );
-											if ( ! empty( $b_exclude ) ) {
-												$the_query = new WP_Query([
-													'posts_per_page' => -1,
-													'post__in' => $b_exclude,
-													'post_type' => 'any'
-												]);
-
-												if ( $the_query->have_posts() ) {
-													while( $the_query->have_posts() ) { $the_query->the_post();
-														$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
-														$id = get_the_ID();
-														$excluded_posts_ids .= ( $excluded_posts_ids == '' ) ? $id : ',' . $id;
-
-														$excluded_posts_html .= '<li>';
-														$excluded_posts_html .= 	'<label class="selectit">';
-														$excluded_posts_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
-														$excluded_posts_html .= 	'</label>';
-														$excluded_posts_html .= '</li>';
-													}
-												} else {
-													$excluded_posts_html .= '<li>';
-													$excluded_posts_html .= 	'<label class="selectit">';
-													$excluded_posts_html .= 		'<input value="" type="checkbox" name="sm_b_exclude[]">';
-													$excluded_posts_html .= 	'</label>';
-													$excluded_posts_html .= '</li>';
-												}
-												wp_reset_postdata();
-											} ?>
-											<ul id="posts_list" data-excluded_posts_ids="<?php echo $excluded_posts_ids; ?>">
-												<?php echo $excluded_posts_html; ?>
-											</ul>
-										</div>
-									</div>
 
 									<?php $this->html_print_box_footer(); ?>
 
@@ -2224,16 +2224,72 @@ class GoogleSitemapGeneratorUI {
 		<?php
 	}
 
-	public function html_show_meta_box( $post, $metabox ) {
+	/**
+	 * Displays meta box for post types
+	 *
+	 * @param [type] $post
+	 * @param [type] $metabox
+	 * @return void
+	 */
+	public function html_show_post_types_meta_box( $post, $metabox ) {
 		?>
-
 		<div class='wrap' id='sm_div'>
 			<label>
 				<input type="checkbox" name="sm_b_exclude" value="<?php echo $post->ID; ?>" <?php if ( in_array( $post->ID, $metabox['args']['excluded_post_ids'] ) ) echo 'checked="checked"'; ?>>
-				<?php _e( 'Exclude this post from sitemap', 'google-sitemap-generator' ); ?>
+				<?php _e( 'Exclude this document from the sitemap', 'google-sitemap-generator' ); ?>
 			</label>
 		</div>
+		<?php
+	}
 
+	/**
+	 * Displays meta box for taxonomies
+	 *
+	 * @param [type] $taxonomy
+	 * @return void
+	 */
+	public function html_show_taxonomies_meta_box( $taxonomy ) {
+		if ( $taxonomy == 'category' ) {
+			$name = 'sm_in_cats';
+		} elseif ( $taxonomy == 'post_tag' ) {
+			$name = 'sm_in_tags';
+		} else {
+			$name = 'sm_in_tax[]';
+		}
+		?>
+		<div class='wrap' id='sm_div'>
+			<label>
+				<input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $taxonomy; ?>">
+				<?php _e( 'Exclude this taxonomy from the sitemap', 'google-sitemap-generator' ); ?>
+			</label>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Displays meta box for terms
+	 *
+	 * @param [type] $term
+	 * @return void
+	 */
+	public function html_show_terms_meta_box( $term ) {
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
+
+		if ( $term->taxonomy == 'category' ) {
+			$name = 'sm_in_cats';
+		} elseif ( $term->taxonomy == 'post_tag' ) {
+			$name = 'sm_in_tags';
+		} else {
+			$name = 'sm_in_tax[]';
+		}
+		?>
+		<div class='wrap' id='sm_div'>
+			<label>
+				<input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $term->term_id; ?>" <?php if ( in_array( $term->term_id, $excl_cats ) ) echo 'checked="checked"'; ?>>
+				<?php _e( 'Exclude this term from the sitemap', 'google-sitemap-generator' ); ?>
+			</label>
+		</div>
 		<?php
 	}
 }
