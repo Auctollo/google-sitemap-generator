@@ -539,22 +539,22 @@ function indexnow_after_post_save($new_status, $old_status, $post) {
     }
 }
 
-function posts_list_search(){
+function list_search(){
 	$response = [];
 	$s = esc_attr( $_POST['s'] );
-	$excluded_posts_ids = wp_unslash( $_POST['excluded_posts_ids'] );
+	$excluded_ids = wp_unslash( $_POST['excluded_ids'] );
 	
 	if ( '' != $s ) {
 		$the_query = new WP_Query( [
 			'posts_per_page' => -1,
 			'post_type' => 'any',
-			'post__not_in' => $excluded_posts_ids,
+			'post__not_in' => $excluded_ids,
 			's' => $s
 		] );
 	  
 		if ( $the_query->have_posts() ) {
 			while( $the_query->have_posts() ){ $the_query->the_post();
-				$response['html'] .= '<li class="posts_list_item">';
+				$response['html'] .= '<li class="list_item">';
 				$response['html'] .= 	'<label class="selectit">';
 				$response['html'] .= 		'<input value="'.get_the_ID().'" type="checkbox"> '.get_the_title();
 				$response['html'] .= 	'</label>';
@@ -582,6 +582,6 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
-	add_action('wp_ajax_posts_list_search' , 'posts_list_search');
+	add_action('wp_ajax_list_search' , 'list_search');
 
 }

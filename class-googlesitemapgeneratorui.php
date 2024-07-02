@@ -924,7 +924,7 @@ class GoogleSitemapGeneratorUI {
 			}
 
 			.sm-padded .inside input {
-				padding: 1px;
+				padding: 0 8px;
 				margin: 0;
 			}
 
@@ -1065,26 +1065,16 @@ class GoogleSitemapGeneratorUI {
 				overflow: auto;
 				padding: 0.5em 0.5em;
 			}
-			.exclude-section {
-				border-color: #CEE1EF;
-				border-style: solid;
-				border-width: 2px;
-				height: 10em;
-				margin: 5px 0px 5px 40px;
-				overflow: auto;
-				padding: 0.5em 0.5em;
-			}
 			.search_actions {
 				position: relative;
 				max-width: 400px;
 				width: 100%;
 				margin: 5px 0 0 15px;
 			}
-			#search_keyword {
+			.search_keyword {
 				width: calc(100% - 40px);
-				padding: 0 8px;
 			}
-			#search_close {
+			.search_close {
 				display: none;
 				width: 30px;
 				height: 30px;
@@ -1099,18 +1089,29 @@ class GoogleSitemapGeneratorUI {
 				font-size: 1em;
 				user-select: none;
 			}
-			#search_result {
+			.search_result {
 				display: none;
 				position: absolute;
-				border-color: #c1c1c1;
-				border-style: solid;
-				border-width: 2px;
-				height: 10em;
+				height: 8em;
 				width: 100%;
-				margin: 0px 0px 5px 0px;
+				margin: 0 !important;
 				overflow: auto;
 				padding: 0.5em 0.5em;
 				background-color: #fff;
+				border-color: #c1c1c1;
+				border-style: solid;
+				border-width: 1px;
+			}
+			.search_buttons {
+				display: none;
+				position: absolute;
+				top: calc(8em + 43px);
+				width: 100%;
+				padding: 0.5em 0.5em;
+				background-color: #fff;
+				border-color: #c1c1c1;
+				border-style: solid;
+				border-width: 1px;
 			}
 		</style>
 		<script type="text/javascript">
@@ -1119,7 +1120,15 @@ class GoogleSitemapGeneratorUI {
 
 				api = window.postsSearch = {
 
-					lastSearch: '',
+					searchKeyword: 	false,
+					searchSection: 	false,
+					searchList: 	false,
+					excludedIds: 	false,
+					searchResult: 	false,
+					searchButtons: 	false,
+					searchSpinner: 	false,
+					searchClose: 	false,
+					lastSearch: 	'',
 					
 					// Functions that run on init.
 					init : function() {
@@ -1127,78 +1136,98 @@ class GoogleSitemapGeneratorUI {
 					},
 
 					attachQuickSearchListeners : function() {
-						var searchTimer,
-							result_container = $('#search_result');
+						var searchTimer;
 
 						// Prevent form submission.
-						$( '#search_keyword' ).on( 'keydown', function( event ) {
+						$('.search_keyword').on( 'keydown', function( event ) {
 							if( event.keyCode == 13 ) {
 								event.preventDefault();
 							}
 						});
 
-						$( '#search_keyword' ).on( 'keyup', function() {
-							var $this = $( this );
+						$('.search_keyword').on( 'keyup', function() {
+							api.searchKeyword 	= $(this);
+							api.searchSection 	= api.searchKeyword.closest('.search_section');
+							api.searchList 		= api.searchSection.find('.inner-section ul');
+							api.excludedIds		= api.searchList.attr('data-ids').toString().split(',');
+							api.searchResult 	= api.searchSection.find('.search_result');
+							api.searchButtons 	= api.searchSection.find('.search_buttons');
+							api.searchSpinner 	= api.searchSection.find('.spinner');
+							api.searchClose 	= api.searchSection.find('.search_close');
 
 							if ( searchTimer ) {
 								clearTimeout( searchTimer );
 							}
 
 							searchTimer = setTimeout( function() {
-								api.updateQuickSearchResults( $this );
+								api.updateQuickSearchResults( api.searchKeyword );
 							}, 500 );
 						}).on( 'blur', function() {
 							api.lastSearch = '';
 						});
 
-						$(document).on('change', '#search_result .posts_list_item input[type="checkbox"]', function() {
-							if(this.checked) {
-								let $posts_list = $('#posts_list');
-								let posts_list_data = $posts_list.data('excluded_posts_ids').toString();
-								let excluded_posts_ids = posts_list_data.split(',');
-								let value = $(this).val();
-								let posts_list_item = $(this).closest('.posts_list_item').clone(true);
-									// Modify cloned element
-									posts_list_item.find('input').attr('name', 'sm_b_exclude[]').attr('id', 'sm_b_exclude-' + value);
-
-								if ( value in excluded_posts_ids ) {
+						$(document).on('change', '.search_select_all', function() {
+							let checked = this.checked;
+							api.searchResult.find('input[type="checkbox"]').each(function(){
+								if(checked) {
+									$(this).prop('checked', true);
 								} else {
-									$posts_list.prepend(posts_list_item);
-									if ( posts_list_data !== '' ) {
-										$posts_list.data('excluded_posts_ids', posts_list_data + ',' + value );
-									} else {
-										$posts_list.data('excluded_posts_ids', value );
-									}
+									$(this).prop('checked', false);
 								}
-								
-							}
+							});
 						});
 
-						$('#search_close').on('click', function(e){
-							result_container.hide();
-							$('#search_keyword').val('');
+						$('.search_close').on('click', function(e){
+							api.searchResult.hide();
+							api.searchButtons.hide();
+							api.searchKeyword.val('');
 							$(this).css('display', 'none');
+						});
+
+						$('.search_add_to_exclude').on('click', function(e) {
+							e.preventDefault();
+							
+							let checked = api.searchResult.find('input:checked');
+							let checked_ids = '';
+
+							if (checked.length > 0) {
+								checked.each(function() {
+									let name = 'sm_b_exclude';
+									let value = $(this).val();
+									let list_item = $(this).closest('.list_item').clone(true);
+
+									list_item.find('input').attr('name', name + '[]').attr('id', name + '-' + value);
+									$(this).closest('.list_item').remove();
+
+									if ( value in api.excludedIds ) {
+									} else {
+										api.searchList.prepend(list_item);
+										if ( api.excludedIds.length > 0 ) {
+											api.excludedIds.push(value);
+											api.searchList.attr('data-ids', api.excludedIds.toString());
+										} else {
+											api.searchList.attr('data-ids', value );
+										}
+									}
+								});
+							}
 						});
 					},
 
 					updateQuickSearchResults : function(input) {
 						var data,
 							minSearchLength = 2,
-							s = input.val(),
-							result_container = $('#search_result'),
-							excluded_posts_ids = $('#posts_list').data('excluded_posts_ids').toString().split(','),
-							spiner = $(input).siblings('.spinner');
+							s = input.val();
 
 						if ( s.length < minSearchLength || api.lastSearch == s ) {
-							result_container.hide();
+							api.searchResult.hide();
 							return;
 						}
 
 						api.lastSearch = s;
-
 						data = {
-							'action': 'posts_list_search',
-							'excluded_posts_ids' : excluded_posts_ids,
+							'action': 'list_search',
+							'excluded_ids' : api.excludedIds,
 							's': s
 						};
 
@@ -1207,26 +1236,29 @@ class GoogleSitemapGeneratorUI {
 							type: 'post',
 							data: data,
 							beforeSend: function() {
-								$('#search_close').css('display', 'none');
-								spiner.addClass('is-active');
-								result_container.hide();
+								api.searchSpinner.addClass('is-active');
+								api.searchClose.hide();
+								api.searchButtons.hide();
+								api.searchResult.hide();
 							},
 							success: function(response) {
-								spiner.removeClass('is-active');
-								$('#search_close').css('display', 'inline-flex');
-								api.processQuickSearchQueryResponse(response, data, result_container);
+								api.searchClose.css('display', 'inline-flex');
+								api.searchButtons.show();
+								api.searchSpinner.removeClass('is-active');
+								
+								api.processQuickSearchQueryResponse(response, data);
 							}
 						});
 					},
 					
-					processQuickSearchQueryResponse : function(response, data, result_container) {
+					processQuickSearchQueryResponse : function(response, data) {
 						if ( typeof response.html === 'undefined' ){
-							result_container.hide();
+							api.searchResult.hide();
 						} else {
-							if ( result_container.is(":hidden") ) {
-								result_container.show();
+							if ( api.searchResult.is(":hidden") ) {
+								api.searchResult.show();
 							}
-							result_container.html(response.html);
+							api.searchResult.html(response.html);
 						}
 					},
 				}
@@ -1874,36 +1906,50 @@ class GoogleSitemapGeneratorUI {
 									<!-- Excluded Items -->
 									<?php $this->html_print_box_header( 'sm_excludes', __( 'Excluded Items', 'google-sitemap-generator' ) ); ?>
 
-									<div id="sm_posts_excludes">
+									<div class="search_section">
 										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
 										<div class="search_actions">
-											<input id="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>"><span id="search_close" class="close">x</span><span class="spinner"></span>
-											<ul id="search_result"></ul>
+											<input class="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>">
+											<span class="close search_close">x</span>
+											<span class="spinner"></span>
+
+											<ul class="search_result"></ul>
+
+											<div class="search_buttons">
+												<span class="list-controls hide-if-no-js">
+													<label>
+														<input type="checkbox" class="search_select_all select-all">
+														<?php _e( 'Select All', 'google-sitemap-generator' ); ?>
+													</label>
+												</span>
+												<span class="add-to-menu">
+													<button class="search_add_to_exclude button right"><?php _e( 'Add to exclude', 'google-sitemap-generator' ); ?></button>
+												</span>
+											</div>
 										</div>
 										<div class="inner-section">
 											<?php 
-											$excluded_posts_ids = '';
-											$excluded_posts_html = '';
-											
-											$b_exclude = $this->sg->get_option( 'b_exclude' );
+											$excluded_ids 	= '';
+											$excluded_html 	= '';
+											$b_exclude 		= $this->sg->get_option( 'b_exclude' );
 											if ( ! empty( $b_exclude ) ) {
 												$the_query = new WP_Query([
-													'posts_per_page' => -1,
-													'post__in' => $b_exclude,
-													'post_type' => 'any'
+													'posts_per_page' 	=> -1,
+													'post__in' 			=> $b_exclude,
+													'post_type' 		=> 'any'
 												]);
 
 												if ( $the_query->have_posts() ) {
 													while( $the_query->have_posts() ) { $the_query->the_post();
 														$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
 														$id = get_the_ID();
-														$excluded_posts_ids .= ( $excluded_posts_ids == '' ) ? $id : ',' . $id;
+														$excluded_ids .= ( $excluded_ids == '' ) ? $id : ',' . $id;
 
-														$excluded_posts_html .= '<li>';
-														$excluded_posts_html .= 	'<label class="selectit">';
-														$excluded_posts_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
-														$excluded_posts_html .= 	'</label>';
-														$excluded_posts_html .= '</li>';
+														$excluded_html .= '<li>';
+														$excluded_html .= 	'<label class="selectit">';
+														$excluded_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
+														$excluded_html .= 	'</label>';
+														$excluded_html .= '</li>';
 													}
 												} else {
 													$excluded_posts_html .= '<li>';
@@ -1914,8 +1960,8 @@ class GoogleSitemapGeneratorUI {
 												}
 												wp_reset_postdata();
 											} ?>
-											<ul id="posts_list" data-excluded_posts_ids="<?php echo $excluded_posts_ids; ?>">
-												<?php echo $excluded_posts_html; ?>
+											<ul data-ids="<?php echo $excluded_ids; ?>">
+												<?php echo $excluded_html; ?>
 											</ul>
 										</div>
 									</div>
