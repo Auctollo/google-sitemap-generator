@@ -1120,15 +1120,17 @@ class GoogleSitemapGeneratorUI {
 
 				api = window.postsSearch = {
 
+					lastSearch: 	'',
 					searchKeyword: 	false,
 					searchSection: 	false,
 					searchList: 	false,
-					excludedIds: 	false,
 					searchResult: 	false,
 					searchButtons: 	false,
 					searchSpinner: 	false,
 					searchClose: 	false,
-					lastSearch: 	'',
+					dataType: 		false,
+					dataFieldName: 	false,
+					dataIds: 		false,
 					
 					// Functions that run on init.
 					init : function() {
@@ -1146,14 +1148,7 @@ class GoogleSitemapGeneratorUI {
 						});
 
 						$('.search_keyword').on( 'keyup', function() {
-							api.searchKeyword 	= $(this);
-							api.searchSection 	= api.searchKeyword.closest('.search_section');
-							api.searchList 		= api.searchSection.find('.inner-section ul');
-							api.excludedIds		= api.searchList.attr('data-ids').toString().split(',');
-							api.searchResult 	= api.searchSection.find('.search_result');
-							api.searchButtons 	= api.searchSection.find('.search_buttons');
-							api.searchSpinner 	= api.searchSection.find('.spinner');
-							api.searchClose 	= api.searchSection.find('.search_close');
+							api.updateQuickSearchSection(this);
 
 							if ( searchTimer ) {
 								clearTimeout( searchTimer );
@@ -1178,35 +1173,35 @@ class GoogleSitemapGeneratorUI {
 						});
 
 						$('.search_close').on('click', function(e){
-							api.searchResult.hide();
-							api.searchButtons.hide();
-							api.searchKeyword.val('');
-							$(this).css('display', 'none');
+							api.updateQuickSearchSection(this);
+							api.processQuickSearch('close');
 						});
 
 						$('.search_add_to_exclude').on('click', function(e) {
 							e.preventDefault();
+
+							api.updateQuickSearchSection(this);
 							
 							let checked = api.searchResult.find('input:checked');
 							let checked_ids = '';
 
 							if (checked.length > 0) {
 								checked.each(function() {
-									let name = 'sm_b_exclude';
-									let value = $(this).val();
+									let value = $(this).val().toString();
 									let list_item = $(this).closest('.list_item').clone(true);
+									let custom_taxonomy = list_item.attr('data-taxonomy');
+										custom_taxonomy = (custom_taxonomy === '') ? '': '[' + custom_taxonomy + ']';
 
-									list_item.find('input').attr('name', name + '[]').attr('id', name + '-' + value);
+									list_item.find('input').attr('name', api.dataFieldName + custom_taxonomy + '[]').attr('id', api.dataFieldName + '-' + value);
 									$(this).closest('.list_item').remove();
 
-									if ( value in api.excludedIds ) {
-									} else {
+									if ( $.inArray(value,api.dataIds) === -1 ) {
 										api.searchList.prepend(list_item);
-										if ( api.excludedIds.length > 0 ) {
-											api.excludedIds.push(value);
-											api.searchList.attr('data-ids', api.excludedIds.toString());
+										if ( api.dataIds.length > 0 ) {
+											api.dataIds.push(value);
+											api.searchList.attr('data-ids', api.dataIds.toString());
 										} else {
-											api.searchList.attr('data-ids', value );
+											api.searchList.attr('data-ids', value.toString() );
 										}
 									}
 								});
@@ -1216,19 +1211,22 @@ class GoogleSitemapGeneratorUI {
 
 					updateQuickSearchResults : function(input) {
 						var data,
-							minSearchLength = 2,
+							minSearchLength = 1,
 							s = input.val();
 
 						if ( s.length < minSearchLength || api.lastSearch == s ) {
 							api.searchResult.hide();
+							api.searchButtons.hide();
 							return;
 						}
 
 						api.lastSearch = s;
 						data = {
-							'action': 'list_search',
-							'excluded_ids' : api.excludedIds,
-							's': s
+							'action'		: 'list_search',
+							'type' 			: api.dataType,
+							'field_name' 	: api.dataFieldName,
+							'excluded_ids' 	: api.dataIds,
+							's'				: s
 						};
 
 						$.ajax({
@@ -1236,30 +1234,56 @@ class GoogleSitemapGeneratorUI {
 							type: 'post',
 							data: data,
 							beforeSend: function() {
-								api.searchSpinner.addClass('is-active');
-								api.searchClose.hide();
-								api.searchButtons.hide();
-								api.searchResult.hide();
+								api.processQuickSearch('ajax-start');
 							},
 							success: function(response) {
-								api.searchClose.css('display', 'inline-flex');
-								api.searchButtons.show();
-								api.searchSpinner.removeClass('is-active');
-								
+								api.processQuickSearch('ajax-stop');
 								api.processQuickSearchQueryResponse(response, data);
 							}
 						});
 					},
-					
+
 					processQuickSearchQueryResponse : function(response, data) {
 						if ( typeof response.html === 'undefined' ){
 							api.searchResult.hide();
+							api.searchButtons.hide();
 						} else {
 							if ( api.searchResult.is(":hidden") ) {
 								api.searchResult.show();
 							}
 							api.searchResult.html(response.html);
 						}
+					},
+
+					processQuickSearch : function(status) {
+						if (status == 'close') {
+							api.searchKeyword.val('');
+							api.searchResult.hide();
+							api.searchButtons.hide();
+							api.searchClose.hide();
+						} else if (status == 'ajax-start') {
+							api.searchSpinner.addClass('is-active');
+							api.searchClose.hide();
+							api.searchButtons.hide();
+							api.searchResult.hide();
+						} else if (status == 'ajax-stop') {
+							api.searchClose.css('display', 'inline-flex');
+							api.searchButtons.show();
+							api.searchSpinner.removeClass('is-active');
+						}
+					},
+
+					updateQuickSearchSection : function(el) {
+						api.searchSection 	= $(el).closest('.search_section');
+						api.searchKeyword 	= api.searchSection.find('.search_keyword')
+						api.searchList 		= api.searchSection.find('.inner-section ul');
+						api.searchResult 	= api.searchSection.find('.search_result');
+						api.searchButtons 	= api.searchSection.find('.search_buttons');
+						api.searchSpinner 	= api.searchSection.find('.spinner');
+						api.searchClose 	= api.searchSection.find('.search_close');
+						api.dataType		= api.searchList.attr('data-type');
+						api.dataFieldName	= api.searchList.attr('data-field-name');
+						api.dataIds			= api.searchList.attr('data-ids').split(',');
 					},
 				}
 
@@ -1906,118 +1930,174 @@ class GoogleSitemapGeneratorUI {
 									<!-- Excluded Items -->
 									<?php $this->html_print_box_header( 'sm_excludes', __( 'Excluded Items', 'google-sitemap-generator' ) ); ?>
 
+									<!-- Post Types -->
+									<?php
+									$excluded_title 		= "Exclude posts";
+									$excluded_type 			= "post_types";
+									$excluded_field_name 	= "sm_b_exclude";
+									$excluded_html 			= "";
+									$excluded_ids 			= $this->sg->get_option( 'b_exclude' );
+									?>
 									<div class="search_section">
-										<b><?php esc_html_e( 'Exclude posts', 'google-sitemap-generator' ); ?>:</b>
-										<div class="search_actions">
-											<input class="search_keyword" type="text" placeholder="<?php _e( 'Search by title', 'google-sitemap-generator' ); ?>">
-											<span class="close search_close">x</span>
-											<span class="spinner"></span>
-
-											<ul class="search_result"></ul>
-
-											<div class="search_buttons">
-												<span class="list-controls hide-if-no-js">
-													<label>
-														<input type="checkbox" class="search_select_all select-all">
-														<?php _e( 'Select All', 'google-sitemap-generator' ); ?>
-													</label>
-												</span>
-												<span class="add-to-menu">
-													<button class="search_add_to_exclude button right"><?php _e( 'Add to exclude', 'google-sitemap-generator' ); ?></button>
-												</span>
-											</div>
-										</div>
+										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
 											<?php 
-											$excluded_ids 	= '';
-											$excluded_html 	= '';
-											$b_exclude 		= $this->sg->get_option( 'b_exclude' );
-											if ( ! empty( $b_exclude ) ) {
+											if ( ! empty( $excluded_ids ) ) {
 												$the_query = new WP_Query([
 													'posts_per_page' 	=> -1,
-													'post__in' 			=> $b_exclude,
+													'post__in' 			=> $excluded_ids,
 													'post_type' 		=> 'any'
 												]);
-
 												if ( $the_query->have_posts() ) {
 													while( $the_query->have_posts() ) { $the_query->the_post();
-														$checked = (in_array(get_the_ID(), $b_exclude)) ? "checked": "";
-														$id = get_the_ID();
-														$excluded_ids .= ( $excluded_ids == '' ) ? $id : ',' . $id;
-
-														$excluded_html .= '<li>';
-														$excluded_html .= 	'<label class="selectit">';
-														$excluded_html .= 		'<input value="'. $id .'" type="checkbox" name="sm_b_exclude[]" id="sm_b_exclude-'. $id .'" '. $checked .'> '. get_the_title();
-														$excluded_html .= 	'</label>';
-														$excluded_html .= '</li>';
+														$excluded_html .= $this->html_list_item( get_the_ID(), get_the_title(), $excluded_field_name );
 													}
-												} else {
-													$excluded_posts_html .= '<li>';
-													$excluded_posts_html .= 	'<label class="selectit">';
-													$excluded_posts_html .= 		'<input value="" type="checkbox" name="sm_b_exclude[]">';
-													$excluded_posts_html .= 	'</label>';
-													$excluded_posts_html .= '</li>';
 												}
 												wp_reset_postdata();
-											} ?>
-											<ul data-ids="<?php echo $excluded_ids; ?>">
+											}
+											?>
+											<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
 												<?php echo $excluded_html; ?>
 											</ul>
 										</div>
 									</div>
 
-									<b><?php esc_html_e( 'Excluded categories', 'google-sitemap-generator' ); ?>:</b>
-									<div class="inner-section">
-										<ul>
-											<?php wp_category_checklist( 0, 0, $this->sg->get_option( 'b_exclude_cats' ), false ); ?>
-										</ul>
-									</div>
-
-									<b><?php esc_html_e( 'Excluded post tags', 'google-sitemap-generator' ); ?>:</b>
-									<div class="inner-section">
-										<?php $defaults = array(
-											'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-											'taxonomy' 		=> 'post_tag',
-											'echo' 			=> true,
-										); ?>
-										<ul>
-											<?php wp_terms_checklist( 0, $defaults ); ?>
-										</ul>
-									</div>
-
-									<?php $taxonomies = $this->sg->get_custom_taxonomies();
-									if ( $taxonomies ) : ?>
-										<b><?php esc_html_e( 'Excluded custom taxonomies', 'google-sitemap-generator' ); ?>:</b>
+									<!-- Categories -->
+									<?php
+									$excluded_title 		= "Excluded categories";
+									$excluded_type 			= "category";
+									$excluded_field_name 	= "post_category";
+									$excluded_html 			= "";
+									$excluded_ids 			= $this->sg->get_option( 'b_exclude_cats' );
+									$hide_empty 			= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+									?>
+									<div class="search_section">
+										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
-											<?php foreach ( $taxonomies as $key => $taxonomy ) :
-												$defaults = array(
-													'selected_cats' => $this->sg->get_option( 'b_exclude_cats' ),
-													'taxonomy' 		=> $taxonomy,
-													'echo'     		=> true,
-												); ?>
-												<ul>
-													<li><b><i><?php echo $taxonomy; ?></i></b></li>
-													<?php wp_terms_checklist( 0, $defaults ); ?>
-												</ul>
-											<?php endforeach; ?>
-										</div>
-									<?php endif; ?>
-
-									<?php if ( $this->has_woo_commerce ) : ?>
-										<b><?php esc_html_e( 'Excluded products categories', 'google-sitemap-generator' ); ?>:</b>
-										<div class="inner-section">
-											<?php $defaults = array(
-												'descendants_and_self' 	=> 0,
-												'selected_cats' 		=> $this->sg->get_option( 'b_exclude_cats' ),
-												'popular_cats' 			=> false,
-												'walker' 				=> null,
-												'taxonomy' 				=> 'product_cat',
-												'checked_ontop' 		=> true,
-												'echo' 					=> true,
-											); ?>
-											<ul>
-												<?php wp_terms_checklist( 0, $defaults ); ?>
+											<?php 
+											if ( ! empty( $excluded_ids ) ) {
+												$terms = get_terms( array(
+													'taxonomy'   	=> $excluded_type,
+													'hide_empty' 	=> $hide_empty,
+													'include' 		=> $excluded_ids
+												) );
+												if ( $terms ) {
+													foreach ( $terms as $term ) {
+														$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
+													}
+												}
+											}
+											?>
+											<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+												<?php echo $excluded_html; ?>
 											</ul>
+										</div>
+									</div>
+
+									<!-- Post Tags -->
+									<?php
+									$excluded_title 		= "Excluded post tags";
+									$excluded_type 			= "post_tag";
+									$excluded_field_name 	= "tax_input[post_tag]";
+									$excluded_html 			= "";
+									$excluded_ids 			= $this->sg->get_option( 'b_exclude_cats' );
+									$hide_empty 			= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+									?>
+									<div class="search_section">
+										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
+										<?php echo $this->html_search_actions(); ?>
+										<div class="inner-section">
+												<?php 
+												if ( ! empty( $excluded_ids ) ) {
+													$terms = get_terms( array(
+														'taxonomy'   	=> $excluded_type,
+														'hide_empty' 	=> $hide_empty,
+														'include' 		=> $excluded_ids
+													) );
+													if ( $terms ) {
+														foreach ( $terms as $term ) {
+															$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
+														}
+													}
+												}
+												?>
+												<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+													<?php echo $excluded_html; ?>
+												</ul>
+										</div>
+									</div>
+
+									<!-- Custom Taxonomies -->
+									<?php
+									$excluded_title 		= "Excluded custom taxonomies";
+									$excluded_type 			= "";
+									$excluded_field_name 	= "tax_input";
+									$excluded_html 			= "";
+									$excluded_ids 			= $this->sg->get_option( 'b_exclude_cats' );
+									$taxonomies 			= $this->sg->get_custom_taxonomies();
+									$hide_empty 			= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+									?>
+									<div class="search_section">
+										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
+										<?php echo $this->html_search_actions(); ?>
+										<div class="inner-section">
+											<?php 
+											if ( ! empty( $excluded_ids ) ) {
+												foreach ( $taxonomies as $taxonomy ) {
+													$excluded_type .= ( $excluded_type == '' ) ? $taxonomy : "," . $taxonomy;
+													$terms = get_terms( array(
+														'taxonomy'   	=> $taxonomy,
+														'hide_empty' 	=> $hide_empty,
+														'include' 		=> $excluded_ids
+													) );
+													if ( $terms ) {
+														$excluded_html .= "<li><b><i>$taxonomy</i></b></li>";
+														foreach ( $terms as $term ) {
+															$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name."[".$taxonomy."]" );
+														}
+													}
+												}
+											} ?>
+											<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+												<?php echo $excluded_html; ?>
+											</ul>
+										</div>
+									</div>
+
+									<!-- Products Categories -->
+									<?php if ( $this->has_woo_commerce ) : ?>
+										<?php
+										$excluded_title 		= "Excluded products categories";
+										$excluded_type 			= "product_cat";
+										$excluded_field_name 	= "tax_input[product_cat]";
+										$excluded_html 			= "";
+										$excluded_ids 			= $this->sg->get_option( 'b_exclude_cats' );
+										$hide_empty 			= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+										?>
+										<div class="search_section">
+											<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
+											<?php echo $this->html_search_actions(); ?>
+											<div class="inner-section">
+													<?php 
+													if ( ! empty( $excluded_ids ) ) {
+														$terms = get_terms( array(
+															'taxonomy'   	=> $excluded_type,
+															'hide_empty' 	=> $hide_empty,
+															'include' 		=> $excluded_ids
+														) );
+														if ( $terms ) {
+															foreach ( $terms as $term ) {
+																$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
+															}
+														}
+													}
+													?>
+													<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+														<?php echo $excluded_html; ?>
+													</ul>
+											</div>
 										</div>
 									<?php endif; ?>
 
@@ -2270,6 +2350,45 @@ class GoogleSitemapGeneratorUI {
 		<?php
 	}
 
+	public function html_search_actions() {
+		
+		$html = '
+		<div class="search_actions">
+			<input class="search_keyword" type="text" placeholder="'.esc_html__( 'Search by title', 'google-sitemap-generator' ).'">
+			<span class="close search_close">x</span>
+			<span class="spinner"></span>
+
+			<ul class="search_result"></ul>
+
+			<div class="search_buttons">
+				<span class="list-controls hide-if-no-js">
+					<label>
+						<input type="checkbox" class="search_select_all select-all"> '.esc_html__( 'Select All', 'google-sitemap-generator' ).'
+					</label>
+				</span>
+				<span class="add-to-menu">
+					<button class="search_add_to_exclude button right">'.esc_html__( 'Add to exclude', 'google-sitemap-generator' ).'</button>
+				</span>
+			</div>
+		</div>
+		';
+
+		return $html;
+	}
+
+	public function html_list_item( $id, $title, $name ) {
+
+		$html = '
+		<li class="list_item">
+			<label class="selectit">
+				<input type="checkbox" name="'.$name.'[]" id="'.$name.'-'.$id.'" value="'.$id.'" checked> '.$title.'
+			</label>
+		</li>
+		';
+
+		return $html;
+	}
+
 	/**
 	 * Displays meta box for post types
 	 *
@@ -2279,12 +2398,20 @@ class GoogleSitemapGeneratorUI {
 	 */
 	public function html_show_post_types_meta_box( $post, $metabox ) {
 		?>
-		<div class='wrap' id='sm_div'>
+
+		<div class='wrap' id='sm_meta_box'>
 			<label>
 				<input type="checkbox" name="sm_b_exclude" value="<?php echo $post->ID; ?>" <?php if ( in_array( $post->ID, $metabox['args']['excluded_post_ids'] ) ) echo 'checked="checked"'; ?>>
 				<?php _e( 'Exclude this document from the sitemap', 'google-sitemap-generator' ); ?>
 			</label>
 		</div>
+
+		<style>
+			#sm_meta_box {
+				padding: 15px 0;
+			}
+		</style>
+
 		<?php
 	}
 
@@ -2303,12 +2430,20 @@ class GoogleSitemapGeneratorUI {
 			$name = 'sm_in_tax[]';
 		}
 		?>
-		<div class='wrap' id='sm_div'>
+		
+		<div class='wrap' id='sm_meta_box'>
 			<label>
 				<input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $taxonomy; ?>">
 				<?php _e( 'Exclude this taxonomy from the sitemap', 'google-sitemap-generator' ); ?>
 			</label>
 		</div>
+
+		<style>
+			#sm_meta_box {
+				padding: 15px 0;
+			}
+		</style>
+
 		<?php
 	}
 
@@ -2330,12 +2465,20 @@ class GoogleSitemapGeneratorUI {
 			$name = 'sm_in_tax[]';
 		}
 		?>
-		<div class='wrap' id='sm_div'>
+
+		<div class='wrap' id='sm_meta_box'>
 			<label>
 				<input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $term->term_id; ?>" <?php if ( in_array( $term->term_id, $excl_cats ) ) echo 'checked="checked"'; ?>>
 				<?php _e( 'Exclude this term from the sitemap', 'google-sitemap-generator' ); ?>
 			</label>
 		</div>
+
+		<style>
+			#sm_meta_box {
+				padding: 15px 0;
+			}
+		</style>
+
 		<?php
 	}
 }

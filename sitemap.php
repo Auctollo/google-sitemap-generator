@@ -539,33 +539,74 @@ function indexnow_after_post_save($new_status, $old_status, $post) {
     }
 }
 
-function list_search(){
-	$response = [];
-	$s = esc_attr( $_POST['s'] );
-	$excluded_ids = wp_unslash( $_POST['excluded_ids'] );
+function list_search() {
+	$response 		= [];
+	$s 				= esc_attr( $_POST['s'] );
+	$type 			= sanitize_text_field( $_POST['type'] );
+	$field_name 	= sanitize_text_field( $_POST['field_name'] );
+	$excluded_ids 	= wp_unslash( $_POST['excluded_ids'] );
+	$hide_empty 	= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+
+	$gsg = GoogleSitemapGenerator::get_instance();
+	$gsg->initate();
 	
-	if ( '' != $s ) {
-		$the_query = new WP_Query( [
-			'posts_per_page' => -1,
-			'post_type' => 'any',
-			'post__not_in' => $excluded_ids,
-			's' => $s
-		] );
-	  
-		if ( $the_query->have_posts() ) {
-			while( $the_query->have_posts() ){ $the_query->the_post();
-				$response['html'] .= '<li class="list_item">';
-				$response['html'] .= 	'<label class="selectit">';
-				$response['html'] .= 		'<input value="'.get_the_ID().'" type="checkbox"> '.get_the_title();
-				$response['html'] .= 	'</label>';
-				$response['html'] .= '</li>';
+	if ( $field_name == 'sm_b_exclude' ) {
+		$enabled_post_types = $gsg->get_active_post_types();
+		$post_types = new WP_Query([
+			'posts_per_page' 	=> -1,
+			'post_type' 		=> $enabled_post_types,
+			'post__not_in' 		=> $excluded_ids,
+			's' 				=> $s
+		]);
+
+		if ( $post_types->have_posts() ) {
+			while( $post_types->have_posts() ){ $post_types->the_post();
+				$response['html'] .= list_item_html( get_the_ID(), get_the_title() );
 			}
-			wp_reset_postdata(); 
+		}
+		wp_reset_postdata(); 
+	} elseif ( $field_name == 'post_category' || $field_name == 'tax_input[post_tag]' || $field_name == 'tax_input[product_cat]' ) {
+		$terms = get_terms( array(
+			'taxonomy'   	=> $type,
+			'hide_empty' 	=> $hide_empty,
+			'name__like' 	=> $s,
+			'exclude' 		=> $excluded_ids
+		) );
+
+		if ( ! empty( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$response['html'] .= list_item_html( $term->term_id, $term->name );
+			}
+		}
+	} elseif ( $field_name == 'tax_input' ) {
+		$types = explode( ',', $type );
+		$terms = get_terms( array(
+			'taxonomy'   	=> $types,
+			'hide_empty' 	=> $hide_empty,
+			'name__like' 	=> $s,
+			'exclude' 		=> $excluded_ids
+		) );
+
+		if ( ! empty( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$response['html'] .= list_item_html( $term->term_id, $term->name, $term->taxonomy );
+			}
 		}
 	}
 
 	wp_send_json($response);
     wp_die();
+}
+function list_item_html( $id, $title, $taxonomy = '' ) {
+	$html = '
+	<li class="list_item" data-taxonomy="'.$taxonomy.'">
+		<label class="selectit">
+			<input value="'.$id.'" type="checkbox"> '.$title.'
+		</label>
+	</li>
+	';
+
+	return $html;
 }
 
 // Don't do anything if this file was called directly.
