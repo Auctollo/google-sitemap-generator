@@ -1320,11 +1320,12 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Getting "ORDER BY" for sorting all post types posts in sitemap
+	 * Getting sort order for sorting all post types posts and taxonomies in sitemap
 	 *
 	 */
-	public function get_order_by() {
-		return apply_filters('sm_sitemap_order_by', 'ASC');
+	public function get_sitemap_sort_order() {
+		$sort_order = sanitize_text_field( apply_filters( 'sm_sitemap_sort_order', 'ASC' ) );
+		return ( $sort_order == 'DESC' ) ? $sort_order : 'ASC';
 	}
 
 	/*************************************** PRIORITY PROVIDERS ***************************************/
