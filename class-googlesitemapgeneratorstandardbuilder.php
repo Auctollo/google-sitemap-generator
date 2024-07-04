@@ -134,6 +134,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$ex_cat_s_q_l = "AND ( p.ID NOT IN ( SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ( SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE term_id IN ( " . implode( ',', $excluded_category_i_d_s ) . '))))';
 			}
 			// Statement to query the actual posts for this post type.
+			$order_by = $gsg->get_order_by();
+			$order_by = ( $order_by == 'DESC' ) ? $order_by : 'ASC';
 			$qs = "
 				SELECT
 					p.ID,
@@ -156,7 +158,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$ex_post_s_q_l}
 					{$ex_cat_s_q_l}
 				ORDER BY
-					p.post_date_gmt ASC
+					p.post_date_gmt {$order_by}
 				LIMIT
 					%d, %d
 			";

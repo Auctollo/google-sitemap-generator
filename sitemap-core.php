@@ -1319,6 +1319,14 @@ final class GoogleSitemapGenerator {
 		return array_filter( array_map( 'intval', $excl_cats ), array( $this, 'is_greater_zero' ) );
 	}
 
+	/**
+	 * Getting "ORDER BY" for sorting all post types posts in sitemap
+	 *
+	 */
+	public function get_order_by() {
+		return apply_filters('sm_sitemap_order_by', 'ASC');
+	}
+
 	/*************************************** PRIORITY PROVIDERS ***************************************/
 
 	/**
