@@ -1932,7 +1932,7 @@ class GoogleSitemapGeneratorUI {
 
 									<!-- Post Types -->
 									<?php
-									$excluded_title 		= "Excluded posts";
+									$excluded_title 		= "Exclude posts";
 									$excluded_type 			= "post_types";
 									$excluded_field_name 	= "sm_b_exclude";
 									$excluded_html 			= "";
@@ -1940,7 +1940,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions( $excluded_title ); ?>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
 											<?php 
 											if ( ! empty( $excluded_ids ) ) {
@@ -1974,7 +1974,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions( $excluded_title ); ?>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
 											<?php 
 											if ( ! empty( $excluded_ids ) ) {
@@ -2007,25 +2007,25 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions( $excluded_title ); ?>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
-												<?php 
-												if ( ! empty( $excluded_ids ) ) {
-													$terms = get_terms( array(
-														'taxonomy'   	=> $excluded_type,
-														'hide_empty' 	=> $hide_empty,
-														'include' 		=> $excluded_ids
-													) );
-													if ( $terms ) {
-														foreach ( $terms as $term ) {
-															$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
-														}
+											<?php 
+											if ( ! empty( $excluded_ids ) ) {
+												$terms = get_terms( array(
+													'taxonomy'   	=> $excluded_type,
+													'hide_empty' 	=> $hide_empty,
+													'include' 		=> $excluded_ids
+												) );
+												if ( $terms ) {
+													foreach ( $terms as $term ) {
+														$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
 													}
 												}
-												?>
-												<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
-													<?php echo $excluded_html; ?>
-												</ul>
+											}
+											?>
+											<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+												<?php echo $excluded_html; ?>
+											</ul>
 										</div>
 									</div>
 
@@ -2041,12 +2041,13 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions( $excluded_title ); ?>
+										<?php echo $this->html_search_actions(); ?>
 										<div class="inner-section">
 											<?php 
-											if ( ! empty( $excluded_ids ) ) {
-												foreach ( $taxonomies as $taxonomy ) {
-													$excluded_type .= ( $excluded_type == '' ) ? $taxonomy : "," . $taxonomy;
+											foreach ( $taxonomies as $taxonomy ) {
+												$excluded_type .= ( $excluded_type == '' ) ? $taxonomy : "," . $taxonomy;
+
+												if ( ! empty( $excluded_ids ) ) {
 													$terms = get_terms( array(
 														'taxonomy'   	=> $taxonomy,
 														'hide_empty' 	=> $hide_empty,
@@ -2078,25 +2079,25 @@ class GoogleSitemapGeneratorUI {
 										?>
 										<div class="search_section">
 											<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-											<?php echo $this->html_search_actions( $excluded_title ); ?>
+											<?php echo $this->html_search_actions(); ?>
 											<div class="inner-section">
-													<?php 
-													if ( ! empty( $excluded_ids ) ) {
-														$terms = get_terms( array(
-															'taxonomy'   	=> $excluded_type,
-															'hide_empty' 	=> $hide_empty,
-															'include' 		=> $excluded_ids
-														) );
-														if ( $terms ) {
-															foreach ( $terms as $term ) {
-																$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
-															}
+												<?php 
+												if ( ! empty( $excluded_ids ) ) {
+													$terms = get_terms( array(
+														'taxonomy'   	=> $excluded_type,
+														'hide_empty' 	=> $hide_empty,
+														'include' 		=> $excluded_ids
+													) );
+													if ( $terms ) {
+														foreach ( $terms as $term ) {
+															$excluded_html .= $this->html_list_item( $term->term_id, $term->name, $excluded_field_name );
 														}
 													}
-													?>
-													<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
-														<?php echo $excluded_html; ?>
-													</ul>
+												}
+												?>
+												<ul data-ids="<?php echo implode( ',', $excluded_ids ); ?>" data-field-name="<?php echo $excluded_field_name; ?>" data-type="<?php echo $excluded_type; ?>">
+													<?php echo $excluded_html; ?>
+												</ul>
 											</div>
 										</div>
 									<?php endif; ?>
@@ -2350,7 +2351,7 @@ class GoogleSitemapGeneratorUI {
 		<?php
 	}
 
-	public function html_search_actions( $type ) {
+	public function html_search_actions() {
 		
 		$html = '
 		<div class="search_actions">
@@ -2367,7 +2368,7 @@ class GoogleSitemapGeneratorUI {
 					</label>
 				</span>
 				<span class="add-to-menu">
-					<button class="search_add_to_exclude button right">'.esc_html__( 'Add to ' . strtolower($type), 'google-sitemap-generator' ).'</button>
+					<button class="search_add_to_exclude button right">'.esc_html__( 'Add to exclude', 'google-sitemap-generator' ).'</button>
 				</span>
 			</div>
 		</div>
