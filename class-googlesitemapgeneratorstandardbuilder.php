@@ -134,8 +134,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$ex_cat_s_q_l = "AND ( p.ID NOT IN ( SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ( SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE term_id IN ( " . implode( ',', $excluded_category_i_d_s ) . '))))';
 			}
 			// Statement to query the actual posts for this post type.
-			$order_by = $gsg->get_order_by();
-			$order_by = ( $order_by == 'DESC' ) ? $order_by : 'ASC';
+			$sort_order = $gsg->get_sitemap_sort_order();
 			$qs = "
 				SELECT
 					p.ID,
@@ -158,7 +157,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$ex_post_s_q_l}
 					{$ex_cat_s_q_l}
 				ORDER BY
-					p.post_date_gmt {$order_by}
+					p.post_date_gmt {$sort_order}
 				LIMIT
 					%d, %d
 			";
@@ -640,7 +639,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$terms = array_values(
 				array_unique(
 					array_filter(
-						$this->get_terms($queryArr),
+						$this->get_terms($queryArr, $gsg),
 						function ($term) use ($taxonomy) {
 							return $term->taxonomy === $taxonomy;
 						}
@@ -750,6 +749,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			array(
 				'number' => $links_per_page,
 				'offset' => $offset,
+				'order' => $gsg->get_sitemap_sort_order(),
 			)
 		);
 		remove_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
@@ -788,9 +788,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 		$category = get_terms(
 			'product_cat',
 			array(
-				'number'  => $links_per_page,
-				'offset'  => $offset,
-				'exclude' => $excludes,
+				'number'  	=> $links_per_page,
+				'offset'  	=> $offset,
+				'exclude' 	=> $excludes,
+				'order' 	=> $gsg->get_sitemap_sort_order(),
 			)
 		);
 		remove_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
@@ -908,7 +909,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					'exclude' => $excludes
 				];
 				$terms_args['hide_empty'] = apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
-				$terms = $this->get_terms( $terms_args );
+				$terms = $this->get_terms( $terms_args, $gsg );
 				$terms_by_taxonomy[ $taxonomy ] = $terms;
 			}
 		}
@@ -1101,7 +1102,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		return $urls;
 	}
 
-	public function get_terms( $args = [] ) {
+	public function get_terms( $args = [], $gsg ) {
 		global $wpdb;
 
 		$taxonomy = ( isset( $args['taxonomy'] ) && null !== $args['taxonomy'] ) ? $args['taxonomy'] : false;
@@ -1124,7 +1125,8 @@ class GoogleSitemapGeneratorStandardBuilder {
 					$sql .= ' AND `tt`.term_id != ' . $term_id;
 				}
 			}
-			$sql .= ' ORDER BY t.name ASC';
+			$sort_order = $gsg->get_sitemap_sort_order();
+			$sql .= ' ORDER BY t.name ' . $sort_order;
 			if ( isset( $args['number'] ) && $args['number'] != '' ) {
 				$sql .= ' LIMIT ' . $args['number'];
 			}
