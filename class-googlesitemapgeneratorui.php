@@ -1932,7 +1932,7 @@ class GoogleSitemapGeneratorUI {
 
 									<!-- Post Types -->
 									<?php
-									$excluded_title 		= "Exclude posts";
+									$excluded_title 		= "Excluded posts";
 									$excluded_type 			= "post_types";
 									$excluded_field_name 	= "sm_b_exclude";
 									$excluded_html 			= "";
@@ -1940,7 +1940,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions(); ?>
+										<?php echo $this->html_search_actions( $excluded_title ); ?>
 										<div class="inner-section">
 											<?php 
 											if ( ! empty( $excluded_ids ) ) {
@@ -1974,7 +1974,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions(); ?>
+										<?php echo $this->html_search_actions( $excluded_title ); ?>
 										<div class="inner-section">
 											<?php 
 											if ( ! empty( $excluded_ids ) ) {
@@ -2007,7 +2007,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions(); ?>
+										<?php echo $this->html_search_actions( $excluded_title ); ?>
 										<div class="inner-section">
 												<?php 
 												if ( ! empty( $excluded_ids ) ) {
@@ -2041,7 +2041,7 @@ class GoogleSitemapGeneratorUI {
 									?>
 									<div class="search_section">
 										<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-										<?php echo $this->html_search_actions(); ?>
+										<?php echo $this->html_search_actions( $excluded_title ); ?>
 										<div class="inner-section">
 											<?php 
 											if ( ! empty( $excluded_ids ) ) {
@@ -2078,7 +2078,7 @@ class GoogleSitemapGeneratorUI {
 										?>
 										<div class="search_section">
 											<b><?php esc_html_e( $excluded_title, 'google-sitemap-generator' ); ?>:</b>
-											<?php echo $this->html_search_actions(); ?>
+											<?php echo $this->html_search_actions( $excluded_title ); ?>
 											<div class="inner-section">
 													<?php 
 													if ( ! empty( $excluded_ids ) ) {
@@ -2350,7 +2350,7 @@ class GoogleSitemapGeneratorUI {
 		<?php
 	}
 
-	public function html_search_actions() {
+	public function html_search_actions( $type ) {
 		
 		$html = '
 		<div class="search_actions">
@@ -2367,7 +2367,7 @@ class GoogleSitemapGeneratorUI {
 					</label>
 				</span>
 				<span class="add-to-menu">
-					<button class="search_add_to_exclude button right">'.esc_html__( 'Add to exclude', 'google-sitemap-generator' ).'</button>
+					<button class="search_add_to_exclude button right">'.esc_html__( 'Add to ' . strtolower($type), 'google-sitemap-generator' ).'</button>
 				</span>
 			</div>
 		</div>
