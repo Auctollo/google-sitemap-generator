@@ -1,6 +1,6 @@
 === XML Sitemap Generator for Google ===
 Contributors: auctollo
-Tags: sitemaps, video sitemap, news sitemap, html sitemap, image sitemap
+Tags: xml sitemap, video sitemap, news sitemap, html sitemap, image sitemap
 Requires at least: 4.6
 Tested up to: 6.5
 Stable tag: 4.1.21
