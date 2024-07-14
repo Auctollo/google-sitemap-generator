@@ -13,6 +13,12 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 	private $linkPerPage = 1000;
 	private $maxLinksPerPage = 50000;
+	/**
+	 * Holds image parser instance.
+	 *
+	 * @var GoogleSitemapGeneratorImageParser
+	 */
+	protected static $image_parser;
 
 	/**
 	 * Creates a new GoogleSitemapGeneratorStandardBuilder instance
@@ -22,6 +28,19 @@ class GoogleSitemapGeneratorStandardBuilder {
 		add_action( 'sm_build_content', array( $this, 'content' ), 10, 3 );
 
 		add_filter( 'sm_sitemap_for_post', array( $this, 'get_sitemap_url_for_post' ), 10, 3 );
+	}
+
+	/**
+	 * Get the Image Parser.
+	 *
+	 * @return GoogleSitemapGeneratorImageParser
+	 */
+	protected function get_image_parser() {
+		if ( ! isset( self::$image_parser ) ) {
+			self::$image_parser = new GoogleSitemapGeneratorImageParser();
+		}
+
+		return self::$image_parser;
 	}
 
 	/**
@@ -141,6 +160,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					p.post_author,
 					p.post_status,
 					p.post_name,
+					p.post_content,
 					p.post_parent,
 					p.post_type,
 					p.post_date,
@@ -317,12 +337,15 @@ class GoogleSitemapGeneratorStandardBuilder {
 							$priority = $minimum_priority;
 						}
 
+						$images = ! is_null( $this->get_image_parser() ) ? $this->get_image_parser()->get_images( $post ) : [];
+
 						// Add the URL to the sitemap.
 						$gsg->add_url(
 							$permalink,
 							$gsg->get_timestamp_from_my_sql( $post->post_modified_gmt && '0000-00-00 00:00:00' !== $post->post_modified_gmt ? $post->post_modified_gmt : $post->post_date_gmt ),
 							( 'page' === $post_type ? $change_frequency_for_pages : $change_frequency_for_posts ),
 							$priority,
+							$images,
 							$post->ID
 						);
 					}

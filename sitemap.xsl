@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" 
-                xmlns:html="http://www.w3.org/TR/REC-html40"
-                xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:stylesheet version="1.0" 
+		xmlns:html="http://www.w3.org/TR/REC-html40"
+		xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+		xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
+		xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes" />
 	<xsl:template match="/">
 		<html xmlns="http://www.w3.org/1999/xhtml">
@@ -93,6 +94,7 @@
 					<th>URL</th>
 					<th>Priority</th>
 					<th>Change frequency</th>
+					<th>Images</th>
 					<th>Last modified (GMT)</th>
 				</tr>
 				<xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -115,6 +117,9 @@
 						</td>
 						<td>
 							<xsl:value-of select="concat(translate(substring(sitemap:changefreq, 1, 1),concat($lower, $upper),concat($upper, $lower)),substring(sitemap:changefreq, 2))"/>
+						</td>
+						<td>
+							<xsl:value-of select="count(image:image)"/>
 						</td>
 						<td>
 							<xsl:value-of select="sitemap:lastmod"/>
