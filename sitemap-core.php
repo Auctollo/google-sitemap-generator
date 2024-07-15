@@ -641,6 +641,9 @@ class GoogleSitemapGeneratorSitemapEntry {
 		$r  = '';
 		$r .= "\t<sitemap>\n";
 		$r .= "\t\t<loc>" . $this->escape_xml( esc_url_raw( $this->url ) ) . "</loc>\n";
+		if ( $this->last_mod > 0 ) {
+			$r .= "\t\t<lastmod>" . gmdate( 'Y-m-d\TH:i:s+00:00', $this->last_mod ) . "</lastmod>\n";
+		}
 		$r .= "\t</sitemap>\n";
 		return $r;
 	}
