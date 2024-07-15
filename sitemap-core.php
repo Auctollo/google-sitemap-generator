@@ -2211,7 +2211,7 @@ final class GoogleSitemapGenerator {
 		if ( $html ) {
 			ob_start();
 		} else {
-			header( 'Content-Type: text/xml; charset=utf-8' );
+			// header( 'Content-Type: text/xml; charset=utf-8' );
 		}
 
 		if ( empty( $options['params'] ) || 'index' === $options['params'] ) {

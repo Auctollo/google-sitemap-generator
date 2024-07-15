@@ -845,7 +845,16 @@ class GoogleSitemapGeneratorStandardBuilder {
 				if ( $cat && wp_count_terms( $cat->name, array( 'hide_empty' => true ) ) > 0 ) {
 					$step++;
 					$url = get_term_link( $cat );
-					$gsg->add_url( $url, $this->getProductUpdatedDate($cat->term_id, 'product_cat'), $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $cat->ID, array(), array(), '' );
+					$images = [];
+					if ( $this->include_images ) {
+						$images = $this->get_image_parser()->get_term_images( $cat );
+						if ( $cat->slug == 'clothing' ) {
+							var_dump($cat);
+							var_dump($images);
+							die();
+						}
+					}
+					$gsg->add_url( $url, $this->getProductUpdatedDate($cat->term_id, 'product_cat'), $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $images, $cat->ID, array(), array(), '' );
 				}
 			}
 		}

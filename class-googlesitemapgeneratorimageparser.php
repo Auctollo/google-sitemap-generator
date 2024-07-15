@@ -322,7 +322,7 @@ class GoogleSitemapGeneratorImageParser {
 		 * @param string $src  Image URL.
 		 * @param object $post Post object.
 		 */
-		$image['src'] = apply_filters( 'wpseo_xml_sitemap_img_src', $src, $post );
+		$image['src'] = apply_filters( 'sm_xml_sitemap_img_src', $src, $post );
 
 		/**
 		 * Filter image data to be included in XML sitemap for the post.
@@ -335,7 +335,7 @@ class GoogleSitemapGeneratorImageParser {
 		 *
 		 * @param object $post  Post object.
 		 */
-		return apply_filters( 'wpseo_xml_sitemap_img', $image, $post );
+		return apply_filters( 'sm_xml_sitemap_img', $image, $post );
 	}
 
 	/**
