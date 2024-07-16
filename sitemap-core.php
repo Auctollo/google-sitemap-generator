@@ -260,6 +260,8 @@ class GoogleSitemapGeneratorPage {
 	 */
 	public $last_mod;
 
+	public $images;
+
 	/**
 	 * Sets the post ID in case this item is a WordPress post or page .
 	 *
@@ -277,11 +279,12 @@ class GoogleSitemapGeneratorPage {
 	 * @param int    $last_mod The last mod date as a unix timestamp .
 	 * @param int    $post_id The post ID of this page .
 	 */
-	public function __construct( $url = '', $priority = 0.0, $change_freq = 'never', $last_mod = 0, $post_id = 0 ) {
+	public function __construct( $url = '', $priority = 0.0, $change_freq = 'never', $last_mod = 0, $images = [], $post_id = 0 ) {
 		$this->set_url( $url );
 		$this->set_priority( $priority );
 		$this->set_change_freq( $change_freq );
 		$this->set_last_mod( $last_mod );
+		$this->set_images( $images );
 		$this->set_post_id( $post_id );
 	}
 
@@ -357,6 +360,14 @@ class GoogleSitemapGeneratorPage {
 		$this->last_mod = intval( $last_mod );
 	}
 
+	public function get_images() {
+		return $this->images;
+	}
+
+	public function set_images( $images ) {
+		$this->images = $images;
+	}
+
 	/**
 	 * Returns the ID of the post
 	 *
@@ -399,6 +410,18 @@ class GoogleSitemapGeneratorPage {
 		if ( false !== $this->priority && '' !== $this->priority ) {
 			$r .= "\t\t<priority>" . number_format( $this->priority, 1 ) . "</priority>\n";
 		}
+		foreach ( $this->images as $img ) {
+
+			if ( empty( $img['src'] ) ) {
+				continue;
+			}
+
+			$r .= "\t\t<image:image>\n";
+			$r .= "\t\t\t<image:loc>" . $this->encode_and_escape( $img['src'] ) . "</image:loc>\n";
+			$r .= "\t\t</image:image>\n";
+		}
+		unset( $img );
+
 		$r .= "\t</url>\n";
 		
 		return $r;
@@ -411,6 +434,80 @@ class GoogleSitemapGeneratorPage {
 	 */
 	protected function escape_xml( $string ) {
 		return str_replace( array( '&', '"', '\'', '<', '>' ), array( '&amp;', '&quot;', '&apos;', '&lt;', '&gt;' ), $string );
+	}
+
+	/**
+	 * Ensure the URL is encoded per RFC3986 and correctly escaped for use in an XML sitemap.
+	 *
+	 * This method works around a two quirks in esc_url():
+	 * 1. `esc_url()` leaves schema-relative URLs alone, while according to the sitemap specs,
+	 *    the URL must always begin with a protocol.
+	 * 2. `esc_url()` escapes ampersands as `&#038;` instead of the more common `&amp;`.
+	 *    According to the specs, `&amp;` should be used, and even though this shouldn't
+	 *    really make a difference in practice, to quote Jono: "I'd be nervous about &#038;
+	 *    given how many weird and wonderful things eat sitemaps", so better safe than sorry.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#xmlTagDefinitions
+	 * @link https://www.sitemaps.org/protocol.html#escaping
+	 * @link https://developer.wordpress.org/reference/functions/esc_url/
+	 *
+	 * @param string $url URL to encode and escape.
+	 *
+	 * @return string
+	 */
+	protected function encode_and_escape( $url ) {
+		$url = $this->encode_url_rfc3986( $url );
+		$url = esc_url( $url );
+		$url = str_replace( '&#038;', '&amp;', $url );
+		$url = str_replace( '&#039;', '&apos;', $url );
+
+		if ( strpos( $url, '//' ) === 0 ) {
+			// Schema-relative URL for which esc_url() does not add a scheme.
+			$url = 'http:' . $url;
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Apply some best effort conversion to comply with RFC3986.
+	 *
+	 * @param string $url URL to encode.
+	 *
+	 * @return string
+	 */
+	protected function encode_url_rfc3986( $url ) {
+
+		if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return $url;
+		}
+
+		$path = wp_parse_url( $url, PHP_URL_PATH );
+
+		if ( ! empty( $path ) && $path !== '/' ) {
+			$encoded_path = explode( '/', $path );
+
+			// First decode the path, to prevent double encoding.
+			$encoded_path = array_map( 'rawurldecode', $encoded_path );
+
+			$encoded_path = array_map( 'rawurlencode', $encoded_path );
+			$encoded_path = implode( '/', $encoded_path );
+
+			$url = str_replace( $path, $encoded_path, $url );
+		}
+
+		$query = wp_parse_url( $url, PHP_URL_QUERY );
+
+		if ( ! empty( $query ) ) {
+
+			parse_str( $query, $parsed_query );
+
+			$parsed_query = http_build_query( $parsed_query, '', '&amp;', PHP_QUERY_RFC3986 );
+
+			$url = str_replace( $query, $parsed_query, $url );
+		}
+
+		return $url;
 	}
 }
 
@@ -1971,6 +2068,7 @@ final class GoogleSitemapGenerator {
 		$this->sim_mode = true;
 
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
 		do_action( 'sm_build_content', $this, $type, $params );
 
 		$this->sim_mode = false;
@@ -2107,6 +2205,8 @@ final class GoogleSitemapGenerator {
 				require_once $f;
 			}
 		}
+
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
 
 		if ( $html ) {
 			ob_start();
@@ -2261,12 +2361,16 @@ final class GoogleSitemapGenerator {
 
 		switch ( $format ) {
 			case 'sitemap':
-				$urlset = '<urlset xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
+				$urlset = '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" '
+					. 'xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd '
+					. 'http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" '
+					. 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 				$urlset = apply_filters( 'sm_sitemap_urlset', $urlset );
 				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 			case 'index':
-				$urlset = '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
+				$urlset = '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 '
+							. 'http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
 				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 		}
@@ -2390,15 +2494,17 @@ final class GoogleSitemapGenerator {
 	 * @param int    $last_mod int The last Modification time as a UNIX timestamp .
 	 * @param string $change_freq string The change frequenty of the page, Valid values are 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly' and 'never'. .
 	 * @param float  $priority float The priority of the page, between 0.0 and 1.0 .
+	 * @param int	 $images count of images .
 	 * @param int    $post_id int The post ID in case this is a post or page .
 	 * @see add_element
 	 */
-	public function add_url( $loc, $last_mod = 0, $change_freq = 'monthly', $priority = 0.5, $post_id = 0 ) {
+	public function add_url( $loc, $last_mod = 0, $change_freq = 'monthly', $priority = 0.5, $images = [], $post_id = 0 ) {
 		// Strip out the last modification time if activated .
 		if ( $this->get_option( 'in_lastmod' ) === false ) {
 			$last_mod = 0;
 		}
-		$page = new GoogleSitemapGeneratorPage( $loc, $priority, $change_freq, $last_mod, $post_id );
+
+		$page = new GoogleSitemapGeneratorPage( $loc, $priority, $change_freq, $last_mod, $images, $post_id );
 
 		do_action( 'sm_addurl', $page );
 

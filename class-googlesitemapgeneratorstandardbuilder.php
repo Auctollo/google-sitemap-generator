@@ -13,6 +13,19 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 	private $linkPerPage = 1000;
 	private $maxLinksPerPage = 50000;
+	/**
+	 * Holds image parser instance.
+	 *
+	 * @var GoogleSitemapGeneratorImageParser
+	 */
+	protected static $image_parser;
+
+	/**
+	 * Determines whether images should be included in the XML sitemap.
+	 *
+	 * @var bool
+	 */
+	private $include_images;
 
 	/**
 	 * Creates a new GoogleSitemapGeneratorStandardBuilder instance
@@ -22,6 +35,26 @@ class GoogleSitemapGeneratorStandardBuilder {
 		add_action( 'sm_build_content', array( $this, 'content' ), 10, 3 );
 
 		add_filter( 'sm_sitemap_for_post', array( $this, 'get_sitemap_url_for_post' ), 10, 3 );
+
+		/**
+		 * Filter - Allows excluding images from the XML sitemap.
+		 *
+		 * @param bool $include True to include, false to exclude.
+		 */
+		$this->include_images = apply_filters( 'sm_xml_sitemap_include_images', true );
+	}
+
+	/**
+	 * Get the Image Parser.
+	 *
+	 * @return GoogleSitemapGeneratorImageParser
+	 */
+	protected function get_image_parser() {
+		if ( ! isset( self::$image_parser ) ) {
+			self::$image_parser = new GoogleSitemapGeneratorImageParser();
+		}
+
+		return self::$image_parser;
 	}
 
 	/**
@@ -141,6 +174,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					p.post_author,
 					p.post_status,
 					p.post_name,
+					p.post_content,
 					p.post_parent,
 					p.post_type,
 					p.post_date,
@@ -317,12 +351,15 @@ class GoogleSitemapGeneratorStandardBuilder {
 							$priority = $minimum_priority;
 						}
 
+						$images = ! is_null( $this->get_image_parser() ) ? $this->get_image_parser()->get_images( $post ) : [];
+
 						// Add the URL to the sitemap.
 						$gsg->add_url(
 							$permalink,
 							$gsg->get_timestamp_from_my_sql( $post->post_modified_gmt && '0000-00-00 00:00:00' !== $post->post_modified_gmt ? $post->post_modified_gmt : $post->post_date_gmt ),
 							( 'page' === $post_type ? $change_frequency_for_pages : $change_frequency_for_posts ),
 							$priority,
+							$images,
 							$post->ID
 						);
 					}
@@ -669,18 +706,23 @@ class GoogleSitemapGeneratorStandardBuilder {
 					continue;
 				}
 
+				$images = [];
+				if ( $this->include_images ) {
+					$images = $this->get_image_parser()->get_term_images( $term );
+				}
+
 				switch ( $term->taxonomy ) {
 					case 'category':
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ) );
+						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ), $images );
 						break;
 					case 'product_cat':
-						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ) );
+						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $images );
 						break;
 					case 'post_tag':
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ) );
+						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $images );
 						break;
 					default:
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_' . $term->taxonomy ), $gsg->get_option( 'pr_' . $term->taxonomy ) );
+						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_' . $term->taxonomy ), $gsg->get_option( 'pr_' . $term->taxonomy ), $images );
 						break;
 				}
 				$step++;
@@ -803,7 +845,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 				if ( $cat && wp_count_terms( $cat->name, array( 'hide_empty' => true ) ) > 0 ) {
 					$step++;
 					$url = get_term_link( $cat );
-					$gsg->add_url( $url, $this->getProductUpdatedDate($cat->term_id, 'product_cat'), $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $cat->ID, array(), array(), '' );
+					$images = [];
+					if ( $this->include_images ) {
+						$images = $this->get_image_parser()->get_term_images( $cat );
+					}
+					$gsg->add_url( $url, $this->getProductUpdatedDate($cat->term_id, 'product_cat'), $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $images, $cat->ID, array(), array(), '' );
 				}
 			}
 		}
