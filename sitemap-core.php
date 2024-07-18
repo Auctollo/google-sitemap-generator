@@ -1926,7 +1926,9 @@ final class GoogleSitemapGenerator {
 	 */
 	public function get_xml_url( $type = '', $params = '', $build_options = array() ) {
 
+		global $wp_rewrite;
 		$pl      = $this->is_using_permalinks();
+		$uip	 = $wp_rewrite->using_index_permalinks();
 		$options = '';
 		if ( ! empty( $type ) ) {
 			if($type != 'pt') $options .= $type;
@@ -1952,7 +1954,7 @@ final class GoogleSitemapGenerator {
 		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
 			$base_url = SM_BASE_URL;
 		}
-		global $wp_rewrite;
+		
 		if ( $old_sm_name !== $sm_sitemap_name ) {
 			$this->set_option( 'sm_b_old_sm_name', $sm_sitemap_name );
 			delete_option( 'sm_rewrite_done' );
@@ -1963,17 +1965,23 @@ final class GoogleSitemapGenerator {
 			GoogleSitemapGeneratorLoader::activate_rewrite();
 		}
 
-		if ( $pl ) {
-			//return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
-			//	? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			if($type === 'misc') return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
-				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			else if($type === 'main') return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? '.html' : '.html' ) . ( $zip ? '.gz' : '' );
-			else return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html
-				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+		if ( $pl || $uip ) {
+			if ( $uip ) {
+				$base_url .= '/index.php/';
+			}
+
+			//return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			if ( $type === 'misc' ) {
+				return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			}
+			else if ( $type === 'main' ) {
+				return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? '.html' : '.html' ) . ( $zip ? '.gz' : '' );
+			}
+			else {
+				return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			}
 		} else {
-			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html
-				? ';html=true' : '' ) . ( $zip ? ';zip=true' : '' );
+			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html ? ';html=true' : '' ) . ( $zip ? ';zip=true' : '' );
 		}
 	}
 
