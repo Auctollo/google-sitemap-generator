@@ -1421,8 +1421,8 @@ final class GoogleSitemapGenerator {
 	 *
 	 */
 	public function get_sitemap_sort_order() {
-		$sort_order = sanitize_text_field( apply_filters( 'sm_sitemap_sort_order', 'ASC' ) );
-		return ( $sort_order == 'DESC' ) ? $sort_order : 'ASC';
+		$sort_order = sanitize_text_field( apply_filters( 'sm_sitemap_sort_order', 'DESC' ) );
+		return ( $sort_order == 'ASC' ) ? $sort_order : 'DESC';
 	}
 
 	/*************************************** PRIORITY PROVIDERS ***************************************/
