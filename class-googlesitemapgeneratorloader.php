@@ -9,6 +9,7 @@
  * @author Arne Brachhold
  * @package sitemap
  */
+require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorintegration.php';
 require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorui.php';
 
 /**

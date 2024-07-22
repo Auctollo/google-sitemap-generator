@@ -538,7 +538,16 @@ class GoogleSitemapGeneratorUI {
 					}
 					$this->sg->set_option( $k, (int) $links_per_page );
 				} elseif ( substr( $k, 0, 3 ) === 'sm_' ) {
-					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
+					if ( 'sm_integration' === $k ) {
+						$sm_integration = isset( $_POST[ $k ] ) ? (array) array_map( 'sanitize_text_field', ( wp_unslash( is_array( $_POST[ $k ] ) ? $_POST[ $k ] : array() ) ) ) : array();
+						foreach ( array_keys( (array) $sm_integration ) as $integration_name ) {
+							if ( empty( $integration_name ) ) continue;
+							$enabled_integrations[] = self::escape( $integration_name );
+						}
+						$this->sg->set_option( $k, $enabled_integrations );
+					} else {
+						$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
+					}
 				}
 			}
 			GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
@@ -1846,6 +1855,30 @@ class GoogleSitemapGeneratorUI {
 										</ul>
 									</div>
 
+									<!-- Integrated -->
+									<?php
+									$gsgi = Google_Sitemap_Generator_Integration::get_instance();
+									if ( count( $gsgi->integrations ) > 0 ): ?>
+										<b><?php esc_html_e( 'WordPress integrated content', 'google-sitemap-generator' ); ?>:</b>
+										<div class="inner-section">
+											<ul>
+												<?php foreach ( $gsgi->integrations as $integration ) {
+													$option_name = $gsgi->options['name'] . "[$integration->name]";
+													$enabled_integration = $this->sg->get_option( str_replace( "sm_", "", $gsgi->options['name'] ) );
+													$selected = in_array( $integration->name, $enabled_integration, true );
+													?>
+													<li>
+														<label for='<?php echo $option_name; ?>'>
+															<input type='checkbox' id='<?php echo $option_name; ?>' name='<?php echo $option_name; ?>' <?php echo $selected ? 'checked=\'checked\'' : ''; ?>/>
+															<?php echo str_replace( '%s', $integration->name, __( 'Include %s', 'google-sitemap-generator' ) ); ?>
+														</label>
+													</li>
+												<?php } ?>
+											</ul>
+										</div>
+									<?php endif; ?>
+
+									<!-- Custom taxonomies -->
 									<?php if ( $this->sg->is_taxonomy_supported() ) :
 										$taxonomies 		= $this->sg->get_custom_taxonomies();
 										$enabled_taxonomies = $this->sg->get_option( 'in_tax' );
@@ -1872,6 +1905,7 @@ class GoogleSitemapGeneratorUI {
 										<?php endif; ?>
 									<?php endif; ?>
 
+									<!-- Custom post types -->
 									<?php if ( $this->sg->is_custom_post_types_supported() ) :
 										$custom_post_types  = $this->sg->get_custom_post_types();
 										$enabled_post_types = $this->sg->get_option( 'in_customtypes' );
