@@ -1103,6 +1103,10 @@ final class GoogleSitemapGenerator {
 
 	/*************************************** SIMPLE GETTERS ***************************************/
 
+	public static function get_providers() {
+		return [ 'index', 'pt', 'archives', 'authors', 'authors', 'tax', 'producttags', 'productcat', 'externals', 'misc' ];
+	}
+
 	/**
 	 * Returns the names for the frequency values
 	 *
@@ -2154,16 +2158,6 @@ final class GoogleSitemapGenerator {
 
 		$this->is_active = true;
 
-		$parsed_options = array();
-
-		$options = explode( ';', $options );
-		foreach ( $options as $k ) {
-			$kv                       = explode( '=', $k );
-			$parsed_options[ $kv[0] ] = $kv[1];
-		}
-
-		$options = $parsed_options;
-
 		$this->build_options = $options;
 
 		// Do not index the actual XML pages, only process them.
@@ -2201,7 +2195,6 @@ final class GoogleSitemapGenerator {
 		}
 
 		$packed = false;
-
 		if ( $pack ) {
 			$packed = ob_start( 'ob_gzhandler' );
 		}
@@ -2213,8 +2206,6 @@ final class GoogleSitemapGenerator {
 				require_once $f;
 			}
 		}
-
-		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
 
 		if ( $html ) {
 			ob_start();
@@ -2231,6 +2222,8 @@ final class GoogleSitemapGenerator {
 			$this->build_sitemap_footer( 'index' );
 			$this->add_end_commend( $start_time, $start_queries, $start_memory );
 		} else {
+			require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
+
 			$all_params = $options['params'];
 			$type       = null;
 			$params     = null;

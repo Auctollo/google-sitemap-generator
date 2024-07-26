@@ -317,6 +317,7 @@ function sm_setup() {
 
 	if ( ! $fail ) {
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorloader.php';
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratordynamicrewrites.php';
 	}
 
 }
@@ -624,5 +625,7 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
 	add_action('wp_ajax_list_search' , 'list_search');
+
+	add_action( 'setup_theme', [ 'Sitemap_Dynamic_Rewrites', 'instance' ], 1 );
 
 }
