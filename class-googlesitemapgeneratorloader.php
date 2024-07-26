@@ -145,17 +145,8 @@ class GoogleSitemapGeneratorLoader {
 		return $vars;
 	}
 
-	/**
-	 * Registers the plugin specific rewrite rules
-	 *
-	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
-	 *
-	 * @since 4.0
-	 * @param array $wp_rules Array of existing rewrite rules .
-	 * @return Array An array containing the new rewrite rules
-	 */
-	public static function add_rewrite_rules( $dynamic_rewrites ) {
-		
+	public static function get_rewrite_rules() {
+
 		$sm_rules = array(
 			'sitemap\.xml$' => 'index.php?xml_sitemap=index&params=index',
 			'sitemap\.xml\.gz$' => 'index.php?xml_sitemap=index&params=index;zip=true',
@@ -189,6 +180,22 @@ class GoogleSitemapGeneratorLoader {
 			$sm_rules = $modified_sm_rules;
 		}
 
+		return $sm_rules;
+	}
+
+	/**
+	 * Registers the plugin specific rewrite rules
+	 *
+	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
+	 *
+	 * @since 4.0
+	 * @param array $wp_rules Array of existing rewrite rules .
+	 * @return Array An array containing the new rewrite rules
+	 */
+	public static function add_rewrite_rules( $dynamic_rewrites ) {
+
+		$sm_rules = self::get_rewrite_rules();
+
 		foreach ( $sm_rules as $regex => $query) {
 			$dynamic_rewrites->add_rule( $regex, $query, 'top' );
 		}
@@ -200,18 +207,14 @@ class GoogleSitemapGeneratorLoader {
 	 * @return string[]
 	 */
 	public static function get_ngin_x_rules() {
-		// TO DO: Change nginx rules
-		return array(
-			// 'rewrite ^/.*-misc?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			// 'rewrite ^/.*-misc?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			// 'rewrite ^/.*-misc?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			// 'rewrite ^/.*-misc?\.html\.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
 
-			// 'rewrite ^/.*-sitemap.*(?:\d\{1,4\}(?!-misc)|-misc)?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			// 'rewrite ^/.*-sitemap.*(?:\d\{1,4\}(?!-misc)|-misc)?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			// 'rewrite ^/.*-sitemap.*(?:\d\{1,4\}(?!-misc)|-misc)?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			// 'rewrite ^/.*-sitemap.*(?:\d\{1,4\}(?!-misc)|-misc)?\.html\.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
-		);
+		$sm_rules = self::get_rewrite_rules();
+
+		$ngin_x_rules = array();
+		foreach ( $sm_rules as $regex => $query) {
+			$ngin_x_rules[] = 'rewrite ^/' . $regex . ' "/' . str_replace( array( '$matches[1]', '$matches[2]' ), array( '$1', '$2' ), $query ) . ' last;';
+		}
+		return $ngin_x_rules;
 
 	}
 
