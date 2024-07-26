@@ -64,7 +64,7 @@ class Sitemap_Dynamic_Rewrites {
 		if ( ! $rewrite ) {
 			if ( empty( $GLOBALS['wp_rewrite'] ) ) {
 				/* translators: 1: PHP class name, 2: PHP variable name */
-				throw new RuntimeException( sprintf( __( 'The %1$s class must not be instantiated before the %2$s global is set.', 'wordpress-seo' ), self::class, '$wp_rewrite' ) );
+				throw new RuntimeException( sprintf( __( 'The %1$s class must not be instantiated before the %2$s global is set.', 'google-sitemap-generator' ), self::class, '$wp_rewrite' ) );
 			}
 
 			$rewrite = $GLOBALS['wp_rewrite'];
