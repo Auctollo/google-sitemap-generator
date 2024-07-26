@@ -186,7 +186,7 @@ class GoogleSitemapGeneratorLoader {
 				$modified_regex = str_replace(["'sitemap","-sitemap" ], ["'".$sm_sitemap_name, "-".$sm_sitemap_name] , $regex);
 				$modified_sm_rules[$modified_regex] = $query;
 			}
-			$sm_rules = array_merge($sm_rules, $modified_sm_rules);
+			$sm_rules = $modified_sm_rules;
 		}
 
 		foreach ( $sm_rules as $regex => $query) {
@@ -200,6 +200,7 @@ class GoogleSitemapGeneratorLoader {
 	 * @return string[]
 	 */
 	public static function get_ngin_x_rules() {
+		// TO DO: Change nginx rules
 		return array(
 			// 'rewrite ^/.*-misc?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
 			// 'rewrite ^/.*-misc?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
