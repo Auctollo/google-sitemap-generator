@@ -147,22 +147,32 @@ class GoogleSitemapGeneratorLoader {
 
 	public static function get_rewrite_rules() {
 
+		self::load_plugin();
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$gsg->initate();
+
 		$sm_rules = array(
 			'sitemap\.xml$' => 'index.php?xml_sitemap=index&params=index',
-			'sitemap\.xml\.gz$' => 'index.php?xml_sitemap=index&params=index;zip=true',
-			'sitemap\.html$' => 'index.php?xml_sitemap=index&params=index;html=true;',
-			'sitemap\.html\.gz$' => 'index.php?xml_sitemap=index&params=index;html=true;zip=true',
-
 			'sitemap-misc\.xml$' => 'index.php?xml_sitemap=misc&params=$matches[2]',
-			'sitemap-misc\.xml\.gz$' => 'index.php?xml_sitemap=misc&params=$matches[2];zip=true',
-			'sitemap-misc\.html$' => 'index.php?xml_sitemap=misc&params=$matches[2];html=true',
-			'sitemap-misc\.html\.gz$' => 'index.php?xml_sitemap=misc&params=$matches[2];html=true;zip=true',
-
 			'([^/]+?)-sitemap([0-9]+)?\.xml$' =>'index.php?xml_sitemap=$matches[1]&params=$matches[2]',
-			'([^/]+?)-sitemap([0-9]+)?\.xml\.gz$' =>'index.php?xml_sitemap=$matches[1]&params=$matches[2];zip=true',
-			'([^/]+?)-sitemap([0-9]+)?\.html$' =>'index.php?xml_sitemap=$matches[1]&params=$matches[2];html=true',
-			'([^/]+?)-sitemap([0-9]+)?\.html\.gz$' =>'index.php?xml_sitemap=$matches[1]&params=$matches[2];html=true;zip=true',
 		);
+
+		// HTML
+		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
+			$sm_html_rules = array();
+			foreach ( $sm_rules as $regex => $query ) {
+				$sm_html_rules[str_replace('.xml', '.html', $regex)] = $query . ';html=true;';
+			}
+			$sm_rules = array_merge( $sm_rules, $sm_html_rules );
+		}
+
+		// ZIP
+		if ( $gsg->is_gzip_enabled() ) {
+			foreach ( $sm_rules as $regex => $query ) {
+				$sm_zip_rules[str_replace( array( '.xml', '.html' ), array( '.xml\.gz', '.html\.gz' ), $regex)] = $query . ';zip=true';
+			}
+			$sm_rules = array_merge( $sm_rules, $sm_zip_rules );
+		}
 
 		if(is_multisite()) {
 			if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
@@ -180,7 +190,7 @@ class GoogleSitemapGeneratorLoader {
 			$sm_rules = $modified_sm_rules;
 		}
 
-		return $sm_rules;
+		return apply_filters( 'sm_rewrite_rules', $sm_rules );
 	}
 
 	/**
@@ -216,16 +226,6 @@ class GoogleSitemapGeneratorLoader {
 		}
 		return $ngin_x_rules;
 
-	}
-
-	/**
-	 * Adds the filters for wp rewrite rule adding
-	 *
-	 * @since 4.0
-	 * @uses add_filter()
-	 */
-	public static function setup_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'add_rewrite_rules' ), 1, 1 );
 	}
 
 	/**
@@ -280,8 +280,6 @@ class GoogleSitemapGeneratorLoader {
 	 * @since 4.0
 	 */
 	public static function activate_plugin() {
-		self::setup_rewrite_hooks();
-		self::activate_rewrite();
 
 		self::activation_indexnow_setup(); //activtion indexNow
 
@@ -1513,5 +1511,4 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) ) {
 	// Don't wait until init with this, since other plugins might flush the rewrite rules in init already...
 	GoogleSitemapGeneratorLoader::setup_query_vars();
 	add_action( 'sm_add_dynamic_rewrite_rules', [ 'GoogleSitemapGeneratorLoader', 'add_rewrite_rules' ] );
-	// GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
 }

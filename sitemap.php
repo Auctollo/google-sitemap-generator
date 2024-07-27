@@ -385,8 +385,6 @@ function register_consent() {
 								add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
 								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
 							}
-							GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-							GoogleSitemapGeneratorLoader::activate_rewrite();
 						} else {
 							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 						}
@@ -433,8 +431,6 @@ function register_consent() {
 	}
 	$updateUrlRules = get_option('sm_options');
 	if(!isset($updateUrlRules['sm_b_rewrites2']) || $updateUrlRules['sm_b_rewrites2'] == false){
-		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-		GoogleSitemapGeneratorLoader::activate_rewrite();
 		GoogleSitemapGeneratorLoader::activation_indexnow_setup();
 
 		if (isset($updateUrlRules['sm_b_rewrites2'])) {
