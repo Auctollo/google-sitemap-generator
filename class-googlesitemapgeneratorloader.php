@@ -229,37 +229,6 @@ class GoogleSitemapGeneratorLoader {
 	}
 
 	/**
-	 * Deregisters the plugin specific rewrite rules
-	 *
-	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
-	 *
-	 * @since 4.0
-	 * @param array $wp_rules Array of existing rewrite rules .
-	 * @return Array An array containing the new rewrite rules
-	 */
-	public static function remove_rewrite_rules( $wp_rules ) {
-		$sm_rules = array(
-			'.*\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',		
-		);
-		foreach ( $wp_rules as $key => $value ) {
-			if ( array_key_exists( $key, $sm_rules ) ) {
-				unset( $wp_rules[ $key ] );
-			}
-		}
-		return $wp_rules;
-	}
-
-	/**
-	 * Remove rewrite hooks method
-	 */
-	public static function remove_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
-	}
-
-	/**
 	 * Flushes the rewrite rules
 	 *
 	 * @since 4.0
@@ -299,11 +268,8 @@ class GoogleSitemapGeneratorLoader {
 	 * @since 4.0
 	 */
 	public static function deactivate_plugin() {
-		global $wp_rewrite;
 		delete_option( 'sm_rewrite_done' );
 		wp_clear_scheduled_hook( 'sm_ping_daily' );
-		self::remove_rewrite_hooks();
-		$wp_rewrite->flush_rules( false );
 		self::deactivation_indexnow(); // deactivation indexNow plugin
 	}
 
