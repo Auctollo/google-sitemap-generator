@@ -161,7 +161,7 @@ class GoogleSitemapGeneratorLoader {
 		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
 			$sm_html_rules = array();
 			foreach ( $sm_rules as $regex => $query ) {
-				$sm_html_rules[str_replace('.xml', '.html', $regex)] = $query . ';html=true;';
+				$sm_html_rules[str_replace('.xml', '.html', $regex)] = $query . ';html=true';
 			}
 			$sm_rules = array_merge( $sm_rules, $sm_html_rules );
 		}
@@ -222,7 +222,7 @@ class GoogleSitemapGeneratorLoader {
 
 		$ngin_x_rules = array();
 		foreach ( $sm_rules as $regex => $query) {
-			$ngin_x_rules[] = 'rewrite ^/' . $regex . ' "/' . str_replace( array( '$matches[1]', '$matches[2]' ), array( '$1', '$2' ), $query ) . ' last;';
+			$ngin_x_rules[] = 'rewrite ^/' . $regex . ' "/' . str_replace( array( '$matches[1]', '$matches[2]' ), array( '$1', '$2' ), $query ) . '" last;';
 		}
 		return $ngin_x_rules;
 
