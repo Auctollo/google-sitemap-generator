@@ -541,8 +541,6 @@ class GoogleSitemapGeneratorUI {
 					$this->sg->set_option( $k, (bool) sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) );
 				}
 			}
-			GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-			GoogleSitemapGeneratorLoader::activate_rewrite();
 
 			// Apply page changes from POST.
 			if ( is_super_admin() ) {

@@ -27,10 +27,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 */
 	private $include_images;
 
+	public $providers;
+
 	/**
 	 * Creates a new GoogleSitemapGeneratorStandardBuilder instance
 	 */
 	public function __construct() {
+
 		add_action( 'sm_build_index', array( $this, 'index' ), 10, 1 );
 		add_action( 'sm_build_content', array( $this, 'content' ), 10, 3 );
 
@@ -65,11 +68,13 @@ class GoogleSitemapGeneratorStandardBuilder {
 	 * @param String                 $params Parameters for the sitemap.
 	 */
 	public function content( $gsg, $type, $params ) {
+
 		$params = strval($params);
 		if (strpos($params, '/') !== false){
             $newType = explode('/', $params);
             $params = end($newType);
         }
+
 		switch ( $type ) {
 			case 'pt':
 				$this->build_posts( $gsg, $params );
@@ -93,8 +98,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$this->build_externals( $gsg );
 				break;
 			case 'misc':
-			default:
 				$this->build_misc( $gsg );
+				break;
+			default:
 				break;
 		}
 	}

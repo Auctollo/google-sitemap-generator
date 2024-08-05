@@ -317,6 +317,7 @@ function sm_setup() {
 
 	if ( ! $fail ) {
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorloader.php';
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratordynamicrewrites.php';
 	}
 
 }
@@ -384,8 +385,6 @@ function register_consent() {
 								add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
 								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
 							}
-							GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-							GoogleSitemapGeneratorLoader::activate_rewrite();
 						} else {
 							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 						}
@@ -432,8 +431,6 @@ function register_consent() {
 	}
 	$updateUrlRules = get_option('sm_options');
 	if(!isset($updateUrlRules['sm_b_rewrites2']) || $updateUrlRules['sm_b_rewrites2'] == false){
-		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-		GoogleSitemapGeneratorLoader::activate_rewrite();
 		GoogleSitemapGeneratorLoader::activation_indexnow_setup();
 
 		if (isset($updateUrlRules['sm_b_rewrites2'])) {
@@ -624,5 +621,7 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
 
 	add_action('wp_ajax_list_search' , 'list_search');
+
+	add_action( 'setup_theme', [ 'Sitemap_Dynamic_Rewrites', 'instance' ], 1 );
 
 }
