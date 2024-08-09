@@ -717,18 +717,20 @@ class GoogleSitemapGeneratorStandardBuilder {
 					$images = $this->get_image_parser()->get_term_images( $term );
 				}
 
+				$term_link = apply_filters( 'sm_build_taxonomy_link', get_term_link( $term, $step ), $term->taxonomy );
+
 				switch ( $term->taxonomy ) {
 					case 'category':
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ), $images );
+						$gsg->add_url( $term_link, $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_cats' ), $gsg->get_option( 'pr_cats' ), $images );
 						break;
 					case 'product_cat':
-						$gsg->add_url( get_term_link( $term, $step ), $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $images );
+						$gsg->add_url( $term_link, $term->_mod_date, $gsg->get_option( 'cf_product_cat' ), $gsg->get_option( 'pr_product_cat' ), $images );
 						break;
 					case 'post_tag':
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $images );
+						$gsg->add_url( $term_link, $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_tags' ), $gsg->get_option( 'pr_tags' ), $images );
 						break;
 					default:
-						$gsg->add_url( get_term_link( $term, $step ), $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_' . $term->taxonomy ), $gsg->get_option( 'pr_' . $term->taxonomy ), $images );
+						$gsg->add_url( $term_link, $this->getTaxonomyUpdatedDate($term->term_id) ?: 0, $gsg->get_option( 'cf_' . $term->taxonomy ), $gsg->get_option( 'pr_' . $term->taxonomy ), $images );
 						break;
 				}
 				$step++;
