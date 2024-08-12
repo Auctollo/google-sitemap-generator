@@ -6,7 +6,7 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes" />
 	<xsl:template match="/">
-		<html xmlns="http://www.w3.org/1999/xhtml">
+		<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 			<head>
 				<title>XML Sitemap</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
