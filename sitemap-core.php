@@ -260,6 +260,8 @@ class GoogleSitemapGeneratorPage {
 	 */
 	public $last_mod;
 
+	public $images;
+
 	/**
 	 * Sets the post ID in case this item is a WordPress post or page .
 	 *
@@ -277,11 +279,12 @@ class GoogleSitemapGeneratorPage {
 	 * @param int    $last_mod The last mod date as a unix timestamp .
 	 * @param int    $post_id The post ID of this page .
 	 */
-	public function __construct( $url = '', $priority = 0.0, $change_freq = 'never', $last_mod = 0, $post_id = 0 ) {
+	public function __construct( $url = '', $priority = 0.0, $change_freq = 'never', $last_mod = 0, $images = [], $post_id = 0 ) {
 		$this->set_url( $url );
 		$this->set_priority( $priority );
 		$this->set_change_freq( $change_freq );
 		$this->set_last_mod( $last_mod );
+		$this->set_images( $images );
 		$this->set_post_id( $post_id );
 	}
 
@@ -357,6 +360,14 @@ class GoogleSitemapGeneratorPage {
 		$this->last_mod = intval( $last_mod );
 	}
 
+	public function get_images() {
+		return $this->images;
+	}
+
+	public function set_images( $images ) {
+		$this->images = $images;
+	}
+
 	/**
 	 * Returns the ID of the post
 	 *
@@ -399,6 +410,18 @@ class GoogleSitemapGeneratorPage {
 		if ( false !== $this->priority && '' !== $this->priority ) {
 			$r .= "\t\t<priority>" . number_format( $this->priority, 1 ) . "</priority>\n";
 		}
+		foreach ( $this->images as $img ) {
+
+			if ( empty( $img['src'] ) ) {
+				continue;
+			}
+
+			$r .= "\t\t<image:image>\n";
+			$r .= "\t\t\t<image:loc>" . $this->encode_and_escape( $img['src'] ) . "</image:loc>\n";
+			$r .= "\t\t</image:image>\n";
+		}
+		unset( $img );
+
 		$r .= "\t</url>\n";
 		
 		return $r;
@@ -411,6 +434,80 @@ class GoogleSitemapGeneratorPage {
 	 */
 	protected function escape_xml( $string ) {
 		return str_replace( array( '&', '"', '\'', '<', '>' ), array( '&amp;', '&quot;', '&apos;', '&lt;', '&gt;' ), $string );
+	}
+
+	/**
+	 * Ensure the URL is encoded per RFC3986 and correctly escaped for use in an XML sitemap.
+	 *
+	 * This method works around a two quirks in esc_url():
+	 * 1. `esc_url()` leaves schema-relative URLs alone, while according to the sitemap specs,
+	 *    the URL must always begin with a protocol.
+	 * 2. `esc_url()` escapes ampersands as `&#038;` instead of the more common `&amp;`.
+	 *    According to the specs, `&amp;` should be used, and even though this shouldn't
+	 *    really make a difference in practice, to quote Jono: "I'd be nervous about &#038;
+	 *    given how many weird and wonderful things eat sitemaps", so better safe than sorry.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#xmlTagDefinitions
+	 * @link https://www.sitemaps.org/protocol.html#escaping
+	 * @link https://developer.wordpress.org/reference/functions/esc_url/
+	 *
+	 * @param string $url URL to encode and escape.
+	 *
+	 * @return string
+	 */
+	protected function encode_and_escape( $url ) {
+		$url = $this->encode_url_rfc3986( $url );
+		$url = esc_url( $url );
+		$url = str_replace( '&#038;', '&amp;', $url );
+		$url = str_replace( '&#039;', '&apos;', $url );
+
+		if ( strpos( $url, '//' ) === 0 ) {
+			// Schema-relative URL for which esc_url() does not add a scheme.
+			$url = 'http:' . $url;
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Apply some best effort conversion to comply with RFC3986.
+	 *
+	 * @param string $url URL to encode.
+	 *
+	 * @return string
+	 */
+	protected function encode_url_rfc3986( $url ) {
+
+		if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return $url;
+		}
+
+		$path = wp_parse_url( $url, PHP_URL_PATH );
+
+		if ( ! empty( $path ) && $path !== '/' ) {
+			$encoded_path = explode( '/', $path );
+
+			// First decode the path, to prevent double encoding.
+			$encoded_path = array_map( 'rawurldecode', $encoded_path );
+
+			$encoded_path = array_map( 'rawurlencode', $encoded_path );
+			$encoded_path = implode( '/', $encoded_path );
+
+			$url = str_replace( $path, $encoded_path, $url );
+		}
+
+		$query = wp_parse_url( $url, PHP_URL_QUERY );
+
+		if ( ! empty( $query ) ) {
+
+			parse_str( $query, $parsed_query );
+
+			$parsed_query = http_build_query( $parsed_query, '', '&amp;', PHP_QUERY_RFC3986 );
+
+			$url = str_replace( $query, $parsed_query, $url );
+		}
+
+		return $url;
 	}
 }
 
@@ -1006,6 +1103,10 @@ final class GoogleSitemapGenerator {
 
 	/*************************************** SIMPLE GETTERS ***************************************/
 
+	public static function get_providers() {
+		return [ 'index', 'pt', 'archives', 'authors', 'authors', 'tax', 'producttags', 'productcat', 'externals', 'misc' ];
+	}
+
 	/**
 	 * Returns the names for the frequency values
 	 *
@@ -1084,6 +1185,20 @@ final class GoogleSitemapGenerator {
 		return ( function_exists( 'get_taxonomy' ) && function_exists( 'get_terms' ) && function_exists( 'get_taxonomies' ) );
 	}
 
+	public function is_changed( $id, $excluded_ids, $is_for_exclude ) {
+		$changed_excluded_ids = false;
+		$is_excluded = in_array( $id, $excluded_ids );
+
+		if ( $is_for_exclude && ! $is_excluded ) {
+			$changed_excluded_ids = $excluded_ids;
+			array_push( $changed_excluded_ids, $id );
+		} elseif ( ! $is_for_exclude && $is_excluded ) {
+			$changed_excluded_ids = array_diff( $excluded_ids, [ "$id" ] );
+		}
+
+		return $changed_excluded_ids;
+	}
+
 	/**
 	 * Returns the list of custom taxonomies. These are basically all taxonomies without categories and post tags
 	 *
@@ -1093,6 +1208,33 @@ final class GoogleSitemapGenerator {
 	public function get_custom_taxonomies() {
 		$taxonomies = get_taxonomies( array( 'public' => 1 ) );
 		return array_diff( $taxonomies, array( 'category', 'product_cat', 'post_tag', 'nav_menu', 'link_category', 'post_format' ) );
+	}
+
+	public function get_active_taxonomies() {
+
+		$cache_key = __CLASS__ . '::get_active_taxonomies';
+
+		$active_taxonomies = wp_cache_get( $cache_key, 'sitemap' );
+
+		if ( false === $active_taxonomies ) {
+			$all_taxonomies = get_taxonomies( array( 'public' => 1 ) );
+			$enabled_taxonomies = $this->get_option( 'in_tax' );
+			if ( $this->get_option( 'in_cats' ) ) {
+				$enabled_taxonomies[] = 'category';
+			}
+			if ( $this->get_option( 'in_tags' ) ) {
+				$enabled_taxonomies[] = 'post_tag';
+			}
+
+			$active_taxonomies = array();
+			foreach ( $enabled_taxonomies as $taxonomy ) {
+				if ( ! empty( $taxonomy ) && in_array( $taxonomy, $all_taxonomies, true ) ) {
+					$active_taxonomies[] = $taxonomy;
+				}
+			}
+		}
+
+		return $active_taxonomies;
 	}
 
 	/**
@@ -1116,7 +1258,6 @@ final class GoogleSitemapGenerator {
 		$post_types = array_diff( $post_types, array( 'post', 'page', 'attachment' ) );
 		return $post_types;
 	}
-
 
 	/**
 	 * Returns the list of active post types, built-in and custom ones.
@@ -1147,6 +1288,39 @@ final class GoogleSitemapGenerator {
 				}
 			}
 
+			/**
+			 * Filter: 'sm_sitemap_exclude_post_type' - Allow extending and modifying the post types to exclude.
+			 *
+			 * @param array $post_types_to_exclude The post types to exclude.
+			 */
+			$post_types_to_exclude = [];
+			$post_types_to_exclude = apply_filters( 'sm_sitemap_exclude_post_types', $post_types_to_exclude );
+			if ( ! is_array( $post_types_to_exclude ) ) {
+				$post_types_to_exclude = [];
+			}
+			if ( ! empty( $post_types_to_exclude ) ) {
+				foreach ( $active_post_types as $key => $active_post_type ) {
+					if ( in_array( $active_post_type, $post_types_to_exclude ) ) {
+						unset( $active_post_types[ $key ] );
+					}
+				}
+			}
+
+			/**
+			 * Filter: 'sm_sitemap_include_post_type' - Allow extending and modifying the post types to include.
+			 *
+			 * @param array $post_types_to_include The post types to include.
+			 */
+			$post_types_to_include = [];
+			$post_types_to_include = apply_filters( 'sm_sitemap_include_post_type', $post_types_to_include );
+			if ( ! is_array( $post_types_to_include ) ) {
+				$post_types_to_include = [];
+			}
+			if ( ! empty( $post_types_to_include ) ) {
+				$active_post_types = array_merge( $active_post_types, $post_types_to_include );
+				$active_post_types = array_unique( $active_post_types );
+			}
+
 			wp_cache_set( $cache_key, $active_post_types, 'sitemap', 20 );
 		}
 
@@ -1159,11 +1333,26 @@ final class GoogleSitemapGenerator {
 	 * @since 4.0b11
 	 * @return int[] Array with excluded post IDs
 	 */
-	public function get_excluded_post_i_ds() {
+	public function get_excluded_post_ids() {
+		$posts_to_exclude = [];
 
 		$excludes = (array) $this->get_option( 'b_exclude' );
 
-		return array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+		$excluded_posts_ids = array_filter( array_map( 'intval', $excludes ), array( $this, 'is_greater_zero' ) );
+
+		/**
+		 * Filter: 'sm_exclude_from_sitemap_by_post_ids' - Allow extending and modifying the posts to exclude.
+		 *
+		 * @param array $posts_to_exclude The posts to exclude.
+		 */
+		$posts_to_exclude = apply_filters( 'sm_exclude_from_sitemap_by_post_ids', $posts_to_exclude );
+		if ( ! is_array( $posts_to_exclude ) ) {
+			$posts_to_exclude = [];
+		}
+		
+		$excluded_posts_ids = array_merge( $excluded_posts_ids, $posts_to_exclude );
+
+		return array_unique( $excluded_posts_ids );
 	}
 
 	/**
@@ -1215,8 +1404,11 @@ final class GoogleSitemapGenerator {
 			}
 		}
 
+		$rules = apply_filters( 'sm_robots_disallowed_ids', array_unique( $rules ) );
+		
 		return $rules;
 	}
+
 	/**
 	 * Returns an array with all excluded category IDs.
 	 *
@@ -1226,6 +1418,15 @@ final class GoogleSitemapGenerator {
 	public function get_excluded_category_i_ds() {
 		$excl_cats = (array) $this->get_option( 'b_exclude_cats' );
 		return array_filter( array_map( 'intval', $excl_cats ), array( $this, 'is_greater_zero' ) );
+	}
+
+	/**
+	 * Getting sort order for sorting all post types posts and taxonomies in sitemap
+	 *
+	 */
+	public function get_sitemap_sort_order() {
+		$sort_order = sanitize_text_field( apply_filters( 'sm_sitemap_sort_order', 'DESC' ) );
+		return ( $sort_order == 'ASC' ) ? $sort_order : 'DESC';
 	}
 
 	/*************************************** PRIORITY PROVIDERS ***************************************/
@@ -1484,7 +1685,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function save_options() {
 		$oldvalue = get_option( 'sm_options' );
-		add_filter('pre_update_option_sm_options', [$this,'modify_excluded_sitemap_ids'], 10, 2);
+		// add_filter('pre_update_option_sm_options', [$this,'modify_excluded_sitemap_ids'], 10, 2);
 		if ( $oldvalue === $this->options ) {
 			return true;
 		} else {
@@ -1575,6 +1776,22 @@ final class GoogleSitemapGenerator {
 		}
 	}
 
+	/**
+	 * Get the maximum number of entries per XML sitemap.
+	 *
+	 * @return int The maximum number of entries.
+	 */
+	public function get_entries_per_page() {
+		/**
+		 * Filter the maximum number of entries per XML sitemap.
+		 *
+		 * @param int $entries The maximum number of entries per XML sitemap.
+		 */
+		$entries = (int) apply_filters( 'sm_sitemap_entries_per_page', $this->get_option( 'links_page' ) );
+
+		return $entries;
+	}
+
 
 	/*************************************** URL AND PATH FUNCTIONS ***************************************/
 
@@ -1638,70 +1855,6 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Registers the plugin specific rewrite rules
-	 *
-	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
-	 *
-	 * @since 4.0
-	 * @param string $wp_rules Array of existing rewrite rules.
-	 * @return Array An array containing the new rewrite rules.
-	 */
-	public static function add_rewrite_rules( $wp_rules ) {
-		$sm_sitemap_name = $GLOBALS['sm_instance']->get_option( 'b_sitemap_name' );
-		$sm_rules        = array(
-			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
-			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			$sm_sitemap_name . '(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-		);
-		return array_merge( $sm_rules, $wp_rules );
-	}
-
-	/**
-	 * Adds the filters for wp rewrite rule adding
-	 *
-	 * @since 4.0
-	 * @uses add_filter()
-	 */
-	public static function setup_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'add_rewrite_rules' ), 1, 1 );
-	}
-	/**
-	 * Removes the filters for wp rewrite rule adding
-	 *
-	 * @since 4.0
-	 * @uses remove_filter()
-	 */
-	public static function remove_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
-	}
-
-	/**
-	 * Deregisters the plugin specific rewrite rules
-	 *
-	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
-	 *
-	 * @since 4.0
-	 * @param array $wp_rules Array of existing rewrite rules.
-	 * @return Array An array containing the new rewrite rules
-	 */
-	public static function remove_rewrite_rules( $wp_rules ) {
-		$sm_rules = array(
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'sitemap(-+([a-zA-Z0-9_-]+))?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-			'post(-+([a-zA-Z0-9_-]+))?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-		);
-		foreach ( $wp_rules as $key => $value ) {
-			if ( array_key_exists( $key, $sm_rules ) ) {
-				unset( $wp_rules[ $key ] );
-			}
-		}
-		return $wp_rules;
-	}
-
-	/**
 	 * Returns the URL for the sitemap file
 	 *
 	 * @since 3.0
@@ -1713,7 +1866,9 @@ final class GoogleSitemapGenerator {
 	 */
 	public function get_xml_url( $type = '', $params = '', $build_options = array() ) {
 
+		global $wp_rewrite;
 		$pl      = $this->is_using_permalinks();
+		$uip	 = $wp_rewrite->using_index_permalinks();
 		$options = '';
 		if ( ! empty( $type ) ) {
 			if($type != 'pt') $options .= $type;
@@ -1739,28 +1894,29 @@ final class GoogleSitemapGenerator {
 		} elseif ( defined( 'SM_BASE_URL' ) && SM_BASE_URL ) {
 			$base_url = SM_BASE_URL;
 		}
-		global $wp_rewrite;
+		
 		if ( $old_sm_name !== $sm_sitemap_name ) {
 			$this->set_option( 'sm_b_old_sm_name', $sm_sitemap_name );
-			delete_option( 'sm_rewrite_done' );
 			wp_clear_scheduled_hook( 'sm_ping_daily' );
-			self::remove_rewrite_hooks();
-			$wp_rewrite->flush_rules( false );
-			self::setup_rewrite_hooks();
-			GoogleSitemapGeneratorLoader::activate_rewrite();
 		}
 
-		if ( $pl ) {
-			//return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
-			//	? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			if($type === 'misc') return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html
-				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
-			else if($type === 'main') return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? '.html' : '.html' ) . ( $zip ? '.gz' : '' );
-			else return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html
-				? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+		if ( $pl || $uip ) {
+			if ( $uip ) {
+				$base_url .= '/index.php/';
+			}
+
+			//return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			if ( $type === 'misc' ) {
+				return trailingslashit( $base_url ) . ( '' === $sm_sitemap_name ? 'sitemap' : $sm_sitemap_name ) . ( $options ? '-' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			}
+			else if ( $type === 'main' ) {
+				return trailingslashit( $base_url ). ( substr($_SERVER['REQUEST_URI'], -4) === '.xml' ? '.html' : '.html' ) . ( $zip ? '.gz' : '' );
+			}
+			else {
+				return trailingslashit( $base_url ) . ( '' !== $sm_sitemap_name ? '' : $sm_sitemap_name ) . ( $options ? '' . $options : '' ) . ( $html ? '.html' : '.xml' ) . ( $zip ? '.gz' : '' );
+			}
 		} else {
-			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html
-				? ';html=true' : '' ) . ( $zip ? ';zip=true' : '' );
+			return trailingslashit( $base_url ) . 'index.php?xml_sitemap=params=' . $options . ( $html ? ';html=true' : '' ) . ( $zip ? ';zip=true' : '' );
 		}
 	}
 
@@ -1855,6 +2011,7 @@ final class GoogleSitemapGenerator {
 		$this->sim_mode = true;
 
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorstandardbuilder.php';
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
 		do_action( 'sm_build_content', $this, $type, $params );
 
 		$this->sim_mode = false;
@@ -1932,16 +2089,6 @@ final class GoogleSitemapGenerator {
 
 		$this->is_active = true;
 
-		$parsed_options = array();
-
-		$options = explode( ';', $options );
-		foreach ( $options as $k ) {
-			$kv                       = explode( '=', $k );
-			$parsed_options[ $kv[0] ] = $kv[1];
-		}
-
-		$options = $parsed_options;
-
 		$this->build_options = $options;
 
 		// Do not index the actual XML pages, only process them.
@@ -1979,7 +2126,6 @@ final class GoogleSitemapGenerator {
 		}
 
 		$packed = false;
-
 		if ( $pack ) {
 			$packed = ob_start( 'ob_gzhandler' );
 		}
@@ -2007,6 +2153,8 @@ final class GoogleSitemapGenerator {
 			$this->build_sitemap_footer( 'index' );
 			$this->add_end_commend( $start_time, $start_queries, $start_memory );
 		} else {
+			require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorimageparser.php';
+
 			$all_params = $options['params'];
 			$type       = null;
 			$params     = null;
@@ -2109,6 +2257,16 @@ final class GoogleSitemapGenerator {
 			$allowedposttags['a']        = $allowed_atts;
 			$allowedposttags['b']        = $allowed_atts;
 			$allowedposttags['i']        = $allowed_atts;
+
+			$allowedposttags['meta']	 = array(
+				'name' 			=> array(),
+				'content' 		=> array(),
+				'http-equiv' 	=> array(),
+			);
+			$allowedposttags['html'] 	 = array(
+				'lang' => array(),
+			);
+			
 			foreach ( $dom_tran_obj->childNodes as $node ) {
 			// phpcs:enable
 				echo wp_kses( $dom_tran_obj->saveXML( $node ), $allowedposttags ) . "\n";
@@ -2145,10 +2303,17 @@ final class GoogleSitemapGenerator {
 
 		switch ( $format ) {
 			case 'sitemap':
-				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<urlset xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
+				$urlset = '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" '
+					. 'xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd '
+					. 'http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" '
+					. 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+				$urlset = apply_filters( 'sm_sitemap_urlset', $urlset );
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 			case 'index':
-				$this->add_element( new GoogleSitemapGeneratorXmlEntry( '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>' ) );
+				$urlset = '<sitemapindex xmlns:xsi=\'http://www.w3.org/2001/XMLSchema-instance\' xsi:schemaLocation=\'http://www.sitemaps.org/schemas/sitemap/0.9 '
+							. 'http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd\' xmlns=\'http://www.sitemaps.org/schemas/sitemap/0.9\'>';
+				$this->add_element( new GoogleSitemapGeneratorXmlEntry( $urlset ) );
 				break;
 		}
 	}
@@ -2271,15 +2436,17 @@ final class GoogleSitemapGenerator {
 	 * @param int    $last_mod int The last Modification time as a UNIX timestamp .
 	 * @param string $change_freq string The change frequenty of the page, Valid values are 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly' and 'never'. .
 	 * @param float  $priority float The priority of the page, between 0.0 and 1.0 .
+	 * @param int	 $images count of images .
 	 * @param int    $post_id int The post ID in case this is a post or page .
 	 * @see add_element
 	 */
-	public function add_url( $loc, $last_mod = 0, $change_freq = 'monthly', $priority = 0.5, $post_id = 0 ) {
+	public function add_url( $loc, $last_mod = 0, $change_freq = 'monthly', $priority = 0.5, $images = [], $post_id = 0 ) {
 		// Strip out the last modification time if activated .
 		if ( $this->get_option( 'in_lastmod' ) === false ) {
 			$last_mod = 0;
 		}
-		$page = new GoogleSitemapGeneratorPage( $loc, $priority, $change_freq, $last_mod, $post_id );
+
+		$page = new GoogleSitemapGeneratorPage( $loc, $priority, $change_freq, $last_mod, $images, $post_id );
 
 		do_action( 'sm_addurl', $page );
 
@@ -2743,6 +2910,39 @@ final class GoogleSitemapGenerator {
 		$ui = $this->get_ui();
 		if ( $ui ) {
 			$ui->html_show_options_page();
+			return true;
+		}
+
+		return false;
+	}
+
+	public function html_show_post_types_meta_box( $post, $metabox ) {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_post_types_meta_box( $post, $metabox );
+			return true;
+		}
+
+		return false;
+	}
+
+	public function html_show_taxonomies_meta_box( $term ) {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_taxonomies_meta_box( $term );
+			return true;
+		}
+
+		return false;
+	}
+
+	public function html_show_terms_meta_box( $term ) {
+
+		$ui = $this->get_ui();
+		if ( $ui ) {
+			$ui->html_show_terms_meta_box( $term );
 			return true;
 		}
 

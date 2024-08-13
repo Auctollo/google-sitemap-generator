@@ -16,14 +16,14 @@
  * Plugin Name: XML Sitemap Generator for Google
  * Plugin URI: https://auctollo.com/
  * Description: This plugin improves SEO using sitemaps for best indexation by search engines like Google, Bing, Yahoo and others.
- * Version: 4.1.20
+ * Version: 4.1.21
  * Author: Auctollo
  * Author URI: https://auctollo.com/
  * Text Domain: google-sitemap-generator
  * Domain Path: /lang
 
 
- * Copyright 2019 - 2023 AUCTOLLO
+ * Copyright 2019 - 2024 AUCTOLLO
  * Copyright 2005 - 2018 ARNE BRACHHOLD
 
  * This program is free software; you can redistribute it and/or modify
@@ -317,6 +317,7 @@ function sm_setup() {
 
 	if ( ! $fail ) {
 		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratorloader.php';
+		require_once trailingslashit( dirname( __FILE__ ) ) . 'class-googlesitemapgeneratordynamicrewrites.php';
 	}
 
 }
@@ -384,8 +385,6 @@ function register_consent() {
 								add_option( 'sm_beta_banner_discarded_on', gmdate( 'Y/m/d' ) );
 								update_option( 'sm_beta_banner_discarded_count', (int) 1 );
 							}
-							GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-							GoogleSitemapGeneratorLoader::activate_rewrite();
 						} else {
 							add_option( 'sm_beta_notice_dismissed_from_wp_admin', 'true' );
 						}
@@ -432,8 +431,6 @@ function register_consent() {
 	}
 	$updateUrlRules = get_option('sm_options');
 	if(!isset($updateUrlRules['sm_b_rewrites2']) || $updateUrlRules['sm_b_rewrites2'] == false){
-		GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
-		GoogleSitemapGeneratorLoader::activate_rewrite();
 		GoogleSitemapGeneratorLoader::activation_indexnow_setup();
 
 		if (isset($updateUrlRules['sm_b_rewrites2'])) {
@@ -539,6 +536,76 @@ function indexnow_after_post_save($new_status, $old_status, $post) {
     }
 }
 
+function list_search() {
+	$response 		= [];
+	$s 				= esc_attr( $_POST['s'] );
+	$type 			= sanitize_text_field( $_POST['type'] );
+	$field_name 	= sanitize_text_field( $_POST['field_name'] );
+	$excluded_ids 	= wp_unslash( $_POST['excluded_ids'] );
+	$hide_empty 	= apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
+
+	$gsg = GoogleSitemapGenerator::get_instance();
+	$gsg->initate();
+	
+	if ( $field_name == 'sm_b_exclude' ) {
+		$enabled_post_types = $gsg->get_active_post_types();
+		$post_types = new WP_Query([
+			'posts_per_page' 	=> -1,
+			'post_type' 		=> $enabled_post_types,
+			'post__not_in' 		=> $excluded_ids,
+			's' 				=> $s
+		]);
+
+		if ( $post_types->have_posts() ) {
+			while( $post_types->have_posts() ){ $post_types->the_post();
+				$response['html'] .= list_item_html( get_the_ID(), get_the_title() );
+			}
+		}
+		wp_reset_postdata(); 
+	} elseif ( $field_name == 'post_category' || $field_name == 'tax_input[post_tag]' || $field_name == 'tax_input[product_cat]' ) {
+		$terms = get_terms( array(
+			'taxonomy'   	=> $type,
+			'hide_empty' 	=> $hide_empty,
+			'name__like' 	=> $s,
+			'exclude' 		=> $excluded_ids
+		) );
+
+		if ( ! empty( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$response['html'] .= list_item_html( $term->term_id, $term->name );
+			}
+		}
+	} elseif ( $field_name == 'tax_input' ) {
+		$types = explode( ',', $type );
+		$terms = get_terms( array(
+			'taxonomy'   	=> $types,
+			'hide_empty' 	=> $hide_empty,
+			'name__like' 	=> $s,
+			'exclude' 		=> $excluded_ids
+		) );
+
+		if ( ! empty( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$response['html'] .= list_item_html( $term->term_id, $term->name, $term->taxonomy );
+			}
+		}
+	}
+
+	wp_send_json($response);
+    wp_die();
+}
+function list_item_html( $id, $title, $taxonomy = '' ) {
+	$html = '
+	<li class="list_item" data-taxonomy="'.$taxonomy.'">
+		<label class="selectit">
+			<input value="'.$id.'" type="checkbox"> '.$title.'
+		</label>
+	</li>
+	';
+
+	return $html;
+}
+
 // Don't do anything if this file was called directly.
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitemapGeneratorLoader', false ) ) {
 	sm_setup();
@@ -552,5 +619,9 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) && ! class_exists( 'GoogleSitema
 	add_action('wp_ajax_disable_plugins', 'disable_plugins_callback');
 
 	add_action('admin_notices', 'conflict_plugins_admin_notice');
+
+	add_action('wp_ajax_list_search' , 'list_search');
+
+	add_action( 'setup_theme', [ 'Sitemap_Dynamic_Rewrites', 'instance' ], 1 );
 
 }

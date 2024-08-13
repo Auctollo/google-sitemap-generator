@@ -773,8 +773,24 @@ msgstr ""
 msgid "Excluded categories"
 msgstr ""
 
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1727
+msgid "Excluded post tags"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1741
+msgid "Excluded custom taxonomies"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1758
+msgid "Excluded products categories"
+msgstr ""
+
 #: C:\Inetpub\wwwroot\wp_svn\wp-content\plugins\sitemap_beta/sitemap-ui.php:1152
 msgid "Exclude posts"
+msgstr ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratorui.php:1776
+msgid "Search by title"
 msgstr ""
 
 # C:\Inetpub\wwwroot\wp\wp-content\plugins\sitemap_beta/sitemap.php:3206
@@ -910,6 +926,10 @@ msgstr ""
 #: C:\Inetpub\wwwroot\wp_svn\wp-content\plugins\sitemap_beta/sitemap.php:95
 #, php-format
 msgid ""
+
+#: \wp-content\plugins\google-sitemap-generator\class-googlesitemapgeneratordynamicrewrites.php:67
+msgid "The %1$s class must not be instantiated before the %2$s global is set."
+msgstr ""
 "Unfortunately this release of Google XML Sitemaps requires at least PHP "
 "%4$s. You are using PHP %2$s, which is out-dated and insecure. Please ask "
 "your web host to update your PHP installation or go to <a href=\"%1$s"

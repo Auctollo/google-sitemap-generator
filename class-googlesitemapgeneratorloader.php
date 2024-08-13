@@ -36,6 +36,9 @@ class GoogleSitemapGeneratorLoader {
 		// Register the sitemap creator to WordPress...
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_page' ) );
 
+		// Add meta box for CPT and Taxonomies.
+		add_action( 'init', array( __CLASS__, 'add_meta_box' ), 16, 0 );
+
 		// Add a widget to the dashboard.
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'wp_dashboard_setup' ) );
 
@@ -126,7 +129,7 @@ class GoogleSitemapGeneratorLoader {
 
 		add_filter( 'query_vars', array( __CLASS__, 'register_query_vars' ), 1, 1 );
 
-		add_filter( 'template_redirect', array( __CLASS__, 'do_template_redirect' ), 1, 0 );
+		add_filter( 'pre_get_posts', array( __CLASS__, 'redirect' ), 1, 1 );
 
 	}
 
@@ -142,6 +145,54 @@ class GoogleSitemapGeneratorLoader {
 		return $vars;
 	}
 
+	public static function get_rewrite_rules() {
+
+		self::load_plugin();
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$gsg->initate();
+
+		$sm_rules = array(
+			'sitemap\.xml$' => 'index.php?xml_sitemap=index&params=index',
+			'sitemap-misc\.xml$' => 'index.php?xml_sitemap=misc&params=$matches[2]',
+			'([^/]+?)-sitemap([0-9]+)?\.xml$' =>'index.php?xml_sitemap=$matches[1]&params=$matches[2]',
+		);
+
+		// HTML
+		if ( $gsg->is_xsl_enabled() && true === $gsg->get_option( 'b_html' ) ) {
+			$sm_html_rules = array();
+			foreach ( $sm_rules as $regex => $query ) {
+				$sm_html_rules[str_replace('.xml', '.html', $regex)] = $query . ';html=true';
+			}
+			$sm_rules = array_merge( $sm_rules, $sm_html_rules );
+		}
+
+		// ZIP
+		if ( $gsg->is_gzip_enabled() ) {
+			foreach ( $sm_rules as $regex => $query ) {
+				$sm_zip_rules[str_replace( array( '.xml', '.html' ), array( '.xml\.gz', '.html\.gz' ), $regex)] = $query . ';zip=true';
+			}
+			$sm_rules = array_merge( $sm_rules, $sm_zip_rules );
+		}
+
+		if(is_multisite()) {
+			if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
+				$sm_sitemap_name = get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'];
+			}
+		} else if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
+		if(!isset($sm_sitemap_name)) $sm_sitemap_name = 'sitemap';
+
+		if ( $sm_sitemap_name != 'sitemap' ) {
+			$modified_sm_rules = [];
+			foreach ( $sm_rules as $regex => $query ) {
+				$modified_regex = str_replace(["'sitemap","-sitemap" ], ["'".$sm_sitemap_name, "-".$sm_sitemap_name] , $regex);
+				$modified_sm_rules[$modified_regex] = $query;
+			}
+			$sm_rules = $modified_sm_rules;
+		}
+
+		return apply_filters( 'sm_rewrite_rules', $sm_rules );
+	}
+
 	/**
 	 * Registers the plugin specific rewrite rules
 	 *
@@ -151,28 +202,13 @@ class GoogleSitemapGeneratorLoader {
 	 * @param array $wp_rules Array of existing rewrite rules .
 	 * @return Array An array containing the new rewrite rules
 	 */
-	public static function add_rewrite_rules( $wp_rules ) {
-		if(is_multisite()) {
-			if(isset(get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'])) {
-				$sm_sitemap_name = get_blog_option( get_current_blog_id(), 'sm_options' )['sm_b_sitemap_name'];
-			}
-		} else if(isset(get_option('sm_options')['sm_b_sitemap_name'])) $sm_sitemap_name = get_option('sm_options')['sm_b_sitemap_name'];
-		if(!isset($sm_sitemap_name)) $sm_sitemap_name = 'sitemap';
-		$sm_rules = array(
-			'.*-misc\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*-misc\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*-misc\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*-misc\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*-sitemap(?:\d{1,4}(?!-misc)|-misc)?\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.xml$' => 'index.php?xml_sitemap=params=$matches[2]',
-			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.html$' => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			$sm_sitemap_name . '(?:\d{1,4}(?!-misc)|-misc)?\.html.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',
-		);
-		return array_merge( $sm_rules, $wp_rules );
+	public static function add_rewrite_rules( $dynamic_rewrites ) {
+
+		$sm_rules = self::get_rewrite_rules();
+
+		foreach ( $sm_rules as $regex => $query) {
+			$dynamic_rewrites->add_rule( $regex, $query, 'top' );
+		}
 	}
 
 	/**
@@ -181,59 +217,15 @@ class GoogleSitemapGeneratorLoader {
 	 * @return string[]
 	 */
 	public static function get_ngin_x_rules() {
-		return array(
-			'rewrite ^/.*-misc?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			'rewrite ^/.*-misc?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			'rewrite ^/.*-misc?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			'rewrite ^/.*-misc?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
 
-			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml$ "/index.php?xml_sitemap=params=$2" last;',
-			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.xml\.gz$ "/index.php?xml_sitemap=params=$2;zip=true" last;',
-			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html$ "/index.php?xml_sitemap=params=$2;html=true" last;',
-			'rewrite ^/.*-sitemap.*(?:\d{1,4}(?!-misc)|-misc)?\.html.gz$ "/index.php?xml_sitemap=params=$2;html=true;zip=true" last;',
-		);
+		$sm_rules = self::get_rewrite_rules();
 
-	}
-
-	/**
-	 * Adds the filters for wp rewrite rule adding
-	 *
-	 * @since 4.0
-	 * @uses add_filter()
-	 */
-	public static function setup_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'add_rewrite_rules' ), 1, 1 );
-	}
-
-	/**
-	 * Deregisters the plugin specific rewrite rules
-	 *
-	 * Combined: sitemap(-+([a-zA-Z0-9_-]+))?\.(xml|html)(.gz)?$
-	 *
-	 * @since 4.0
-	 * @param array $wp_rules Array of existing rewrite rules .
-	 * @return Array An array containing the new rewrite rules
-	 */
-	public static function remove_rewrite_rules( $wp_rules ) {
-		$sm_rules = array(
-			'.*\.xml$'     => 'index.php?xml_sitemap=params=$matches[2]',
-			'.*\.xml\.gz$' => 'index.php?xml_sitemap=params=$matches[2];zip=true',
-			'.*\.html$'    => 'index.php?xml_sitemap=params=$matches[2];html=true',
-			'.*\.html\.gz$' => 'index.php?xml_sitemap=params=$matches[2];html=true;zip=true',		
-		);
-		foreach ( $wp_rules as $key => $value ) {
-			if ( array_key_exists( $key, $sm_rules ) ) {
-				unset( $wp_rules[ $key ] );
-			}
+		$ngin_x_rules = array();
+		foreach ( $sm_rules as $regex => $query) {
+			$ngin_x_rules[] = 'rewrite ^/' . $regex . ' "/' . str_replace( array( '$matches[1]', '$matches[2]' ), array( '$1', '$2' ), $query ) . '" last;';
 		}
-		return $wp_rules;
-	}
+		return $ngin_x_rules;
 
-	/**
-	 * Remove rewrite hooks method
-	 */
-	public static function remove_rewrite_hooks() {
-		add_filter( 'rewrite_rules_array', array( __CLASS__, 'remove_rewrite_rules' ), 1, 1 );
 	}
 
 	/**
@@ -257,8 +249,6 @@ class GoogleSitemapGeneratorLoader {
 	 * @since 4.0
 	 */
 	public static function activate_plugin() {
-		self::setup_rewrite_hooks();
-		self::activate_rewrite();
 
 		self::activation_indexnow_setup(); //activtion indexNow
 
@@ -278,28 +268,60 @@ class GoogleSitemapGeneratorLoader {
 	 * @since 4.0
 	 */
 	public static function deactivate_plugin() {
-		global $wp_rewrite;
 		delete_option( 'sm_rewrite_done' );
 		wp_clear_scheduled_hook( 'sm_ping_daily' );
-		self::remove_rewrite_hooks();
-		$wp_rewrite->flush_rules( false );
 		self::deactivation_indexnow(); // deactivation indexNow plugin
 	}
-
 
 	/**
 	 * Handles the plugin output on template redirection if the xml_sitemap query var is present.
 	 *
 	 * @since 4.0
 	 */
-	public static function do_template_redirect() {
+	public static function redirect( $query ) {
+		if ( ! $query->is_main_query() ) {
+			return;
+		}
+		
 		// @var $wp_query WP_Query .
 		global $wp_query;
-		if ( ! empty( $wp_query->query_vars['xml_sitemap'] ) ) {
-			$wp_query->is_404  = false;
-			$wp_query->is_feed = true;
-			self::call_show_sitemap( $wp_query->query_vars['xml_sitemap'] );
+		$options = $wp_query->query_vars['xml_sitemap'];
+
+		if ( ! empty( $options ) ) {
+			$newFormat = self::change_url_to_required();
+			if ( $newFormat ) $options = $newFormat;
+
+			$parsed_options = array();
+			$options = explode( ';', $options );
+			foreach ( $options as $k ) {
+				$kv                       = explode( '=', $k );
+				$parsed_options[ $kv[0] ] = $kv[1];
+			}
+			$options = $parsed_options;
+
+			$all_params = $options['params'];
+			$type       = null;
+			if ( strpos( $all_params, '-' ) !== false ) {
+				$type = substr( $all_params, 0, strpos( $all_params, '-' ) );
+				if ( $type === 'pt' && explode("-", $all_params)[1] === 'externals' ) {
+					$type = 'externals';
+				}
+			} else {
+				$type = $all_params;
+			}
+		
+			if ( in_array( $type, GoogleSitemapGenerator::get_providers() ) ) {
+				$wp_query->is_404  = false;
+				$wp_query->is_feed = true;
+				self::call_show_sitemap( $options );
+			} else {
+				$wp_query->set_404();
+				status_header( 404 );
+
+				return;
+			}
 		}
+		return;
 	}
 
 	/**
@@ -309,6 +331,106 @@ class GoogleSitemapGeneratorLoader {
 	 */
 	public static function register_admin_page() {
 		add_options_page( __( 'XML-Sitemap Generator', 'google-sitemap-generator' ), __( 'XML-Sitemap', 'google-sitemap-generator' ), 'administrator', self::get_base_name(), array( __CLASS__, 'call_html_show_options_page' ) );
+	}
+
+	/**
+	 * Add meta boxe
+	 *
+	 * @return void
+	 */
+	public static function add_meta_box() {
+		if ( self::load_plugin() ) {
+			$gsg = GoogleSitemapGenerator::get_instance();
+			$gsg->initate();
+
+			// Meta Boxes for post types
+			$enabled_post_types = $gsg->get_active_post_types();
+			if ( ! empty( $enabled_post_types ) ) {
+				foreach ( $enabled_post_types as $enabled_post_type ) {
+					// Add meta box
+					add_action( "add_meta_boxes_{$enabled_post_type}" , function ( $post ) {
+						$gsg = GoogleSitemapGenerator::get_instance();
+						$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
+						add_meta_box( "sm_meta_box_for_{$post->post_type}", __( 'Indexation', 'google-sitemap-generator' ), array( __CLASS__, 'call_html_post_types_meta_box' ), null, 'side', 'default', [ 'excluded_post_ids' => $excluded_post_ids ] );
+					} );
+					// Save meta box data
+					add_action( "save_post_{$enabled_post_type}", array( __CLASS__, 'save_meta_post_types_boxes_data' ), 10, 2 );
+				}
+			}
+
+			// Meta Boxes for taxonomies
+			$taxonomies = get_taxonomies( array( 'public' => 1 ) );
+			if ( ! empty( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+					// Add meta box
+					add_action( "{$taxonomy}_add_form_fields" , array( __CLASS__, 'call_html_taxonomies_meta_box' ), 10, 1 );
+					// Save meta box data
+					add_action( "create_{$taxonomy}", array( __CLASS__, 'save_taxonomies_meta_boxes_data' ), 10, 3 );
+				}
+			}
+
+			// Meta Boxes for terms
+			$taxonomies = $gsg->get_active_taxonomies();
+			if ( ! empty( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+					// Add meta box
+					add_action( "{$taxonomy}_edit_form_fields" , array( __CLASS__, 'call_html_terms_meta_box' ), 10, 2 );
+					// Save meta box data
+					add_action( "edited_{$taxonomy}", array( __CLASS__, 'save_taxonomies_meta_boxes_data' ), 10, 3 );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Save post types meta bboxes data
+	 *
+	 * @param [type] $post_id
+	 * @param [type] $post
+	 * @return void
+	 */
+	public static function save_meta_post_types_boxes_data( $post_id, $post ) {
+		// bail out if this is an autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$excluded_post_ids = $gsg->get_excluded_post_ids( $gsg );
+		$is_for_exclude = isset( $_REQUEST['sm_b_exclude'] );
+		$changed_excluded_post_ids = $gsg->is_changed( $post_id, $excluded_post_ids, $is_for_exclude );
+
+		// Save changes
+		if ( $changed_excluded_post_ids !== false ) {
+			$gsg->set_option( 'b_exclude', $changed_excluded_post_ids );
+			$gsg->save_options();
+		}
+	}
+
+	/**
+	 * Save taxonomies meta boxes data
+	 *
+	 * @param [type] $term_id
+	 * @param [type] $tt_id
+	 * @param [type] $args
+	 * @return void
+	 */
+	public static function save_taxonomies_meta_boxes_data( $term_id, $tt_id, $args ) {
+		// bail out if this is an autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$gsg = GoogleSitemapGenerator::get_instance();
+		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
+		$is_for_exclude = isset( $args['sm_in_cats'] ) || isset( $args['sm_in_tags'] ) || isset( $args['sm_in_tax'] );
+		$changed_excl_cats = $gsg->is_changed( $term_id, $excl_cats, $is_for_exclude );
+
+		// Save changes
+		if ( $changed_excl_cats !== false ) {
+			$gsg->set_option( 'sm_b_exclude_cats', $changed_excl_cats );
+			$gsg->save_options();
+		}
 	}
 
 	/**
@@ -767,6 +889,43 @@ class GoogleSitemapGeneratorLoader {
 	}
 
 	/**
+	 * Invokes the HtmlShowOptionsPage method of the generator
+	 *
+	 * @param [type] $post
+	 * @param [type] $metabox
+	 * @return void
+	 */
+	public static function call_html_post_types_meta_box( $post, $metabox ) {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_post_types_meta_box( $post, $metabox );
+		}
+	}
+
+	/**
+	 * Invokes the HtmlShowTaxonomiesMetaBox method of the generator
+	 *
+	 * @param [type] $taxonomy
+	 * @return void
+	 */
+	public static function call_html_taxonomies_meta_box( $taxonomy ) {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_taxonomies_meta_box( $taxonomy );
+		}
+	}
+
+	/**
+	 * Invokes the HtmlShowTermsMetaBox method of the generator
+	 *
+	 * @param [type] $term
+	 * @return void
+	 */
+	public static function call_html_terms_meta_box( $term ) {
+		if ( self::load_plugin() ) {
+			GoogleSitemapGenerator::get_instance()->html_show_terms_meta_box( $term );
+		}
+	}
+
+	/**
 	 * Invokes the ShowPingResult method of the generator
 	 *
 	 * @uses GoogleSitemapGeneratorLoader::load_plugin()
@@ -810,9 +969,6 @@ class GoogleSitemapGeneratorLoader {
 	 * @uses GoogleSitemapGenerator::ShowSitemap()
 	 */
 	public static function call_show_sitemap( $options ) {
-		$newFormat = self::change_url_to_required();
-		if($newFormat) $options = $newFormat;
-
 		if ( self::load_plugin() ) {
 			GoogleSitemapGenerator::get_instance()->show_sitemap( $options );
 		}
@@ -846,7 +1002,9 @@ class GoogleSitemapGeneratorLoader {
 							$postType[0] = end($array);
 						}
 
-						if(count($postType) > 1 ){
+						if ( $postType[0] === 'sitemap.xml' || $postType[0] === 'sitemap.html' ) {
+							return 'params=index';
+						} elseif ( count($postType) > 1 ) {
 							preg_match('/\d+/', $postType[1], $matches);
 							if(empty($matches)) $matches[0] = 1;
 							if($postType[0] === 'sitemap') return 'params=misc';
@@ -855,7 +1013,8 @@ class GoogleSitemapGeneratorLoader {
 							else if($postType[0] === 'authors' || $postType[0] === 'archives') return 'params=' . $postType[0];
 							else if($postType[0] === 'productcat') return 'params=productcat-' . $matches[0];
 							else if($postType[0] === 'producttags') return 'params=producttags-' . $matches[0];
-							else return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
+							else if(post_type_exists($postType[0])) return 'params=pt-' . $postType[0] . '-p' . $matches[0] . '-2023-11';
+							else return 'params=' . $postType[0];
 						}
 					}
 				}
@@ -1317,5 +1476,5 @@ if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) ) {
 	// Set up hooks for adding permalinks, query vars.
 	// Don't wait until init with this, since other plugins might flush the rewrite rules in init already...
 	GoogleSitemapGeneratorLoader::setup_query_vars();
-	GoogleSitemapGeneratorLoader::setup_rewrite_hooks();
+	add_action( 'sm_add_dynamic_rewrite_rules', [ 'GoogleSitemapGeneratorLoader', 'add_rewrite_rules' ] );
 }
