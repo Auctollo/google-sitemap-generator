@@ -2257,6 +2257,16 @@ final class GoogleSitemapGenerator {
 			$allowedposttags['a']        = $allowed_atts;
 			$allowedposttags['b']        = $allowed_atts;
 			$allowedposttags['i']        = $allowed_atts;
+
+			$allowedposttags['meta']	 = array(
+				'name' 			=> array(),
+				'content' 		=> array(),
+				'http-equiv' 	=> array(),
+			);
+			$allowedposttags['html'] 	 = array(
+				'lang' => array(),
+			);
+			
 			foreach ( $dom_tran_obj->childNodes as $node ) {
 			// phpcs:enable
 				echo wp_kses( $dom_tran_obj->saveXML( $node ), $allowedposttags ) . "\n";

@@ -10,6 +10,7 @@
 			<head>
 				<title>XML Sitemap</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+				<meta name="description" content="This file was dynamically generated using the WordPress content management system and XML Sitemap Generator for Google by Auctollo." />
 				<style type="text/css">
 					body {
 						font-family:"Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
