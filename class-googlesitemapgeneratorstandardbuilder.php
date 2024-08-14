@@ -323,17 +323,22 @@ class GoogleSitemapGeneratorStandardBuilder {
 						}
 
                         if ($index !== null) {
-                            if ($postLinkArr[$index] !== $defaultLanguageCode) {
-                                $custom_post_type_name = get_post_type($post);
-                                if (!in_array($custom_post_type_name, $postLinkArr)) {
-                                    $key = array_search('%postname%', $structurekArr);
-                                    if ($structurekArr[$key] === '%postname%') {
-                                        $postLinkArr[$index + $key] = $post->post_name;
-                                    }
-                                }
-                                $permalink = implode('/', $postLinkArr);
-                            }
-                        }
+							if ($postLinkArr[$index] !== $defaultLanguageCode) {
+								$custom_post_type_name = get_post_type($post);
+								if (!in_array($custom_post_type_name, $postLinkArr)) {
+									foreach($structurekArr as $key => $value) {
+										if ($value == '%postname%') {
+											$current_key = array_search($post->post_name, $postLinkArr);
+											unset($postLinkArr[$current_key]);
+											$postLinkArr[$index + $key] = $post->post_name;
+											ksort($postLinkArr);
+										}
+									}
+								}
+								$permalink = implode('/', $postLinkArr);
+								$permalink = user_trailingslashit($permalink);
+							}
+						}
 					}
 
 					// Exclude the home page and placeholder items by some plugins. Also include only internal links.
