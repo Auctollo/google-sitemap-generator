@@ -512,27 +512,14 @@ function conflict_plugins_admin_notice(){
 	GoogleSitemapGeneratorLoader::create_notice_conflict_plugin();
 }
 
- /* send to index updated url */
+/* send to index updated url */
 function indexnow_after_post_save($new_status, $old_status, $post) {
+
 	$indexnow = get_option('sm_options');
 	$indexNowStatus = isset($indexnow['sm_b_indexnow']) ? $indexnow['sm_b_indexnow'] : false;
-	if ($indexNowStatus === true) {
-	    $newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
-		$is_changed = false;
-		$type = "add";
-		if ($old_status === 'publish' && $new_status === 'publish') {
-			$is_changed = true;
-			$type = "update";
-		}
-		else if ($old_status != 'publish' && $new_status === 'publish') {
-			$is_changed = true;
-			$type = "add";
-		}
-		else if ($old_status === 'publish' && $new_status === 'trash') {
-			$is_changed = true;
-			$type = "delete";
-		}
-		if ($is_changed) $newUrlToIndex->start(get_permalink($post));
+
+	if ( $indexNowStatus === true && $post->post_type !== 'revision' ) {
+	    GoogleSitemapGeneratorIndexNow::create_task( $post );
     }
 }
 
