@@ -6,7 +6,6 @@ class GoogleSitemapGeneratorIndexNow {
     private static $siteUrl;
     private static $version;
     private static $prefix = "gsg_indexnow-";
-	private static $table_name = 'sm_indexnow_tasks';
 
     public static function start( $indexUrl ) {
 		self::$siteUrl = get_home_url();
@@ -75,31 +74,10 @@ class GoogleSitemapGeneratorIndexNow {
 
     }
 
-	public static function create_table() {
-		global $wpdb;
-		$charset_collate = $wpdb->get_charset_collate();
-		
-		$sql = "CREATE TABLE {$wpdb->prefix}" . self::$table_name . " (
-			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			link TEXT NOT NULL,
-			status VARCHAR(20) NOT NULL DEFAULT 'pending',
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			PRIMARY KEY (id),
-			UNIQUE (link(255))
-		) $charset_collate;";
-		
-		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-		dbDelta($sql);
-	}
-
 	public static function create_task( $post ) {
-		global $wpdb;
-
-		$wpdb->insert( $wpdb->prefix . self::$table_name, array(
-            'link' 			=> get_permalink( $post ), 
-            'status' 		=> 'pending'
-		), array( '%s', '%s' ));
+		if ( get_post_meta( $post->ID, 'indexnow_status', true ) == "" ) {
+			update_post_meta( $post->ID, 'indexnow_status', 'pending' );
+		}
 	}
 
 	public static function add_cron_schedule() {
@@ -124,30 +102,37 @@ class GoogleSitemapGeneratorIndexNow {
 	}
 
 	public static function process_pending_tasks() {
-		global $wpdb;
-		$tasks = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}" . self::$table_name . " WHERE status = 'pending'" );
+		$args = array(
+			'meta_key' => 'indexnow_status',
+			'meta_value' => 'pending',
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'posts_per_page' => -1
+		);
+		$posts = get_posts( $args );
 
-		foreach ( $tasks as $task ) {
-			$response = self::start( get_permalink( $task->link ) );
+		foreach ( $posts as $post ) {
+			$response = self::start( get_permalink( $post ) );
 
 			if ( $response === 'success' ) {
-				$wpdb->update(
-					"{$wpdb->prefix}" . self::$table_name,
-					array( 'status' => 'completed' ),
-					array( 'id' => $task->id )
-				);
+				update_post_meta( $post->ID, 'indexnow_status', 'completed' );
 			}
 		}
 	}
 
 	public static function clean_up_old_tasks() {
-		global $wpdb;
-		// Delete tasks that were processed more than 30 days ago
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->prefix}" . self::$table_name . " WHERE status = 'completed' AND updated_at < NOW() - INTERVAL 30 DAY"
-			)
+		$args = array(
+			'meta_key' => 'indexnow_status',
+			'meta_value' => 'completed',
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'posts_per_page' => -1
 		);
+		$posts = get_posts( $args );
+
+		foreach ( $posts as $post ) {
+			delete_post_meta( $post->ID, 'indexnow_status' );
+		}
 	}
 
 	public static function set_api_key() {
@@ -201,7 +186,6 @@ class GoogleSitemapGeneratorIndexNow {
 
 	public static function activation() {
 		self::set_api_key();
-		self::create_table();
 		self::add_cron_schedule();
 	}
 
