@@ -285,7 +285,7 @@ class GoogleSitemapGeneratorLoader {
 		
 		// @var $wp_query WP_Query .
 		global $wp_query;
-		$options = $wp_query->query_vars['xml_sitemap'];
+		$options = isset( $wp_query->query_vars['xml_sitemap'] ) ? $wp_query->query_vars['xml_sitemap'] : false;
 
 		if ( ! empty( $options ) ) {
 			$newFormat = self::change_url_to_required();
