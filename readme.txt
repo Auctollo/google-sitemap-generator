@@ -1,9 +1,9 @@
 === XML Sitemap Generator for Google ===
 Contributors: auctollo
-Tags: xml sitemap, video sitemap, news sitemap, html sitemap, image sitemap
+Tags: SEO, xml sitemap, video sitemap, news sitemap, html sitemap
 Requires at least: 4.6
-Tested up to: 6.5
-Stable tag: 4.1.21
+Tested up to: 6.7
+Stable tag: 4.2
 Requires PHP: 5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -12,7 +12,7 @@ Generate multiple types of sitemaps to improve SEO and get your website indexed 
 
 == Description ==
 
-Generate XML, HTML, RSS sitemaps for your website with ease using the XML Sitemap Generator for Google. This plugin enables you to improve your SEO rankings by creating page, news, video, HTML, and RSS sitemaps. It also supports custom post types and taxonomies, allowing you to ensure that all of your content is being indexed by search engines. With a user-friendly interface, you can easily configure the plugin to suit your needs and generate sitemaps in just a few clicks. Keep your website up-to-date and make sure that search engines are aware of all of your content by using the XML Sitemap Generator for Google.
+Generate XML and HTML sitemaps for your website with ease using the XML Sitemap Generator for Google. This plugin enables you to improve your SEO rankings by creating page, image, news, video, HTML, and RSS sitemaps. It also supports custom post types and taxonomies, allowing you to ensure that all of your content is being indexed by search engines. With a user-friendly interface, you can easily configure the plugin to suit your needs and generate sitemaps in just a few clicks. Keep your website up-to-date and make sure that search engines are aware of all of your content by using the XML Sitemap Generator for Google.
 
 The plugin supports all kinds of WordPress generated pages as well as custom URLs. Additionally it notifies all major search engines every time you create a post about the new content.
 
@@ -100,6 +100,14 @@ Please post your question at the [WordPress support forum](https://wordpress.org
 
 
 == Changelog ==
+
+= 4.2 (2024-10-20) =
+* Fixed XSL syntax and localization issues
+* Fixed incorrect multi-lingual URLs
+* Fixed empty pages array
+* Fixed WP Query PHP notice
+* Improved interoperability by removing rewrites for most use cases
+* Added search to settings and improved user interface
 
 = 4.1.21 (2024-04-21) =
 * Fixed a regression with saving post/page exclusions.
