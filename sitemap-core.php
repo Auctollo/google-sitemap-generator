@@ -2563,8 +2563,7 @@ final class GoogleSitemapGenerator {
 					$url = $ping_url;
 					$status->start_ping( $service_id, $url, $service['name'] );
 	
-					$newUrlToIndex = new GoogleSitemapGeneratorIndexNow();
-					$pingres = $newUrlToIndex->start( $url );
+					$pingres = GoogleSitemapGeneratorIndexNow::start( $url );
 	
 					if ( null === $pingres || false === $pingres || false === strpos( $pingres, $service['check'] ) ) {
 						$status->end_ping( $service_id, false );
@@ -2892,7 +2891,7 @@ final class GoogleSitemapGenerator {
 				require_once $path . $file_name;
 			}
 
-			$this->ui = new $class_name( $this, new GoogleSitemapGeneratorIndexNow() );
+			$this->ui = new $class_name( $this );
 		}
 
 		return $this->ui;

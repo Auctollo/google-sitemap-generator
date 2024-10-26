@@ -17,7 +17,6 @@ class GoogleSitemapGeneratorUI {
 	 * @var GoogleSitemapGenerator
 	 */
 	private $sg = null;
-	private $index_now = null;
 	/**
 	 * Check if woo commerce is active or not .
 	 *
@@ -33,9 +32,8 @@ class GoogleSitemapGeneratorUI {
 	 *
 	 * @param GoogleSitemapGenerator $sitemap_builder s .
 	 */
-	public function __construct( GoogleSitemapGenerator $sitemap_builder, GoogleSitemapGeneratorIndexNow $index_now) {
+	public function __construct( GoogleSitemapGenerator $sitemap_builder) {
 		$this->sg = $sitemap_builder;
-		$this->index_now = $index_now;
 	}
 	/**
 	 * Constructor function.
@@ -1575,7 +1573,7 @@ class GoogleSitemapGeneratorUI {
 												'strong' => array(),
 											);
 											if ($this->sg->get_option('b_indexnow') && 
-												$api_key = $this->index_now->getApiKey()) {
+												$api_key = GoogleSitemapGeneratorIndexNow::get_api_key()) {
 												esc_html_e(sprintf(__('Microsoft Bing API Key: %s', 'google-sitemap-generator'), $api_key));
 												echo '<br/>';
 											}
