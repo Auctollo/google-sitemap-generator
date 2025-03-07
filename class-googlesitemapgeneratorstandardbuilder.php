@@ -561,7 +561,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 
 		if ( $authors && is_array( $authors ) ) {
 			$authors = $this->exclude_authors( $authors );
-			
+
 			if ( ! empty( $authors ) ) {
 				foreach ( $authors as $author ) {
 					$url = get_author_posts_url( $author->ID, $author->user_nicename );
@@ -572,7 +572,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 						$gsg->get_option( 'pr_auth' )
 					);
 				}
-			}	
+			}
 		}
 	}
 
@@ -687,7 +687,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 			$terms = array_values(
 				array_unique(
 					array_filter(
-						$this->get_terms($queryArr, $gsg),
+						$this->get_terms($gsg, $queryArr),
 						function ($term) use ($taxonomy) {
 							return $term->taxonomy === $taxonomy;
 						}
@@ -695,9 +695,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 					SORT_REGULAR
 				)
 			);
-			
+
 			remove_filter( 'get_terms_fields', array( $this, 'filter_terms_query' ), 20, 2 );
-	
+
 			//$terms = array_values(array_unique($terms, SORT_REGULAR));
 
 			/**
@@ -744,7 +744,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 	}
 
 	/*
-		get last updated date of taxonomy post 
+		get last updated date of taxonomy post
 		returns timestamp (int)
 	*/
 	private function getTaxonomyUpdatedDate($term_id){
@@ -759,9 +759,9 @@ class GoogleSitemapGeneratorStandardBuilder {
 			ORDER BY p.post_date DESC
 			LIMIT 1
 		", $term_id);
-	
+
 		$post = $wpdb->get_row($query);
-	
+
 		if ($post) {
 			return strtotime($post->post_date);
 		}
@@ -883,14 +883,14 @@ class GoogleSitemapGeneratorStandardBuilder {
 			'orderby' => 'modified',
 			'order' => 'DESC',
 		);
-	
+
 		$products = new WC_Product_Query($args);
 		$product_results = $products->get_products();
 
 		if ($product_results) {
 			$product = array_shift($product_results);
 			$updated_date = strtotime($product->get_date_modified()->date('Y-m-d H:i:s'));
-	
+
 			return $updated_date;
 		}
 		return false;
@@ -956,11 +956,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 		} else {
 			$taxonomies_to_exclude = array_merge( $taxonomies_to_exclude, $default_taxonomies_to_exclude );
 		}
-		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );	
+		$enabled_taxonomies = $this->get_enabled_taxonomies( $gsg );
 		$excl_cats = $gsg->get_option( 'b_exclude_cats' );
-		$excludes = $excl_cats ? $excl_cats : array();	
+		$excludes = $excl_cats ? $excl_cats : array();
 		$terms_by_taxonomy = array();
-		
+
 		foreach ( $enabled_taxonomies as $taxonomy ) {
 			if ( ! in_array( $taxonomy, $taxonomies_to_exclude, true ) ) {
 				$terms_args = [
@@ -968,11 +968,11 @@ class GoogleSitemapGeneratorStandardBuilder {
 					'exclude' => $excludes
 				];
 				$terms_args['hide_empty'] = apply_filters( 'sm_sitemap_taxonomy_hide_empty', true );
-				$terms = $this->get_terms( $terms_args, $gsg );
+				$terms = $this->get_terms( $gsg, $terms_args );
 				$terms_by_taxonomy[ $taxonomy ] = $terms;
 			}
 		}
-		
+
 		foreach ( $terms_by_taxonomy as $taxonomy => $terms ) {
 			$step = 1;
 			$i = 0;
@@ -1163,7 +1163,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 		return $urls;
 	}
 
-	public function get_terms( $args = [], $gsg ) {
+	public function get_terms( $gsg, $args = [] ) {
 		global $wpdb;
 
 		$taxonomy = ( isset( $args['taxonomy'] ) && null !== $args['taxonomy'] ) ? $args['taxonomy'] : false;
@@ -1195,10 +1195,10 @@ class GoogleSitemapGeneratorStandardBuilder {
 				$sql .= ' OFFSET ' . $args['offset'];
 			}
 		}
-		
+
 		$result = $wpdb->get_results($sql);
-		
-		return $result; 
+
+		return $result;
 	}
 }
 
